@@ -1,0 +1,54 @@
+{
+  "name": "mybricks-app-th5",
+  "version": "1.0.0",
+  "description": "mybricks H5页面",
+  "main": "index.js",
+  "scripts": {
+    "start:watch": "nodemon --ext js,ts --exec 'NODE_ENV=development MYBRICKS_PLATFORM_ADDRESS=http://localhost:3100 node nodejs/index.js'",
+    "watch:be": "nodemon --ext js,ts --exec 'NODE_ENV=development MYBRICKS_PLATFORM_ADDRESS=https://my.mybricks.world node nodejs/index.js'",
+    "watch:testweb": "nodemon --ext js,ts --exec 'NODE_ENV=development MYBRICKS_PLATFORM_ADDRESS=http://testweb.manateeai.com node nodejs/index.js'",
+    "build:fe": "cd pages && npm run build",
+    "publishToNpm:serviceUpdate": "npm run build:fe && npm publish --registry=https://registry.npmjs.org && node sync.js --origin=https://my.mybricks.world",
+    "publishToNpm": "npm run build:fe && npm publish --registry=https://registry.npmjs.org && node sync.js --origin=https://my.mybricks.world --noServiceUpdate",
+    "publishToNpm:beta": "npm run build:fe && npm publish --tag beta --registry=https://registry.npmjs.org --access=public && node sync.js --origin=https://my.mybricks.world"
+  },
+  "dependencies": {
+    "@mybricks/rocker-dao": "^0.0.6",
+    "@mybricks/sdk-for-app": "^0.1.85",
+    "@nestjs/common": "^8.0.0",
+    "@nestjs/core": "^8.0.0",
+    "@nestjs/platform-express": "^8.0.0",
+    "axios": "^1.4.0",
+    "dayjs": "^1.11.5",
+    "form-data": "^4.0.0",
+    "lodash": "^4.17.21",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^7.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.4.0",
+    "jszip": "^3.10.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mybricks-team/mybricks-app-th5.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mybricks-team/mybricks-app-th5/issues"
+  },
+  "homepage": "https://github.com/mybricks-team/mybricks-app-th5#readme",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "mybricks": {
+    "extName": "th5-page",
+    "icon": "https://ali-ec.static.yximgs.com/udata/pkg/eshop/chrome-plugin-upload/2023-09-04/1693795073550.4a653118ee30e05d.svg",
+    "title": "H5页面",
+    "setting": "setting.html"
+  }
+}
