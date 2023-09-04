@@ -1,4 +1,5 @@
 import ReactDOM from 'react-dom';
+import { call as callConnectorHttp } from '@mybricks/plugin-connector-http'
 import React from 'react'
 import { message } from 'antd'
 import { runJs } from './../../utils/runJs'
@@ -91,92 +92,71 @@ function Page({ props }) {
       silent: true,
       showErrorNotification: false,
       canvasElement: (props && props.container) || document.body,
-      get vars() {
-        // 环境变量
-        return {
-          get getExecuteEnv() {
-            return () => executeEnv
-          },
-          get getQuery() {
-            return () => {
-              return parseQuery(location.search)
-            }
-          },
-          get getProps() {
-            // 获取主应用参数方法，如：token等参数，取决于主应用传入
-            return () => {
-              if (!props) return undefined
-              return props
-            }
-          },
-          get getCookies() {
-            return () => {
-              const cookies = document.cookie
-                .split('; ')
-                .reduce((s, e) => {
-                  const p = e.indexOf('=')
-                  s[e.slice(0, p)] = e.slice(p + 1)
-                  return s
-                }, {})
+      // get vars() {
+      //   // 环境变量
+      //   return {
+      //     // get getExecuteEnv() {
+      //     //   return () => executeEnv
+      //     // },
+      //     get getQuery() {
+      //       return () => {
+      //         return parseQuery(location.search)
+      //       }
+      //     },
+      //     get getProps() {
+      //       // 获取主应用参数方法，如：token等参数，取决于主应用传入
+      //       return () => {
+      //         if (!props) return undefined
+      //         return props
+      //       }
+      //     },
+      //     get getCookies() {
+      //       return () => {
+      //         const cookies = document.cookie
+      //           .split('; ')
+      //           .reduce((s, e) => {
+      //             const p = e.indexOf('=')
+      //             s[e.slice(0, p)] = e.slice(p + 1)
+      //             return s
+      //           }, {})
 
-              return cookies
-            }
-          },
-          get getRouter() {
-            const isUri = (url) => {
-              return /^http[s]?:\/\/([\w\-\.]+)+[\w-]*([\w\-\.\/\?%&=]+)?$/gi.test(
-                url
-              )
-            }
-            return () => ({
-              reload: () => location.reload(),
-              redirect: ({ url }) => location.replace(url),
-              back: () => history.back(),
-              forward: () => history.forward(),
-              pushState: ({ state, title, url }) => {
-                if (isUri(url)) {
-                  //兼容uri
-                  location.href = url
-                } else {
-                  history.pushState(state, title, url)
-                }
-              },
-              openTab: ({ url, title }) => open(url, title || '_blank'),
-            })
-          },
-        }
-      },
+      //         return cookies
+      //       }
+      //     },
+      //     get getRouter() {
+      //       const isUri = (url) => {
+      //         return /^http[s]?:\/\/([\w\-\.]+)+[\w-]*([\w\-\.\/\?%&=]+)?$/gi.test(
+      //           url
+      //         )
+      //       }
+      //       return () => ({
+      //         reload: () => location.reload(),
+      //         redirect: ({ url }) => location.replace(url),
+      //         back: () => history.back(),
+      //         forward: () => history.forward(),
+      //         pushState: ({ state, title, url }) => {
+      //           if (isUri(url)) {
+      //             //兼容uri
+      //             location.href = url
+      //           } else {
+      //             history.pushState(state, title, url)
+      //           }
+      //         },
+      //         openTab: ({ url, title }) => open(url, title || '_blank'),
+      //       })
+      //     },
+      //   }
+      // },
       projectId,
-      /** 调用领域模型 */
-      callDomainModel(domainModel, type, params) {
-        return window.pluginConnectorDomain.call(domainModel, params, {
-          action: type,
-          before(options) {
-            if (
-              ['domain', 'aggregation-model'].includes(domainModel.type)
-            ) {
-              let newOptions = { ...options }
-              if (projectId) {
-                Object.assign(newOptions.data, {
-                  projectId: projectId,
-                })
-              }
-              return {
-                ...newOptions,
-                // url: domainServicePath,
-              }
-            } else {
-              return options
-            }
-          },
-        })
-      },
-      callConnector(connector, params, privateDomainMap) {
+      callConnector(connector, params) {
         //调用连接器
-        if (connector.type === 'http' || connector.type === 'http-manatee') {
+        if (
+          connector.type === 'http' ||
+          connector.type === 'http-manatee'
+        ) {
           //服务接口类型
-          return window.pluginConnectorHttp.call(
-            { script: connector.script, params, executeEnv },
+          return callConnectorHttp(
+            { script: connector.script, useProxy: false, executeEnv },
             params
           )
         } else {
@@ -190,50 +170,43 @@ function Page({ props }) {
           ...(opts || {}),
         })
       },
-      get hasPermission() {
-        return ({ key }) => {
-          if (!projectJson?.hasPermissionFn) {
-            return true
-          }
+      // get hasPermission() {
+      //   return ({ key }) => {
+      //     if (!projectJson?.hasPermissionFn) {
+      //       return true
+      //     }
 
-          let result
+      //     let result
 
-          try {
-            result = runJs(decodeURIComponent(projectJson?.hasPermissionFn), [
-              { key },
-            ])
+      //     try {
+      //       result = runJs(decodeURIComponent(projectJson?.hasPermissionFn), [
+      //         { key },
+      //       ])
 
-            if (typeof result !== 'boolean') {
-              result = true
-              console.warn(
-                `权限方法返回值类型应为 Boolean 请检查，[key] ${key}; [返回值] type: ${typeof result}; value: ${JSON.stringify(
-                  result
-                )}`
-              )
-            }
-          } catch (error) {
-            result = true
-            console.error(`权限方法出错 [key] ${key}；`, error)
-          }
+      //       if (typeof result !== 'boolean') {
+      //         result = true
+      //         console.warn(
+      //           `权限方法返回值类型应为 Boolean 请检查，[key] ${key}; [返回值] type: ${typeof result}; value: ${JSON.stringify(
+      //             result
+      //           )}`
+      //         )
+      //       }
+      //     } catch (error) {
+      //       result = true
+      //       console.error(`权限方法出错 [key] ${key}；`, error)
+      //     }
 
-          return result
-        }
-      },
+      //     return result
+      //   }
+      // },
       // uploadFile: uploadApi,
     },
   })
 }
 
 function render(props) {
-
   ReactDOM.render(
-    React.createElement(
-      antd.ConfigProvider,
-      {
-        locale: antd.locale['zh_CN'].default,
-      },
-      React.createElement(Page, { props })
-    ),
+    <Page props={props} />,
     document.querySelector('#root')
   )
   return Promise.resolve()

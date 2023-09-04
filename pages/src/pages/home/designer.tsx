@@ -386,7 +386,7 @@ export default function MyDesigner({ appData }) {
             ...curToJSON,
             configuration: {
               // scripts: encodeURIComponent(scripts),
-              comlibs: curComLibs,
+              comlibs: [H5_BASIC_COM_LIB],
               title: ctx.fileItem.name,
               publisherEmail: ctx.user.email,
               publisherName: ctx.user?.name,

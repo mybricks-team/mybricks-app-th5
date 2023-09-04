@@ -12,7 +12,7 @@ import { FileInterceptor } from '@nestjs/platform-express'
 import Service from './service'
 
 @Controller('api/th5')
-export default class PcPageController {
+export default class Th5Controller {
   @Inject(Service)
   service: Service
 

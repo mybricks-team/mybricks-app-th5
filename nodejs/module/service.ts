@@ -123,29 +123,29 @@ export default class PcPageService {
       const domainName = process.env.NODE_ENV === 'development' ? 'http://localhost:3100' : getRealDomain(req)
       console.info("[publish] domainName is:", domainName);
 
-      let themesStyleStr = ''
+      // let themesStyleStr = ''
 
-      const themes = json?.plugins?.['@mybricks/plugins/theme/use']?.themes
-      if (Array.isArray(themes)) {
-        themes.forEach(({ namespace, content }) => {
-          const variables = content?.variables
+      // const themes = json?.plugins?.['@mybricks/plugins/theme/use']?.themes
+      // if (Array.isArray(themes)) {
+      //   themes.forEach(({ namespace, content }) => {
+      //     const variables = content?.variables
 
-          if (Array.isArray(variables)) {
-            let styleHtml = ''
+      //     if (Array.isArray(variables)) {
+      //       let styleHtml = ''
 
-            variables.forEach(({ configs }) => {
-              if (Array.isArray(configs)) {
-                configs.forEach(({ key, value }) => {
-                  styleHtml = styleHtml + `${key}: ${value};\n`
-                })
-              }
-            })
+      //       variables.forEach(({ configs }) => {
+      //         if (Array.isArray(configs)) {
+      //           configs.forEach(({ key, value }) => {
+      //             styleHtml = styleHtml + `${key}: ${value};\n`
+      //           })
+      //         }
+      //       })
 
-            styleHtml = `<style id="${namespace}">\n:root {\n${styleHtml}}\n</style>\n`
-            themesStyleStr = themesStyleStr + styleHtml
-          }
-        })
-      }
+      //       styleHtml = `<style id="${namespace}">\n:root {\n${styleHtml}}\n</style>\n`
+      //       themesStyleStr = themesStyleStr + styleHtml
+      //     }
+      //   })
+      // }
 
       console.info("[publish] getLatestPub begin");
       const latestPub = (await API.File.getLatestPub({
@@ -171,57 +171,57 @@ export default class PcPageService {
       }
 
       template = template.replace(`--title--`, title)
-        .replace(`<!-- themes-style -->`, themesStyleStr)
+        // .replace(`<!-- themes-style -->`, themesStyleStr)
         .replace(`-- comlib-rt --`, comLibRtScript)
         .replace(`"--projectJson--"`, JSON.stringify(json))
-        .replace(`"--executeEnv--"`, JSON.stringify(envType))
-        .replace(`"--slot-project-id--"`, projectId ? projectId : JSON.stringify(null));
+        // .replace(`"--executeEnv--"`, JSON.stringify(envType))
+        // .replace(`"--slot-project-id--"`, projectId ? projectId : JSON.stringify(null));
       let publishMaterialInfo
       const customPublishApi = await getCustomPublishApi()
       console.info("[publish] getCustomPublishApi=", customPublishApi);
-      let comboScriptText = '';
-      /** 生成 combo 组件库代码 */
-      if (needCombo) {
-        comboScriptText = await this._generateComLibRT(comlibs, json, {domainName, fileId, noThrowError: hasOldComLib});
-      }
+      // let comboScriptText = '';
+      // /** 生成 combo 组件库代码 */
+      // if (needCombo) {
+      //   comboScriptText = await this._generateComLibRT(comlibs, json, {domainName, fileId, noThrowError: hasOldComLib});
+      // }
 
       if (customPublishApi) {
-        const dataForCustom = {
-          env: envType,
-          productId: fileId,
-          productName: title,
-          publisherEmail,
-          publisherName: publisherName || '',
-          version,
-          commitInfo,
-          type: 'pc-page',
-          groupId,
-          groupName,
-          content: {
-            json: JSON.stringify(json),
-            html: template,
-            js: needCombo ? [{ name: `${fileId}-${version}.js`, content: comboScriptText }] : []
-          }
-        }
-        const { code, message, data } = await axios.post(customPublishApi, dataForCustom, {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }).then(res => res.data);
+        // const dataForCustom = {
+        //   env: envType,
+        //   productId: fileId,
+        //   productName: title,
+        //   publisherEmail,
+        //   publisherName: publisherName || '',
+        //   version,
+        //   commitInfo,
+        //   type: 'pc-page',
+        //   groupId,
+        //   groupName,
+        //   content: {
+        //     json: JSON.stringify(json),
+        //     html: template,
+        //     // js: needCombo ? [{ name: `${fileId}-${version}.js`, content: comboScriptText }] : []
+        //   }
+        // }
+        // const { code, message, data } = await axios.post(customPublishApi, dataForCustom, {
+        //   headers: {
+        //     'Content-Type': 'application/json'
+        //   }
+        // }).then(res => res.data);
 
-        if (code !== 1) {
-          throw new Error(`发布集成接口出错: ${message}`)
-        } else {
-          publishMaterialInfo = data
-        }
+        // if (code !== 1) {
+        //   throw new Error(`发布集成接口出错: ${message}`)
+        // } else {
+        //   publishMaterialInfo = data
+        // }
       } else {
         console.info("[publish] upload to static server");
-        needCombo && await API.Upload.staticServer({
-          content: comboScriptText,
-          folderPath: `${folderPath}/${envType || 'prod'}`,
-          fileName: `${fileId}-${version}.js`,
-          noHash: true
-        })
+        // needCombo && await API.Upload.staticServer({
+        //   content: comboScriptText,
+        //   folderPath: `${folderPath}/${envType || 'prod'}`,
+        //   fileName: `${fileId}-${version}.js`,
+        //   noHash: true
+        // })
         publishMaterialInfo = await API.Upload.staticServer({
           content: template,
           folderPath: `${folderPath}/${envType || 'prod'}`,
@@ -234,11 +234,13 @@ export default class PcPageService {
           publishMaterialInfo.url = publishMaterialInfo.url.replace('https', 'http')
         }
       }
+
+      console.log(publishMaterialInfo)
       console.info("[publish] API.File.publish: begin ");
       const result = await API.File.publish({
         userId,
         fileId,
-        extName: "pc-page",
+        extName: "th5-page",
         commitInfo,
         content: JSON.stringify({ ...publishMaterialInfo, json }),
         type: envType,

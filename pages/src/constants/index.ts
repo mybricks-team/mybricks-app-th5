@@ -36,11 +36,18 @@ export const MySelf_COM_LIB = {
   defined: true,
 };
 
+// export const H5_BASIC_COM_LIB = {
+//   id: '',
+//   namespace: 'mybricks.normal-h5-comlib',
+//   editJs: 'https://127.0.0.1:8000/libEdt.js',
+//   rtJs: 'https://127.0.0.1:8000/libEdt.js',
+//   version: '1.0.29'
+// }
 
 export const H5_BASIC_COM_LIB = {
   id: '',
   namespace: 'mybricks.normal-h5-comlib',
-  editJs: 'https://127.0.0.1:8000/libEdt.js',
-  rtJs: 'https://127.0.0.1:8000/libEdt.js',
-  version: '1.0.29'
+  editJs: 'https://f2.beckwai.com/udata/pkg/eshop/fangzhou-asset/h5-comlib-0.0.2/libEdt.js',
+  rtJs: 'https://f2.beckwai.com/udata/pkg/eshop/fangzhou-asset/h5-comlib-0.0.2/libRt.js',
+  version: '1.0.0'
 }
