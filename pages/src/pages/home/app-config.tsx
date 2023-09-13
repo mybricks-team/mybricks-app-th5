@@ -7,12 +7,12 @@ import servicePlugin, {
 // import { openFilePanel } from "@mybricks/sdk-for-app/ui";
 import versionPlugin from 'mybricks-plugin-version'
 import toolsPlugin from "@mybricks/plugin-tools";
+import { use as useTheme } from '@mybricks/plugin-theme';
 
 import { render as renderUI } from '@mybricks/render-web';
 import comlibLoaderFunc from './configs/comlibLoader'
 import { comLibAdderFunc } from './configs/comLibAdder'
-import { runJs } from '../../utils/runJs'
-import { H5_BASIC_COM_LIB } from '../../constants'
+// import { runJs } from '../../utils/runJs'
 
 import axios from 'axios';
 
@@ -117,20 +117,21 @@ export default function (ctx, save, designerRef, remotePlugins = []) {
           ctx.versionApi = versionApi
         },
       }),
-      servicePlugin({
-        envList,
-      }),
+      // servicePlugin({
+      //   envList,
+      // }),
+      useTheme({ sdk: ctx.sdk }),
       toolsPlugin(),
     ],
     ...(ctx.hasMaterialApp ? {
       comLibAdder: comLibAdderFunc(ctx),
     } : {}),
-    comLibLoader: () => {
-      return new Promise((resolve) => {
-        resolve([H5_BASIC_COM_LIB.editJs]);
-      });
-    },
-    // comLibLoader: comlibLoaderFunc(ctx),
+    // comLibLoader: () => {
+    //   return new Promise((resolve) => {
+    //     resolve([H5_BASIC_COM_LIB.editJs]);
+    //   });
+    // },
+    comLibLoader: comlibLoaderFunc(ctx),
     pageContentLoader() {
       //加载页面内容
       return new Promise((resolve, reject) => {
@@ -145,18 +146,19 @@ export default function (ctx, save, designerRef, remotePlugins = []) {
       })
     },
     toplView: {
-      title: '交互',
-      cards: {
-        main: {
-          title: '页面'
-        }
-      },
-      globalIO: {
-        startWithSingleton: true
-      },
-      vars: {},
-      fx: {},
-      useStrict: false
+      // title: '交互',
+      // cards: {
+      //   main: {
+      //     title: '页面'
+      //   }
+      // },
+      // globalIO: {
+      //   startWithSingleton: true
+      // },
+      // vars: {},
+      // fx: {},
+      // useStrict: false
+      display: false,
     },
     editView: {
       editorAppender(editConfig) {
@@ -179,91 +181,90 @@ export default function (ctx, save, designerRef, remotePlugins = []) {
               },
             },
           },
-          {
-            title: '调试',
-            items: [
-              {
-                title: '调试环境',
-                type: 'select',
-                ifVisible({ data }) {
-                  return envList?.length > 0;
-                },
-                description: '选择调试时采用的环境配置，发布时的环境不受此控制，你可以在应用配置处修改可选环境（需管理员权限）',
-                options: {
-                  options: envList.map(item => ({
-                    value: item.name,
-                    label: item.title
-                  })),
-                  placeholder: '请选择调试环境'
-                },
-                value: {
-                  get() {
-                    return ctx.executeEnv || ''
-                  },
-                  set(context, v) {
-                    ctx.executeEnv = v
-                  }
-                }
-              },
-              {
-                title: '路由参数',
-                type: 'code',
-                description: '调试模式下，路由的参数配置',
-                options: {
-                  title: '编辑路由参数',
-                  language: 'json',
-                  width: 500,
-                  minimap: {
-                    enabled: false
-                  },
-                  displayType: 'button'
-                },
-                value: {
-                  get() {
-                    return ctx.debugQuery ? JSON.stringify(ctx.debugQuery, null, 2) : '{}'
-                  },
-                  set(context: any, v: string) {
-                    const jsonString = decodeURIComponent(v);
-                    try {
-                      const jsonData = JSON.parse(jsonString);
-                      ctx.debugQuery = jsonData
-                    } catch {
-                      console.error('路由参数数据格式错误');
-                    }
-                  }
-                }
-              },
-              {
-                title: '主应用参数',
-                type: 'code',
-                description: '调试模式下，主应用参数配置',
-                options: {
-                  title: '编辑主应用参数',
-                  language: 'json',
-                  width: 500,
-                  minimap: {
-                    enabled: false
-                  },
-                  displayType: 'button'
-                },
-                value: {
-                  get() {
-                    return ctx.debugMainProps ? JSON.stringify(ctx.debugMainProps, null, 2) : '{}'
-                  },
-                  set(context: any, v: string) {
-                    const jsonString = decodeURIComponent(v);
-                    try {
-                      const jsonData = JSON.parse(jsonString);
-                      ctx.debugMainProps = jsonData
-                    } catch {
-                      console.error('主应用参数数据格式错误');
-                    }
-                  }
-                }
-              },
-            ]
-          }
-
+          // {
+          //   title: '调试',
+          //   items: [
+          //     {
+          //       title: '调试环境',
+          //       type: 'select',
+          //       ifVisible({ data }) {
+          //         return envList?.length > 0;
+          //       },
+          //       description: '选择调试时采用的环境配置，发布时的环境不受此控制，你可以在应用配置处修改可选环境（需管理员权限）',
+          //       options: {
+          //         options: envList.map(item => ({
+          //           value: item.name,
+          //           label: item.title
+          //         })),
+          //         placeholder: '请选择调试环境'
+          //       },
+          //       value: {
+          //         get() {
+          //           return ctx.executeEnv || ''
+          //         },
+          //         set(context, v) {
+          //           ctx.executeEnv = v
+          //         }
+          //       }
+          //     },
+          //     // {
+          //     //   title: '路由参数',
+          //     //   type: 'code',
+          //     //   description: '调试模式下，路由的参数配置',
+          //     //   options: {
+          //     //     title: '编辑路由参数',
+          //     //     language: 'json',
+          //     //     width: 500,
+          //     //     minimap: {
+          //     //       enabled: false
+          //     //     },
+          //     //     displayType: 'button'
+          //     //   },
+          //     //   value: {
+          //     //     get() {
+          //     //       return ctx.debugQuery ? JSON.stringify(ctx.debugQuery, null, 2) : '{}'
+          //     //     },
+          //     //     set(context: any, v: string) {
+          //     //       const jsonString = decodeURIComponent(v);
+          //     //       try {
+          //     //         const jsonData = JSON.parse(jsonString);
+          //     //         ctx.debugQuery = jsonData
+          //     //       } catch {
+          //     //         console.error('路由参数数据格式错误');
+          //     //       }
+          //     //     }
+          //     //   }
+          //     // },
+          //     // {
+          //     //   title: '主应用参数',
+          //     //   type: 'code',
+          //     //   description: '调试模式下，主应用参数配置',
+          //     //   options: {
+          //     //     title: '编辑主应用参数',
+          //     //     language: 'json',
+          //     //     width: 500,
+          //     //     minimap: {
+          //     //       enabled: false
+          //     //     },
+          //     //     displayType: 'button'
+          //     //   },
+          //     //   value: {
+          //     //     get() {
+          //     //       return ctx.debugMainProps ? JSON.stringify(ctx.debugMainProps, null, 2) : '{}'
+          //     //     },
+          //     //     set(context: any, v: string) {
+          //     //       const jsonString = decodeURIComponent(v);
+          //     //       try {
+          //     //         const jsonData = JSON.parse(jsonString);
+          //     //         ctx.debugMainProps = jsonData
+          //     //       } catch {
+          //     //         console.error('主应用参数数据格式错误');
+          //     //       }
+          //     //     }
+          //     //   }
+          //     // },
+          //   ]
+          // }
         ]
       },
     },
@@ -415,27 +416,34 @@ export default function (ctx, save, designerRef, remotePlugins = []) {
         //     return result;
         //   };
         // }
-      },
-      events: [
-        //配置事件
-        {
-          type: 'jump',
-          title: '跳转到',
-          exe({ options }) {
-            const page = options.page
-            if (page) {
-              window.location.href = page
-            }
-          },
-          options: [
-            {
-              id: 'page',
-              title: '页面',
-              editor: 'textarea',
+        events: [
+          //配置事件
+          {
+            type: 'jump',
+            title: '跳转到',
+            exe({ options }) {
+              const page = options.page
+              if (page) {
+                window.location.href = page
+              }
             },
-          ],
-        },
-      ],
+            options: [
+              {
+                id: 'page',
+                title: '页面',
+                editor: 'textarea',
+              },
+            ],
+          },
+          {
+            type: 'back',
+            title: '返回上一级',
+            exe() {
+              message.info(`返回上一级`);
+            },
+          },
+        ],
+      },
     },
     geoView: {
       type: "mobile",
@@ -445,7 +453,7 @@ export default function (ctx, save, designerRef, remotePlugins = []) {
       //   float: false,
       // },
       theme: {
-        css: ['https://f2.beckwai.com/kos/nlav12333/fangzhou/pub/pkg/weui/1.1.3/weui.min.css']
+        css: ['https://f2.beckwai.com/kos/nlav12333/fangzhou/pub/pkg/weui/1.1.3/weui.min.css', 'https://f2.beckwai.com/udata/pkg/eshop/fangzhou/temp/editor.d5c483a324024fb6.css']
       },
       scenes: {
         // presets: [
@@ -514,6 +522,6 @@ export default function (ctx, save, designerRef, remotePlugins = []) {
           // }
         ]
       },
-    }
+    },
   }
 }

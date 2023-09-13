@@ -3,6 +3,8 @@ import { call as callConnectorHttp } from '@mybricks/plugin-connector-http'
 import React from 'react'
 import { message } from 'antd'
 import { runJs } from './../../utils/runJs'
+// import './../../utils/render-polyfill/init'
+import { events } from './../../utils/render-events'
 
 const { render: renderUI } = window._mybricks_render_web
 
@@ -89,6 +91,9 @@ function Page({ props }) {
   }
   return renderUI(projectJson, {
     env: {
+      pxToVw: {},
+      events,
+      pageType: 'H5',
       silent: true,
       showErrorNotification: false,
       canvasElement: (props && props.container) || document.body,
@@ -169,6 +174,9 @@ function Page({ props }) {
           // observable: window['rxui'].observable,
           ...(opts || {}),
         })
+      },
+      createPortal(children) {
+        return ReactDOM.createPortal(children, document.body);
       },
       // get hasPermission() {
       //   return ({ key }) => {

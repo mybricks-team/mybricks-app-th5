@@ -46,14 +46,14 @@ export default class Th5Controller {
     }
   }
 
-  @Post('/upload')
-  @UseInterceptors(FileInterceptor('file'))
-  async upload(
-    @UploadedFile() file,
-    @Req() req
-  ) {
-    return await this.service.upload(req, { file })
-  }
+  // @Post('/upload')
+  // @UseInterceptors(FileInterceptor('file'))
+  // async upload(
+  //   @UploadedFile() file,
+  //   @Req() req
+  // ) {
+  //   return await this.service.upload(req, { file })
+  // }
 
   // @Post('/generateHTML')
   // async generateHTML(

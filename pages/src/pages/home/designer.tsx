@@ -86,7 +86,7 @@ export default function MyDesigner({ appData }) {
     fileItem: appData.fileContent || {},
     setting: appData.config || {},
     hasMaterialApp: appData.hasMaterialApp,
-    comlibs,
+    comlibs: [appData.fileContent?.content?.comlibs?.find(lib => lib.id === "_myself_") ?? MySelf_COM_LIB, H5_BASIC_COM_LIB],
     latestComlibs: [],
     debugQuery: appData.fileContent?.content?.debugQuery,
     executeEnv: appData.fileContent?.content?.executeEnv || '',
@@ -282,8 +282,7 @@ export default function MyDesigner({ appData }) {
     previewStorage.savePreviewPageData({
       dumpJson: json,
       executeEnv: ctx.executeEnv,
-      comlibs: [H5_BASIC_COM_LIB.rtJs],
-      // comlibs: getRtComlibsFromConfigEdit(ctx.comlibs),
+      comlibs: getRtComlibsFromConfigEdit(ctx.comlibs),
       hasPermissionFn: ctx.hasPermissionFn
     })
 
@@ -386,7 +385,7 @@ export default function MyDesigner({ appData }) {
             ...curToJSON,
             configuration: {
               // scripts: encodeURIComponent(scripts),
-              comlibs: [H5_BASIC_COM_LIB],
+              comlibs: getRtComlibsFromConfigEdit(ctx.comlibs),
               title: ctx.fileItem.name,
               publisherEmail: ctx.user.email,
               publisherName: ctx.user?.name,

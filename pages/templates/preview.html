@@ -13,13 +13,168 @@
 
   <title>预览</title>
 
+  <style>
+    @charset "utf-8";
+
+    * {
+      -webkit-tap-highlight-color: transparent
+    }
+
+    *::-webkit-scrollbar {
+      display: none;
+    }
+
+    body,
+    html {
+      min-height: 100vh
+    }
+
+    body {
+      -webkit-overflow-scrolling: touch;
+      word-wrap: break-word;
+      word-break: break-all;
+      -webkit-user-select: none;
+      user-select: none;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased
+    }
+
+    a,
+    blockquote,
+    body,
+    button,
+    dd,
+    div,
+    dl,
+    dt,
+    fieldset,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    hr,
+    input,
+    legend,
+    li,
+    ol,
+    p,
+    pre,
+    td,
+    textarea,
+    th,
+    ul {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    body,
+    button,
+    input,
+    select,
+    textarea {
+      font: system-ui, -apple-system, BlinkMacSystemFont, 'PingFang SC', miui, Roboto, Helvetica Neue, Helvetica, sans-serif
+    }
+
+    button,
+    input,
+    optgroup,
+    option,
+    select,
+    textarea {
+      -webkit-box-sizing: content-box;
+      box-sizing: content-box;
+      font: inherit;
+      background: 0 0;
+      border: 0;
+      outline: 0;
+      -webkit-appearance: none;
+      appearance: none
+    }
+
+    a {
+      text-decoration: none;
+      cursor: pointer;
+      -webkit-touch-callout: none
+    }
+
+    ol,
+    ul {
+      list-style: none
+    }
+
+    img {
+      -webkit-touch-callout: none;
+      transition: opacity .3s ease
+    }
+
+    img:not([src]),
+    img[src=""] {
+      opacity: 0
+    }
+
+    /* #loading {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 999
+    }
+
+    .loading__svg {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 40px;
+      height: 40px;
+      -webkit-transform: translate(-50%, -50%);
+      transform: translate(-50%, -50%);
+      -webkit-animation: loadingAni 1s infinite linear;
+      animation: loadingAni 1s infinite linear;
+      stroke: rgba(255, 255, 255, 1);
+      stroke-width: 2px
+    }
+
+    @-webkit-keyframes loadingAni {
+      0% {
+        stroke-dashoffset: 0
+      }
+
+      100% {
+        stroke-dashoffset: 320
+      }
+    }
+
+    @keyframes loadingAni {
+      0% {
+        stroke-dashoffset: 0
+      }
+
+      100% {
+        stroke-dashoffset: 320
+      }
+    }
+
+    #appview {
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column
+    } */
+  </style>
+
   <!-- react -->
   <script src="//f2.eckwai.com/kos/nlav11092/fangzhou/pub/temp/1690446345009.react.18.0.0.production.min.js"></script>
   <script src="//f2.eckwai.com/kos/nlav11092/fangzhou/pub/temp/1690446368294.umd_react-dom.18.0.0.production.min.js"></script>
   <script src="//f2.eckwai.com/kos/nlav11092/fangzhou/pub/temp/1690444304807.0.18.1_axios.min.js"></script>
 
+  <script src="https://f2.eckwai.com/udata/pkg/eshop/fangzhou/pub/pkg/mybricks/rxui-1.0.86/index.js"></script>
+
   <!-- mybricks-render-web -->
-  <script src="//f2.beckwai.com/kos/nlav12333/mybricks/render-web/1.1.84/index.min.js"></script>
+  <script src="https://f2.beckwai.com/kos/nlav12333/mybricks/render-web/1.1.92-beta1/index.min.js"></script>
 
 </head>
 

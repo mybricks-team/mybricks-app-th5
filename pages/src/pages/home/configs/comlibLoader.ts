@@ -188,9 +188,7 @@ export default (ctx) => (libDesc) => {
 
       /** 不带命令，且描述为空，即页面初始化，加载组件及组件库 */
       if (!libDesc) {
-        console.log(111)
-        const comlibs = await initMaterials(ctx);
-        console.log(222)
+        const comlibs = await initMaterials(ctx).catch(e => console.error(e));
         return resolve(comlibs)
       }
       /** 不带命令，增加、更新组件库，新增时comLibAdder resolve的组件库会带到libDesc来 */

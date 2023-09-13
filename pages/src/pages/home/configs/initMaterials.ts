@@ -72,7 +72,7 @@ export const initMaterials = async (ctx: Record<string, any>) => {
     /**
      * insert latestComlib for upgrade
      */
-    latestComlibs.forEach(latestLib => {
+    (latestComlibs ?? []).forEach(latestLib => {
         const shouldUpdateLib = window[ComLib_Edit].find(lib => (lib.namespace===latestLib.namespace || lib.id===latestLib.id) && compareVersions(latestLib.version, lib.version)>0);
         if(shouldUpdateLib){
             shouldUpdateLib.latestComlib = latestLib;

@@ -120,32 +120,33 @@ export default class PcPageService {
       Reflect.deleteProperty(json, 'configuration')
 
       /** 本地测试 根目录 npm run start:nodejs，调平台接口需要起平台（apaas-platform）服务 */
-      const domainName = process.env.NODE_ENV === 'development' ? 'http://localhost:3100' : getRealDomain(req)
+      const domainName = process.env.NODE_ENV === 'development' ? 'http://localhost:9001' : getRealDomain(req)
+      // const domainName = 'https://my.mybricks.world';
       console.info("[publish] domainName is:", domainName);
 
-      // let themesStyleStr = ''
+      let themesStyleStr = ''
 
-      // const themes = json?.plugins?.['@mybricks/plugins/theme/use']?.themes
-      // if (Array.isArray(themes)) {
-      //   themes.forEach(({ namespace, content }) => {
-      //     const variables = content?.variables
+      const themes = json?.plugins?.['@mybricks/plugins/theme/use']?.themes
+      if (Array.isArray(themes)) {
+        themes.forEach(({ namespace, content }) => {
+          const variables = content?.variables
 
-      //     if (Array.isArray(variables)) {
-      //       let styleHtml = ''
+          if (Array.isArray(variables)) {
+            let styleHtml = ''
 
-      //       variables.forEach(({ configs }) => {
-      //         if (Array.isArray(configs)) {
-      //           configs.forEach(({ key, value }) => {
-      //             styleHtml = styleHtml + `${key}: ${value};\n`
-      //           })
-      //         }
-      //       })
+            variables.forEach(({ configs }) => {
+              if (Array.isArray(configs)) {
+                configs.forEach(({ key, value }) => {
+                  styleHtml = styleHtml + `${key}: ${value};\n`
+                })
+              }
+            })
 
-      //       styleHtml = `<style id="${namespace}">\n:root {\n${styleHtml}}\n</style>\n`
-      //       themesStyleStr = themesStyleStr + styleHtml
-      //     }
-      //   })
-      // }
+            styleHtml = `<style id="${namespace}">\n:root {\n${styleHtml}}\n</style>\n`
+            themesStyleStr = themesStyleStr + styleHtml
+          }
+        })
+      }
 
       console.info("[publish] getLatestPub begin");
       const latestPub = (await API.File.getLatestPub({
@@ -157,6 +158,11 @@ export default class PcPageService {
       let needCombo = false;
       let hasOldComLib = false;
       comlibs.forEach(lib => {
+        if (typeof lib === 'string') {
+          comLibRtScript += `<script src="${lib}"></script>`;
+          return
+        }
+
         /** 旧组件库，未带组件 runtime 描述文件 */
         if (!lib.coms && !lib.defined) {
           comLibRtScript += `<script src="${lib.rtJs}"></script>`;
@@ -171,7 +177,7 @@ export default class PcPageService {
       }
 
       template = template.replace(`--title--`, title)
-        // .replace(`<!-- themes-style -->`, themesStyleStr)
+        .replace(`-- themes-style --`, themesStyleStr)
         .replace(`-- comlib-rt --`, comLibRtScript)
         .replace(`"--projectJson--"`, JSON.stringify(json))
         // .replace(`"--executeEnv--"`, JSON.stringify(envType))
@@ -248,7 +254,7 @@ export default class PcPageService {
       console.info("[publish] API.File.publish: ok ");
       return result
     } catch (e) {
-      console.error("pcpage publish error", e);
+      console.error("th5page publish error", e);
       throw e
     }
   }

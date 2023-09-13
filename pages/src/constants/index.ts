@@ -44,10 +44,18 @@ export const MySelf_COM_LIB = {
 //   version: '1.0.29'
 // }
 
+// export const H5_BASIC_COM_LIB = {
+//   id: '',
+//   namespace: 'mybricks.normal-h5-comlib',
+//   editJs: 'https://f2.beckwai.com/udata/pkg/eshop/fangzhou-asset/h5-comlib-0.0.2/libEdt.js',
+//   rtJs: 'https://f2.beckwai.com/udata/pkg/eshop/fangzhou-asset/h5-comlib-0.0.2/libRt.js',
+//   version: '1.0.0'
+// }
+
 export const H5_BASIC_COM_LIB = {
   id: '',
   namespace: 'mybricks.normal-h5-comlib',
-  editJs: 'https://f2.beckwai.com/udata/pkg/eshop/fangzhou-asset/h5-comlib-0.0.2/libEdt.js',
-  rtJs: 'https://f2.beckwai.com/udata/pkg/eshop/fangzhou-asset/h5-comlib-0.0.2/libRt.js',
+  editJs: 'https://ali-ec.static.yximgs.com/kos/nlav11092/test/9-13/lib/libEdt.js',
+  rtJs: 'https://ali-ec.static.yximgs.com/kos/nlav11092/test/9-13/lib/libRt.js',
   version: '1.0.0'
 }

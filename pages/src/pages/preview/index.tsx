@@ -7,6 +7,9 @@ import {
 import { getQueryString } from './../../utils'
 import { runJs } from './../../utils/runJs'
 import { PreviewStorage } from './../../utils/previewStorage'
+// import './../../utils/render-polyfill/init'
+import { events } from './../../utils/render-events'
+
 const { render: renderUI } = (window as any)._mybricks_render_web
 
 const fileId = getQueryString('fileId')
@@ -175,8 +178,12 @@ function parseQuery(query) {
 
 function Page({ props, hasPermissionFn }) {
   return renderUI(dumpJson, {
+   
     //渲染Mybricks toJSON的结果
     env: {
+      pxToVw: {},
+      events,
+      pageType: 'H5',
       renderCom(json, opts, coms) {
         return renderUI(json, {
           comDefs: { ...getComs(), ...coms },
@@ -291,26 +298,6 @@ function Page({ props, hasPermissionFn }) {
       //   };
       // },
       // uploadFile: uploadApi
-    },
-    events: [
-      //配置事件
-      {
-        type: 'jump',
-        title: '跳转到',
-        exe({ options }) {
-          const page = options.page
-          if (page) {
-            window.location.href = page
-          }
-        },
-        options: [
-          {
-            id: 'page',
-            title: '页面',
-            editor: 'textarea',
-          },
-        ],
-      },
-    ],
+    }
   })
 }
