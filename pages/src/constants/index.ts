@@ -55,7 +55,7 @@ export const MySelf_COM_LIB = {
 export const H5_BASIC_COM_LIB = {
   id: '',
   namespace: 'mybricks.normal-h5-comlib',
-  editJs: 'https://ali-ec.static.yximgs.com/kos/nlav11092/test/9-13/lib/libEdt.js',
-  rtJs: 'https://ali-ec.static.yximgs.com/kos/nlav11092/test/9-13/lib/libRt.js',
+  editJs: 'https://ali-ec.static.yximgs.com/kos/nlav11092/test/091412/lib/libEdt.js',
+  rtJs: 'https://ali-ec.static.yximgs.com/kos/nlav11092/test/091412/lib/libRt.js',
   version: '1.0.0'
 }
