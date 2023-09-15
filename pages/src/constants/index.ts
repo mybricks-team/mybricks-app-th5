@@ -52,10 +52,13 @@ export const MySelf_COM_LIB = {
 //   version: '1.0.0'
 // }
 
+// 本地组件库的ID，不支持物料中心查询
+export const LOCAL_COM_LIB_ID = '';
+
 export const H5_BASIC_COM_LIB = {
-  id: '',
+  id: LOCAL_COM_LIB_ID,
   namespace: 'mybricks.normal-h5-comlib',
-  editJs: 'https://ali-ec.static.yximgs.com/kos/nlav11092/test/091412/lib/libEdt.js',
-  rtJs: 'https://ali-ec.static.yximgs.com/kos/nlav11092/test/091412/lib/libRt.js',
+  editJs: 'https://ali-ec.static.yximgs.com/kos/nlav11092/test/091517/lib/libEdt.js',
+  rtJs: 'https://ali-ec.static.yximgs.com/kos/nlav11092/test/091517/lib/libRt.js',
   version: '1.0.0'
 }

@@ -25,14 +25,16 @@ import css from './app.less'
 // const DefaultUploadService = '/biz/uploadExternalFileLocal'
 
 // 兜底物料
-export const defaultComlibs = [H5_BASIC_COM_LIB]
+export const LOCAL_DEFAULT_COMLIBS = [H5_BASIC_COM_LIB]
 
 export default function MyDesigner({ appData }) {
   const coms = []
-  if (appData?.defaultComlibs?.length) {
+
+  // 处理默认组件库，是从物料中心配置读取，还是直接从本地配置读取
+  if (appData?.defaultComlibs?.length) { // 物料中心配置
     appData?.defaultComlibs.forEach(lib => {
       const { namespace, content, version } = lib;
-      const com = defaultComlibs.find(lib => lib.namespace === namespace)
+      const com = LOCAL_DEFAULT_COMLIBS.find(lib => lib.namespace === namespace)
       const { editJs, rtJs, coms: componentComs } = JSON.parse(content)
       if (com) {
         coms.push({ id: com.id, namespace, version, editJs, rtJs, coms: componentComs })
@@ -40,12 +42,13 @@ export default function MyDesigner({ appData }) {
         coms.push({ ...lib, editJs, rtJs, coms: componentComs })
       }
     })
-  } else {
-    coms.push(...defaultComlibs)
+  } else { // 本地配置读取
+    coms.push(...LOCAL_DEFAULT_COMLIBS)
   }
 
   let comlibs = [];
 
+  // 处理我的组件
   if (!appData.fileContent?.content?.comlibs) {
     coms.unshift(MySelf_COM_LIB)
     comlibs = coms;
@@ -58,6 +61,8 @@ export default function MyDesigner({ appData }) {
       comlibs = appData.fileContent?.content?.comlibs;
     }
   }
+
+  console.log('appData.fileContent', comlibs)
 
   const designer = 'https://f2.beckwai.com/kos/nlav12333/mybricks/designer-spa/1.3.13/index.min.js'
 
@@ -86,7 +91,9 @@ export default function MyDesigner({ appData }) {
     fileItem: appData.fileContent || {},
     setting: appData.config || {},
     hasMaterialApp: appData.hasMaterialApp,
-    comlibs: [appData.fileContent?.content?.comlibs?.find(lib => lib.id === "_myself_") ?? MySelf_COM_LIB, H5_BASIC_COM_LIB],
+
+    comlibs: comlibs,
+    // comlibs: [appData.fileContent?.content?.comlibs?.find(lib => lib.id === "_myself_") ?? MySelf_COM_LIB, H5_BASIC_COM_LIB],
     latestComlibs: [],
     debugQuery: appData.fileContent?.content?.debugQuery,
     executeEnv: appData.fileContent?.content?.executeEnv || '',
@@ -319,67 +326,7 @@ export default function MyDesigner({ appData }) {
           await ctx.save({ content: JSON.stringify(json), name: ctx.fileItem.name }, true);
           setBeforeunload(false);
 
-          const curComLibs = JSON.parse(JSON.stringify(ctx.comlibs));
           const curToJSON = designerRef?.current?.toJSON();
-          const mySelfComMap = {}
-          ctx.comlibs.forEach((comLib) => {
-            if (comLib?.defined && Array.isArray(comLib.comAray)) {
-              comLib.comAray.forEach((com) => {
-                mySelfComMap[`${com.namespace}@${com.version}`] = true
-              })
-            }
-          });
-          const ignoreNamespaces = [
-            'mybricks.core-comlib.fn',
-            'mybricks.core-comlib.var',
-            'mybricks.core-comlib.type-change',
-            'mybricks.core-comlib.connector',
-            'mybricks.core-comlib.frame-input',
-            'mybricks.core-comlib.scenes'
-          ];
-          const deps = curToJSON.scenes
-            .reduce((pre, scene) => [...pre, ...scene.deps], [])
-            .filter((item) => !mySelfComMap[`${item.namespace}@${item.version}`])
-            .filter((item) => !ignoreNamespaces.includes(item.namespace));
-
-          if (deps.length) {
-            const willFetchComLibs = curComLibs.filter(lib => !lib?.defined && lib.coms);
-            const allComLibsRuntimeMap = (await Promise.all(willFetchComLibs.map(lib => axios.get(lib.coms, { withCredentials: false }))))
-              .map(data => data.data);
-            const noThrowError = comlibs.some(lib => !lib.coms && !lib.defined);
-
-            deps.forEach(component => {
-              let libIndex = allComLibsRuntimeMap.findIndex(lib => lib[component.namespace + '@' + component.version]);
-              let curComponent = null;
-              if (libIndex !== -1) {
-                curComponent = allComLibsRuntimeMap[libIndex][component.namespace + '@' + component.version];
-              } else {
-                libIndex = allComLibsRuntimeMap.findIndex(lib => Object.keys(lib).find(key => key.startsWith(component.namespace)));
-
-                if (libIndex === -1) {
-                  if (noThrowError) {
-                    return;
-                  } else {
-                    throw new Error(`找不到 ${component.namespace}@${component.version} 对应的组件资源`);
-                  }
-                }
-                curComponent = allComLibsRuntimeMap[libIndex][Object.keys(allComLibsRuntimeMap[libIndex]).find(key => key.startsWith(component.namespace))];
-              }
-
-              if (!curComponent) {
-                if (noThrowError) {
-                  return;
-                } else {
-                  throw new Error(`找不到 ${component.namespace}@${component.version} 对应的组件资源`);
-                }
-              }
-
-              if (!willFetchComLibs[libIndex].componentRuntimeMap) {
-                willFetchComLibs[libIndex].componentRuntimeMap = {};
-              }
-              willFetchComLibs[libIndex].componentRuntimeMap[component.namespace + '@' + curComponent.version] = curComponent;
-            });
-          }
 
           const toJSON = JSON.parse(JSON.stringify({
             ...curToJSON,

@@ -167,9 +167,17 @@
       flex-direction: column
     } */
 
-    .slot {
+    #root {
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column
+    }
+
+    div[class*='com-']>.slot {
       background-color: transparent !important;
     }
+
   </style>
 
   <!-- react -->
