@@ -146,19 +146,19 @@ export default function (ctx, save, designerRef, remotePlugins = []) {
       })
     },
     toplView: {
-      // title: '交互',
-      // cards: {
-      //   main: {
-      //     title: '页面'
-      //   }
-      // },
-      // globalIO: {
-      //   startWithSingleton: true
-      // },
-      // vars: {},
-      // fx: {},
-      // useStrict: false
-      display: false,
+      title: '交互',
+      cards: {
+        main: {
+          title: '页面'
+        }
+      },
+      globalIO: {
+        startWithSingleton: true
+      },
+      vars: {},
+      fx: {},
+      useStrict: false
+      // display: false,
     },
     editView: {
       editorAppender(editConfig) {
@@ -493,33 +493,15 @@ export default function (ctx, save, designerRef, remotePlugins = []) {
         //   // }
         // ],
         adder: [
-          // {
-          //   type: 'popup',
-          //   title: '对话框',
-          //   template: {
-          //     namespace: 'mybricks.basic-comlib.popup',
-          //     deletable: false,
-          //     asRoot: true
-          //   },
-          // },
-          // {
-          //   type: 'popup',
-          //   title: '抽屉',
-          //   template: {
-          //     namespace: 'mybricks.basic-comlib.drawer',
-          //     deletable: false,
-          //     asRoot: true
-          //   }
-          // },
-          // {
-          //   type: 'popup',
-          //   title: '打印对话框',
-          //   template: {
-          //     namespace: 'mybricks.normal-pc.print',
-          //     deletable: false,
-          //     asRoot: true
-          //   }
-          // }
+          {
+            type: 'popup',
+            title: '弹出层',
+            template: {
+              namespace: 'mybricks.normal-h5.popup',
+              deletable: false,
+              asRoot: true
+            },
+          },
         ]
       },
     },
