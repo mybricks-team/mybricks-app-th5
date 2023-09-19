@@ -1,20 +1,20 @@
-import React from 'react';
-import { message } from 'antd';
+import React from "react";
+import { message } from "antd";
 import servicePlugin, {
   call as callConnectorHttp,
   mock as connectorHttpMock,
-} from '@mybricks/plugin-connector-http'
+} from "@mybricks/plugin-connector-http";
 // import { openFilePanel } from "@mybricks/sdk-for-app/ui";
-import versionPlugin from 'mybricks-plugin-version'
+import versionPlugin from "mybricks-plugin-version";
 import toolsPlugin from "@mybricks/plugin-tools";
-import { use as useTheme } from '@mybricks/plugin-theme';
+import { use as useTheme } from "@mybricks/plugin-theme";
 
-import { render as renderUI } from '@mybricks/render-web';
-import comlibLoaderFunc from './configs/comlibLoader'
-import { comLibAdderFunc } from './configs/comLibAdder'
+import { render as renderUI } from "@mybricks/render-web";
+import comlibLoaderFunc from "./configs/comlibLoader";
+import { comLibAdderFunc } from "./configs/comLibAdder";
 // import { runJs } from '../../utils/runJs'
 
-import axios from 'axios';
+import axios from "axios";
 
 const getComs = () => {
   const comDefs = {};
@@ -29,8 +29,8 @@ const getComs = () => {
   };
 
   const comlibs = [
-    ...(window['__comlibs_edit_'] || []),
-    ...(window['__comlibs_rt_'] || []),
+    ...(window["__comlibs_edit_"] || []),
+    ...(window["__comlibs_rt_"] || []),
   ];
   comlibs.forEach((lib) => {
     const comAray = lib.comAray;
@@ -43,69 +43,75 @@ const getComs = () => {
 
 const getDomainFromPath = (path: string) => {
   if (!path) return path;
-  if (path.startsWith('http') || path.startsWith('https')) {
-    const [protocol, url] = path.split('//');
-    const domain = url.split('/')[0]
-    return `${protocol}//${domain}`
+  if (path.startsWith("http") || path.startsWith("https")) {
+    const [protocol, url] = path.split("//");
+    const domain = url.split("/")[0];
+    return `${protocol}//${domain}`;
   } else {
     return location.origin;
   }
-}
+};
 
-const injectUpload = (editConfig: Record<string, any>, uploadService: string, manateeUserInfo: { token: string, session: string }) => {
+const injectUpload = (
+  editConfig: Record<string, any>,
+  uploadService: string,
+  manateeUserInfo: { token: string; session: string }
+) => {
   if (!!editConfig && !editConfig.upload) {
     editConfig.upload = async (files: Array<File>): Promise<Array<string>> => {
       const formData = new FormData();
-      formData.append("file", files[0])
-      formData.append('folderPath', `/files/${Date.now()}`)
+      formData.append("file", files[0]);
+      formData.append("folderPath", `/files/${Date.now()}`);
       const useConfigService = !!uploadService;
       if (!useConfigService) {
-        uploadService = '/paas/api/flow/saveFile'
+        uploadService = "/paas/api/flow/saveFile";
       }
       try {
         const res = await axios<any, any>({
           url: uploadService,
-          method: 'post',
+          method: "post",
           data: formData,
           headers: {
-            'Content-Type': 'multipart/form-data',
-            ...manateeUserInfo
-          }
+            "Content-Type": "multipart/form-data",
+            ...manateeUserInfo,
+          },
         });
         const { status, data, message, code } = res.data;
         if (status === 200 || code === 1) {
-          let url = ''
+          let url = "";
           if (Array.isArray(data)) {
-            url = data?.[0]?.url
+            url = data?.[0]?.url;
           } else {
-            url = data.url
+            url = data.url;
           }
           if (!url) {
-            throw Error(`没有返回图片地址`)
+            throw Error(`没有返回图片地址`);
           }
-          const staticUrl = /^http/.test(url) ? url : `${getDomainFromPath(uploadService)}${url}`
-          return [staticUrl].map(url => url.replace('https', 'http'))
+          const staticUrl = /^http/.test(url)
+            ? url
+            : `${getDomainFromPath(uploadService)}${url}`;
+          return [staticUrl].map((url) => url.replace("https", "http"));
         }
-        throw Error(`【图片上传出错】: ${message}`)
+        throw Error(`【图片上传出错】: ${message}`);
       } catch (error) {
-        message.error(error.message)
-        return []
+        message.error(error.message);
+        return [];
       }
     };
   }
-}
+};
 
 export default function (ctx, save, designerRef, remotePlugins = []) {
-  const envList = ctx?.appConfig?.publishEnvConfig?.envList || []
+  const envList = ctx?.appConfig?.publishEnvConfig?.envList || [];
   // 获得环境信息映射表
   const envMap = envList.reduce((res, item) => {
-    res[item.name] = item.title
-    return res
-  }, {})
+    res[item.name] = item.title;
+    return res;
+  }, {});
 
   return {
     shortcuts: {
-      'ctrl+s': [save],
+      "ctrl+s": [save],
     },
     plugins: [
       versionPlugin({
@@ -114,7 +120,7 @@ export default function (ctx, save, designerRef, remotePlugins = []) {
         disabled: ctx.disabled,
         envMap,
         onInit: (versionApi) => {
-          ctx.versionApi = versionApi
+          ctx.versionApi = versionApi;
         },
       }),
       // servicePlugin({
@@ -123,9 +129,11 @@ export default function (ctx, save, designerRef, remotePlugins = []) {
       useTheme({ sdk: ctx.sdk }),
       toolsPlugin(),
     ],
-    ...(ctx.hasMaterialApp ? {
-      comLibAdder: comLibAdderFunc(ctx),
-    } : {}),
+    ...(ctx.hasMaterialApp
+      ? {
+          comLibAdder: comLibAdderFunc(ctx),
+        }
+      : {}),
     // comLibLoader: () => {
     //   return new Promise((resolve) => {
     //     resolve([H5_BASIC_COM_LIB.editJs]);
@@ -135,29 +143,29 @@ export default function (ctx, save, designerRef, remotePlugins = []) {
     pageContentLoader() {
       //加载页面内容
       return new Promise((resolve, reject) => {
-        const content = ctx.fileItem?.content || {}
+        const content = ctx.fileItem?.content || {};
 
-        const _content = JSON.parse(JSON.stringify(content))
-        delete _content.comlibs
+        const _content = JSON.parse(JSON.stringify(content));
+        delete _content.comlibs;
 
-        console.log(_content)
+        console.log(_content);
 
-        resolve(_content)
-      })
+        resolve(_content);
+      });
     },
     toplView: {
-      title: '交互',
+      title: "交互",
       cards: {
         main: {
-          title: '页面'
-        }
+          title: "页面",
+        },
       },
       globalIO: {
-        startWithSingleton: true
+        startWithSingleton: true,
       },
       vars: {},
       fx: {},
-      useStrict: false
+      useStrict: false,
       // display: false,
     },
     editView: {
@@ -165,19 +173,19 @@ export default function (ctx, save, designerRef, remotePlugins = []) {
         injectUpload(editConfig, ctx.uploadService, ctx.manateeUserInfo);
         return;
       },
-      items({ }, cate0, cate1, cate2) {
-        cate0.title = `项目`
+      items({}, cate0, cate1, cate2) {
+        cate0.title = `项目`;
         cate0.items = [
           {
-            title: '名称',
-            type: 'Text',
+            title: "名称",
+            type: "Text",
             //options: {readOnly: true},
             value: {
               get: (context) => {
-                return ctx.fileItem.name
+                return ctx.fileItem.name;
               },
               set: (context, v: any) => {
-                ctx.setName(v)
+                ctx.setName(v);
               },
             },
           },
@@ -265,52 +273,97 @@ export default function (ctx, save, designerRef, remotePlugins = []) {
           //     // },
           //   ]
           // }
-        ]
+        ];
+
+        cate1.title = `高级`;
+        cate1.items = [
+          {
+            title: "head 配置",
+            type: "code",
+            description: "配置的内容将被插入页面的 head 标签内",
+            options: {
+              title: "head 配置",
+              language: "html",
+              width: 500,
+              minimap: {
+                enabled: false,
+              },
+              displayType: "button",
+            },
+            value: {
+              get() {
+                return ctx.debugMainProps
+                  ? JSON.stringify(ctx.debugMainProps, null, 2)
+                  : "{}";
+              },
+              set(context: any, v: string) {
+                const jsonString = decodeURIComponent(v);
+                try {
+                  const jsonData = JSON.parse(jsonString);
+                  ctx.debugMainProps = jsonData;
+                } catch {
+                  console.error("主应用参数数据格式错误");
+                }
+              },
+            },
+          },
+        ];
       },
     },
     com: {
       env: {
         renderCom(json, opts, coms) {
-          return renderUI(
-            json,
-            {
-              comDefs: { ...getComs(), ...coms },
-              // observable: window['rxui'].observable,
-              ...(opts || {}),
-              env: {
-                ...(opts?.env || {}),
-                edit: false,
-                runtime: true
-              },
-              callConnector(connector, params) {
-                //调用连接器
-                if (connector.type === 'http' || connector.type === 'http-manatee') {
-                  //服务接口类型
-                  return callConnectorHttp(
-                    { script: connector.script, useProxy: true, executeEnv: ctx.executeEnv },
-                    params
-                  )
-                } else {
-                  return Promise.reject('错误的连接器类型.')
-                }
+          return renderUI(json, {
+            comDefs: { ...getComs(), ...coms },
+            // observable: window['rxui'].observable,
+            ...(opts || {}),
+            env: {
+              ...(opts?.env || {}),
+              edit: false,
+              runtime: true,
+            },
+            callConnector(connector, params) {
+              //调用连接器
+              if (
+                connector.type === "http" ||
+                connector.type === "http-manatee"
+              ) {
+                //服务接口类型
+                return callConnectorHttp(
+                  {
+                    script: connector.script,
+                    useProxy: true,
+                    executeEnv: ctx.executeEnv,
+                  },
+                  params
+                );
+              } else {
+                return Promise.reject("错误的连接器类型.");
               }
-            }
-          )
+            },
+          });
         },
         callConnector(connector, params, connectorConfig) {
           /** 启动 Mock */
           if (connectorConfig?.openMock) {
-            return connectorHttpMock({ ...connector, outputSchema: connectorConfig.mockSchema });
+            return connectorHttpMock({
+              ...connector,
+              outputSchema: connectorConfig.mockSchema,
+            });
           }
           //调用连接器
-          if (connector.type === 'http' || connector.type === 'http-manatee') {
+          if (connector.type === "http" || connector.type === "http-manatee") {
             //服务接口类型
             return callConnectorHttp(
-              { script: connector.script, useProxy: true, executeEnv: ctx.executeEnv },
+              {
+                script: connector.script,
+                useProxy: true,
+                executeEnv: ctx.executeEnv,
+              },
               params
-            )
+            );
           } else {
-            return Promise.reject('错误的连接器类型.')
+            return Promise.reject("错误的连接器类型.");
           }
         },
         // 文件上传实现
@@ -335,7 +388,7 @@ export default function (ctx, save, designerRef, remotePlugins = []) {
         },
         vars: {
           get getExecuteEnv() {
-            return () => ctx.executeEnv
+            return () => ctx.executeEnv;
           },
           getQuery: () => ({ ...(ctx.debugQuery || {}) }),
           getProps: () => ({ ...(ctx.debugMainProps || {}) }),
@@ -344,10 +397,10 @@ export default function (ctx, save, designerRef, remotePlugins = []) {
               message.info(info);
             };
             return () => ({
-              reload: () => toast('reload'),
+              reload: () => toast("reload"),
               redirect: ({ url }: { url: string }) => toast(`redirect: ${url}`),
-              back: () => toast('back'),
-              forward: () => toast('forward'),
+              back: () => toast("back"),
+              forward: () => toast("forward"),
               pushState: ({
                 state,
                 title,
@@ -364,9 +417,9 @@ export default function (ctx, save, designerRef, remotePlugins = []) {
           },
           get getCookies() {
             return () => {
-              return {}
-            }
-          }
+              return {};
+            };
+          },
         },
         // get hasPermission() {
 
@@ -419,25 +472,25 @@ export default function (ctx, save, designerRef, remotePlugins = []) {
         events: [
           //配置事件
           {
-            type: 'jump',
-            title: '跳转到',
+            type: "jump",
+            title: "跳转到",
             exe({ options }) {
-              const page = options.page
+              const page = options.page;
               if (page) {
-                window.location.href = page
+                window.location.href = page;
               }
             },
             options: [
               {
-                id: 'page',
-                title: '页面',
-                editor: 'textarea',
+                id: "page",
+                title: "页面",
+                editor: "textarea",
               },
             ],
           },
           {
-            type: 'back',
-            title: '返回上一级',
+            type: "back",
+            title: "返回上一级",
             exe() {
               message.info(`返回上一级`);
             },
@@ -453,7 +506,10 @@ export default function (ctx, save, designerRef, remotePlugins = []) {
       //   float: false,
       // },
       theme: {
-        css: ['https://f2.beckwai.com/kos/nlav12333/fangzhou/pub/pkg/weui/1.1.3/weui.min.css', 'https://f2.beckwai.com/udata/pkg/eshop/fangzhou/temp/editor.d5c483a324024fb6.css']
+        css: [
+          "https://f2.beckwai.com/kos/nlav12333/fangzhou/pub/pkg/weui/1.1.3/weui.min.css",
+          "https://f2.beckwai.com/udata/pkg/eshop/fangzhou/temp/editor.d5c483a324024fb6.css",
+        ],
       },
       scenes: {
         // presets: [
@@ -494,16 +550,16 @@ export default function (ctx, save, designerRef, remotePlugins = []) {
         // ],
         adder: [
           {
-            type: 'popup',
-            title: '弹出层',
+            type: "popup",
+            title: "弹出层",
             template: {
-              namespace: 'mybricks.normal-h5.popup',
+              namespace: "mybricks.normal-h5.popup",
               deletable: false,
-              asRoot: true
+              asRoot: true,
             },
           },
-        ]
+        ],
       },
     },
-  }
+  };
 }

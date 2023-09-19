@@ -1,30 +1,41 @@
-import React, { useEffect, useState } from 'react'
-import API from '@mybricks/sdk-for-app/api'
+import React, { useEffect, useState } from "react";
+import API from "@mybricks/sdk-for-app/api";
 
-import ConfigServer from './ConfigServer'
-import ConfigEnv from './ConfigEnv'
-import useConfig from './useConfig'
-import ConfigPlugin from './ConfigPlugin'
-export const _NAMESPACE_ = APP_NAME
-import style from './app.less'
-import { Collapse, Spin } from 'antd'
+import ConfigServer from "./ConfigServer";
+import ConfigEnv from "./ConfigEnv";
+import useConfig from "./useConfig";
+import ConfigPlugin from "./ConfigPlugin";
+export const _NAMESPACE_ = APP_NAME;
+import style from "./app.less";
+import { Collapse, Spin } from "antd";
 
 export default (props) => {
-  const { options = {} } = props
-  const configContext = useConfig(_NAMESPACE_, {}, options)
+  const { options = {} } = props;
+  const configContext = useConfig(_NAMESPACE_, {}, options);
 
-  const isInGroup = options?.type === 'group'
-  return <Spin spinning={configContext.loading}>
-    <Collapse style={{ padding: 24 }} className={style.wrapper} defaultActiveKey={[1, 2, 3]}>
-      {/* {!isInGroup && <Collapse.Panel key={1} header="服务地址">
+  const isInGroup = options?.type === "group";
+  return (
+    <Spin spinning={configContext.loading}>
+      <Collapse
+        style={{ padding: 24 }}
+        className={style.wrapper}
+        defaultActiveKey={[1, 2, 3]}
+      >
+        {/* {!isInGroup && <Collapse.Panel key={1} header="服务地址">
         <ConfigServer {...configContext} />
       </Collapse.Panel>} */}
-      <Collapse.Panel key={2} header="发布环境">
-        <ConfigEnv {...configContext} />
-      </Collapse.Panel>
-      {/* {!isInGroup && <Collapse.Panel key={3} header="插件配置">
+        <Collapse.Panel key={1} header="发布环境">
+          <ConfigEnv {...configContext} />
+        </Collapse.Panel>
+
+        {/* <Collapse.Panel key={2} header="header 注入">
+          <div ref={headerEditor} style={{ height: 300 }}></div>
+        </Collapse.Panel> */}
+
+        {/* {!isInGroup && <Collapse.Panel key={3} header="插件配置">
         <ConfigPlugin {...configContext} />
       </Collapse.Panel>} */}
-    </Collapse>
-  </Spin>
-}
+      </Collapse>
+    </Spin>
+  );
+};
