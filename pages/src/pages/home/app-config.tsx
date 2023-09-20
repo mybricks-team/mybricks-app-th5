@@ -278,11 +278,11 @@ export default function (ctx, save, designerRef, remotePlugins = []) {
         cate1.title = `高级`;
         cate1.items = [
           {
-            title: "head 配置",
+            title: "头部标签",
             type: "code",
-            description: "配置的内容将被插入页面的 head 标签内",
+            description: "可在<head>标签内注入内容，注入位置在标签的最后",
             options: {
-              title: "head 配置",
+              title: "编辑",
               language: "html",
               width: 500,
               minimap: {
@@ -292,18 +292,10 @@ export default function (ctx, save, designerRef, remotePlugins = []) {
             },
             value: {
               get() {
-                return ctx.debugMainProps
-                  ? JSON.stringify(ctx.debugMainProps, null, 2)
-                  : "{}";
+                return ctx.headTags || "";
               },
               set(context: any, v: string) {
-                const jsonString = decodeURIComponent(v);
-                try {
-                  const jsonData = JSON.parse(jsonString);
-                  ctx.debugMainProps = jsonData;
-                } catch {
-                  console.error("主应用参数数据格式错误");
-                }
+                ctx.headTags = v;
               },
             },
           },

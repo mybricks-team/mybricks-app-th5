@@ -100,6 +100,7 @@ export default function MyDesigner({ appData }) {
     debugMainProps: appData.fileContent?.content?.debugMainProps,
     hasPermissionFn: appData.fileContent?.content?.hasPermissionFn,
     debugHasPermissionFn: appData.fileContent?.content?.debugHasPermissionFn,
+    headTags: appData.fileContent?.content?.headTags,
     versionApi: null,
     appConfig,
     uploadService,
@@ -258,6 +259,7 @@ export default function MyDesigner({ appData }) {
     json.debugMainProps = ctx.debugMainProps
     json.hasPermissionFn = ctx.hasPermissionFn
     json.debugHasPermissionFn = ctx.debugHasPermissionFn
+    json.headTags = ctx.headTags
 
     json.projectId = ctx.sdk.projectId;
 
@@ -290,7 +292,8 @@ export default function MyDesigner({ appData }) {
       dumpJson: json,
       executeEnv: ctx.executeEnv,
       comlibs: getRtComlibsFromConfigEdit(ctx.comlibs),
-      hasPermissionFn: ctx.hasPermissionFn
+      hasPermissionFn: ctx.hasPermissionFn,
+      headTags: ctx.headTags,
     })
 
     window.open(`./preview.html?fileId=${ctx.fileId}`)
@@ -321,6 +324,7 @@ export default function MyDesigner({ appData }) {
           json.debugMainProps = ctx.debugMainProps
           json.hasPermissionFn = ctx.hasPermissionFn
           json.debugHasPermissionFn = ctx.debugHasPermissionFn
+          json.headTags = ctx.headTags
           json.projectId = ctx.sdk.projectId;
 
           await ctx.save({ content: JSON.stringify(json), name: ctx.fileItem.name }, true);
@@ -333,6 +337,7 @@ export default function MyDesigner({ appData }) {
             configuration: {
               // scripts: encodeURIComponent(scripts),
               comlibs: getRtComlibsFromConfigEdit(ctx.comlibs),
+              headTags: ctx.headTags,
               title: ctx.fileItem.name,
               publisherEmail: ctx.user.email,
               publisherName: ctx.user?.name,

@@ -9,10 +9,11 @@ export class PreviewStorage {
 
   getFileKeyTemplate = (fileId) => `--preview-${fileId}-`;
 
-  savePreviewPageData = ({ dumpJson, comlibs, hasPermissionFn, executeEnv }) => {
+  savePreviewPageData = ({ dumpJson, comlibs, hasPermissionFn, headTags, executeEnv }) => {
     sessionStorage.setItem(`--preview-${this.fileId}-`, JSON.stringify(dumpJson))
     sessionStorage.setItem(`--preview--comlibs--${this.fileId}-`, JSON.stringify(comlibs))
     sessionStorage.setItem(`--preview--hasPermissionFn--${this.fileId}-`, hasPermissionFn)
+    sessionStorage.setItem(`--preview--headTags--${this.fileId}-`, headTags)
     sessionStorage.setItem(`--preview--executeEnv--${this.fileId}-`, executeEnv)
   }
 
@@ -20,6 +21,7 @@ export class PreviewStorage {
     let dumpJson = sessionStorage.getItem(`--preview-${this.fileId}-`)
     let comlibs = sessionStorage.getItem(`--preview--comlibs--${this.fileId}-`)
     let hasPermissionFn = sessionStorage.getItem(`--preview--hasPermissionFn--${this.fileId}-`)
+    let headTags = sessionStorage.getItem(`--preview--headTags--${this.fileId}-`)
     let executeEnv = sessionStorage.getItem(`--preview--executeEnv--${this.fileId}-`)
 
     try {
@@ -34,7 +36,7 @@ export class PreviewStorage {
 
     }
 
-    return { dumpJson, comlibs, hasPermissionFn, executeEnv }
+    return { dumpJson, comlibs, hasPermissionFn, headTags, executeEnv }
   }
 }
 
