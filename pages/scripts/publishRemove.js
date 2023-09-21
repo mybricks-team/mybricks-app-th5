@@ -20,7 +20,17 @@ if (!fs.existsSync(targetFilePath)) {
   fs.mkdirSync(targetFilePath)
 }
 
-fs.rename(sourceFilePath + '/publish.html', targetFilePath + '/publish.html', (err) => {
+fs.rename(sourceFilePath + '/publish.react.html', targetFilePath + '/publish.react.html', (err) => {
+  if (err) throw err;
+  console.log('publish.html Rename complete!');
+});
+
+fs.rename(sourceFilePath + '/publish.vue2.html', targetFilePath + '/publish.vue2.html', (err) => {
+  if (err) throw err;
+  console.log('publish.html Rename complete!');
+});
+
+fs.rename(sourceFilePath + '/publish.vue3.html', targetFilePath + '/publish.vue3.html', (err) => {
   if (err) throw err;
   console.log('publish.html Rename complete!');
 });

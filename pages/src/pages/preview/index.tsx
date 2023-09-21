@@ -127,8 +127,6 @@ import { events } from "./../../utils/render-events";
 
   //----------------------------------------------------------------------------
 
-  console.log("comlibs", comlibs);
-
   function render(props) {
     const { container } = props;
     if (comlibs && Array.isArray(comlibs)) {

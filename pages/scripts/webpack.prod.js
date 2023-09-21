@@ -48,12 +48,31 @@ module.exports = merge(common, {
       chunks: ['setting'],
     }),
     new HtmlWebpackPlugin({
-      filename: 'publish.html',
-      template: path.resolve(__dirname, '../templates/publish.html'),
+      filename: 'publish.vue2.html',
+      template: path.resolve(__dirname, '../templates/publish.ejs'),
       inlineSource: '.(js)$',
       inject: 'body',
       removeComments: false,
       chunks: ['publish'],
+      target: 'vue2'
+    }),
+    new HtmlWebpackPlugin({
+      filename: 'publish.vue3.html',
+      template: path.resolve(__dirname, '../templates/publish.ejs'),
+      inlineSource: '.(js)$',
+      inject: 'body',
+      removeComments: false,
+      chunks: ['publish'],
+      target: 'vue3'
+    }),
+    new HtmlWebpackPlugin({
+      filename: 'publish.react.html',
+      template: path.resolve(__dirname, '../templates/publish.ejs'),
+      inlineSource: '.(js)$',
+      inject: 'body',
+      removeComments: false,
+      chunks: ['publish'],
+      target: 'react'
     }),
     new HtmlWebpackInlineSourcePlugin()
   ]

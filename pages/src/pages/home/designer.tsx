@@ -62,8 +62,6 @@ export default function MyDesigner({ appData }) {
     }
   }
 
-  console.log('appData.fileContent', comlibs)
-
   const designer = 'https://f2.beckwai.com/kos/nlav12333/mybricks/designer-spa/1.3.13/index.min.js'
 
   // const configComlibs = comlibs.map(lib => lib.editJs)
@@ -332,11 +330,13 @@ export default function MyDesigner({ appData }) {
 
           const curToJSON = designerRef?.current?.toJSON();
 
+          const curComLibs = await genLazyloadComs(ctx.comlibs, curToJSON);
+
           const toJSON = JSON.parse(JSON.stringify({
             ...curToJSON,
             configuration: {
               // scripts: encodeURIComponent(scripts),
-              comlibs: getRtComlibsFromConfigEdit(ctx.comlibs),
+              comlibs: curComLibs,
               headTags: ctx.headTags,
               title: ctx.fileItem.name,
               publisherEmail: ctx.user.email,
@@ -472,3 +472,78 @@ export default function MyDesigner({ appData }) {
   )
 }
 
+
+/**
+ * @description 按需加载组件
+ * @param comlibs 
+ * @param toJSON 
+ * @returns 
+ */
+const genLazyloadComs = async (comlibs, toJSON) => {
+  const curComLibs = JSON.parse(JSON.stringify(comlibs));
+  const mySelfComMap = {}
+  comlibs.forEach((comLib) => {
+    if (comLib?.defined && Array.isArray(comLib.comAray)) {
+      comLib.comAray.forEach((com) => {
+        mySelfComMap[`${com.namespace}@${com.version}`] = true
+      })
+    }
+  });
+
+  /**
+   * 过滤掉 render-web 内置的组件
+   */
+  const ignoreNamespaces = [
+    'mybricks.core-comlib.fn',
+    'mybricks.core-comlib.var',
+    'mybricks.core-comlib.type-change',
+    'mybricks.core-comlib.connector',
+    'mybricks.core-comlib.frame-input',
+    'mybricks.core-comlib.scenes'
+  ];
+  const deps = toJSON.scenes
+    .reduce((pre, scene) => [...pre, ...scene.deps], [])
+    .filter((item) => !mySelfComMap[`${item.namespace}@${item.version}`])
+    .filter((item) => !ignoreNamespaces.includes(item.namespace));
+
+  if (deps.length) {
+    const willFetchComLibs = curComLibs.filter(lib => !lib?.defined && lib.coms);
+    const allComLibsRuntimeMap = (await Promise.all(willFetchComLibs.map(lib => axios.get(lib.coms, { withCredentials: false }))))
+      .map(data => data.data);
+    const noThrowError = comlibs.some(lib => !lib.coms && !lib.defined);
+
+    deps.forEach(component => {
+      let libIndex = allComLibsRuntimeMap.findIndex(lib => lib[component.namespace + '@' + component.version]);
+      let curComponent = null;
+      if (libIndex !== -1) {
+        curComponent = allComLibsRuntimeMap[libIndex][component.namespace + '@' + component.version];
+      } else {
+        libIndex = allComLibsRuntimeMap.findIndex(lib => Object.keys(lib).find(key => key.startsWith(component.namespace)));
+
+        if (libIndex === -1) {
+          if (noThrowError) {
+            return;
+          } else {
+            throw new Error(`找不到 ${component.namespace}@${component.version} 对应的组件资源`);
+          }
+        }
+        curComponent = allComLibsRuntimeMap[libIndex][Object.keys(allComLibsRuntimeMap[libIndex]).find(key => key.startsWith(component.namespace))];
+      }
+
+      if (!curComponent) {
+        if (noThrowError) {
+          return;
+        } else {
+          throw new Error(`找不到 ${component.namespace}@${component.version} 对应的组件资源`);
+        }
+      }
+
+      if (!willFetchComLibs[libIndex].componentRuntimeMap) {
+        willFetchComLibs[libIndex].componentRuntimeMap = {};
+      }
+      willFetchComLibs[libIndex].componentRuntimeMap[component.namespace + '@' + curComponent.version] = curComponent;
+    });
+  }
+
+  return curComLibs
+}
