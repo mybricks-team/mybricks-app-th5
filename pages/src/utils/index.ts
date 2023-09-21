@@ -1,9 +1,9 @@
-import { ComlibRtUrl, ComlibEditUrl } from './../constants'
 import axios from 'axios'
 import React from "react"
 import ReactDOM from "react-dom"
 import { message } from 'antd'
-import { PluginType } from '@/pages/setting/ConfigPlugin/type'
+import { PluginType } from '@/pages/setting/ConfigPlugin/type';
+export * from './shapeUrlByEnv';
 
 export function getApiUrl(uri) {
   return uri
