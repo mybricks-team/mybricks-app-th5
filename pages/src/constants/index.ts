@@ -58,7 +58,7 @@ export const LOCAL_COM_LIB_ID = '';
 export const H5_BASIC_COM_LIB = {
   id: LOCAL_COM_LIB_ID,
   namespace: 'mybricks.normal-h5-comlib',
-  editJs: 'https://ali-ec.static.yximgs.com/kos/nlav11092/test/091517/lib/libEdt.js',
-  rtJs: 'https://ali-ec.static.yximgs.com/kos/nlav11092/test/091517/lib/libRt.js',
-  version: '1.0.0'
+  editJs: 'https://tx-ec.static.yximgs.com/kos/nlav11092/comlibs/mybricks.normal-h5/202309211729/edit.js',
+  rtJs: 'https://tx-ec.static.yximgs.com/kos/nlav11092/comlibs/mybricks.normal-h5/202309211729/rt.js',
+  version: '0.0.5'
 }
