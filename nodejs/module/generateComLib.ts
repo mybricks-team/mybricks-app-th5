@@ -1,5 +1,5 @@
-export const generateComLib = (allComLibs: any[], allComponents: any[], options: { comLibId: number; noThrowError: boolean }) => {
-	const { comLibId, noThrowError } = options;
+export const generateComLib = (allComLibs: any[], allComponents: any[], options: { comLibId: number; noThrowError: boolean, targetEnv?: 'react' | 'vue' | 'vue3' }) => {
+	const { comLibId, noThrowError, targetEnv = 'react' } = options;
 	let script = '';
 
 	allComponents.forEach(component => {

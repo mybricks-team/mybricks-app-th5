@@ -5,6 +5,7 @@ import axios from "axios";
 import * as path from "path";
 import API from "@mybricks/sdk-for-app/api";
 import { generateComLib } from "./generateComLib";
+import { TargetEnv } from './types'
 
 @Injectable()
 export default class PcPageService {
@@ -89,28 +90,11 @@ export default class PcPageService {
     );
   }
 
-  async publish(req, { json, userId, fileId, envType, commitInfo }) {
+  async publish(req, { json, userId, fileId, envType, commitInfo, targetEnv = TargetEnv.React }) {
     try {
       const publishFilePath = path.resolve(__dirname, "./template");
 
-      // // let templateJS = ''
-      // let templateHTMl = ''
-
-      // if(fs.existsSync(publishFilePath)) {
-      //   const files = fs.readdirSync(publishFilePath)
-
-      //   files.forEach(file => {
-      //     if (/\.js$/.test(file)) {
-      //       templateJS = fs.readFileSync(publishFilePath + '/' + file, 'utf-8')
-      //     }
-      //   })
-
-      //   templateHTMl = fs.readFileSync(publishFilePath + '/publish.html', 'utf8')
-      // }
-
-      // let template = fs.readFileSync(path.resolve(__dirname, './template.html'), 'utf8')
-
-      let template = fs.readFileSync(publishFilePath + "/publish.html", "utf8");
+      let template = fs.readFileSync(publishFilePath + `/publish.${targetEnv}.html`, "utf8");
 
       const {
         title,
@@ -135,29 +119,7 @@ export default class PcPageService {
       // const domainName = 'https://my.mybricks.world';
       console.info("[publish] domainName is:", domainName);
 
-      let themesStyleStr = "";
-
-      const themes = json?.plugins?.["@mybricks/plugins/theme/use"]?.themes;
-      if (Array.isArray(themes)) {
-        themes.forEach(({ namespace, content }) => {
-          const variables = content?.variables;
-
-          if (Array.isArray(variables)) {
-            let styleHtml = "";
-
-            variables.forEach(({ configs }) => {
-              if (Array.isArray(configs)) {
-                configs.forEach(({ key, value }) => {
-                  styleHtml = styleHtml + `${key}: ${value};\n`;
-                });
-              }
-            });
-
-            styleHtml = `<style id="${namespace}">\n:root {\n${styleHtml}}\n</style>\n`;
-            themesStyleStr = themesStyleStr + styleHtml;
-          }
-        });
-      }
+      const themesStyleStr = this._genThemesStyleStr(json)
 
       console.info("[publish] getLatestPub begin");
       const latestPub = (
@@ -183,12 +145,13 @@ export default class PcPageService {
         }
       });
 
+      const comlibRtName = `${fileId}-${envType}-${version}.js`
       /** 需要聚合的组件资源 */
       if (
         comlibs.find((lib) => lib?.defined)?.comAray?.length ||
         comlibs.find((lib) => lib.componentRuntimeMap)
       ) {
-        comLibRtScript += `<script src="./${fileId}-${version}.js"></script>`;
+        comLibRtScript += `<script src="./${comlibRtName}"></script>`;
         needCombo = true;
       }
 
@@ -203,65 +166,38 @@ export default class PcPageService {
       let publishMaterialInfo;
       const customPublishApi = await getCustomPublishApi();
       console.info("[publish] getCustomPublishApi=", customPublishApi);
-      // let comboScriptText = '';
-      // /** 生成 combo 组件库代码 */
-      // if (needCombo) {
-      //   comboScriptText = await this._generateComLibRT(comlibs, json, {domainName, fileId, noThrowError: hasOldComLib});
-      // }
+      let comboScriptText = '';
+      /** 生成 combo 组件库代码 */
+      if (needCombo) {
+        comboScriptText = await this._generateComLibRT(comlibs, json, {domainName, fileId, noThrowError: hasOldComLib});
+      }
 
       if (customPublishApi) {
-        // const dataForCustom = {
-        //   env: envType,
-        //   productId: fileId,
-        //   productName: title,
-        //   publisherEmail,
-        //   publisherName: publisherName || '',
-        //   version,
-        //   commitInfo,
-        //   type: 'pc-page',
-        //   groupId,
-        //   groupName,
-        //   content: {
-        //     json: JSON.stringify(json),
-        //     html: template,
-        //     // js: needCombo ? [{ name: `${fileId}-${version}.js`, content: comboScriptText }] : []
-        //   }
-        // }
-        // const { code, message, data } = await axios.post(customPublishApi, dataForCustom, {
-        //   headers: {
-        //     'Content-Type': 'application/json'
-        //   }
-        // }).then(res => res.data);
-        // if (code !== 1) {
-        //   throw new Error(`发布集成接口出错: ${message}`)
-        // } else {
-        //   publishMaterialInfo = data
-        // }
+        // TODO
       } else {
         console.info("[publish] upload to static server");
-        // needCombo && await API.Upload.staticServer({
-        //   content: comboScriptText,
-        //   folderPath: `${folderPath}/${envType || 'prod'}`,
-        //   fileName: `${fileId}-${version}.js`,
-        //   noHash: true
-        // })
+
+        needCombo && await API.Upload.staticServer({
+          content: comboScriptText,
+          folderPath: `${folderPath}/${envType || 'prod'}`,
+          fileName: comlibRtName,
+          noHash: true
+        })
+
         publishMaterialInfo = await API.Upload.staticServer({
           content: template,
-          folderPath: `${folderPath}/${envType || "prod"}`,
+          folderPath: `${folderPath}/${envType || 'prod'}`,
           fileName,
-          noHash: true,
-        });
-        console.info("[publish] upload to static server ok");
-        //   const { url } = await uploadStatic(template, manateeUserInfo);
-        if (publishMaterialInfo?.url?.startsWith("https")) {
-          publishMaterialInfo.url = publishMaterialInfo.url.replace(
-            "https",
-            "http"
-          );
+          noHash: true
+        })
+
+        console.info("[publish] upload to static server ok", publishMaterialInfo);
+
+        if (publishMaterialInfo?.url?.startsWith('https')) {
+          publishMaterialInfo.url = publishMaterialInfo.url.replace('https', 'http')
         }
       }
 
-      console.log(publishMaterialInfo);
       console.info("[publish] API.File.publish: begin ");
       const result = await API.File.publish({
         userId,
@@ -271,12 +207,43 @@ export default class PcPageService {
         content: JSON.stringify({ ...publishMaterialInfo, json }),
         type: envType,
       });
+
       console.info("[publish] API.File.publish: ok ");
+
       return result;
     } catch (e) {
       console.error("th5page publish error", e);
       throw e;
     }
+  }
+
+  _genThemesStyleStr(json) {
+    let themesStyleStr = ''
+
+    const themes = json?.plugins?.['@mybricks/plugins/theme/use']?.themes
+
+    if (Array.isArray(themes)) {
+      themes.forEach(({ namespace, content }) => {
+        const variables = content?.variables
+
+        if (Array.isArray(variables)) {
+          let styleHtml = ''
+
+          variables.forEach(({ configs }) => {
+            if (Array.isArray(configs)) {
+              configs.forEach(({ key, value }) => {
+                styleHtml = styleHtml + `${key}: ${value};\n`
+              })
+            }
+          })
+
+          styleHtml = `<style id="${namespace}">\n:root {\n${styleHtml}}\n</style>\n`
+          themesStyleStr = themesStyleStr + styleHtml
+        }
+      })
+    }
+
+    return themesStyleStr
   }
 }
 
