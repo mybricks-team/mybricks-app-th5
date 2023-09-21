@@ -289,13 +289,15 @@ export default function MyDesigner({ appData }) {
     previewStorage.savePreviewPageData({
       dumpJson: json,
       executeEnv: ctx.executeEnv,
+      envList: ctx.envList,
       comlibs: getRtComlibsFromConfigEdit(ctx.comlibs),
       hasPermissionFn: ctx.hasPermissionFn,
       headTags: ctx.headTags,
+      appConfig: JSON.stringify(appConfig),
     })
 
     window.open(`./preview.html?fileId=${ctx.fileId}`)
-  }, [])
+  }, [appConfig])
 
   const publish = useCallback(
     (publishConfig) => {

@@ -9,20 +9,24 @@ export class PreviewStorage {
 
   getFileKeyTemplate = (fileId) => `--preview-${fileId}-`;
 
-  savePreviewPageData = ({ dumpJson, comlibs, hasPermissionFn, headTags, executeEnv }) => {
+  savePreviewPageData = ({ dumpJson, comlibs, hasPermissionFn, executeEnv, appConfig, envList }) => {
     sessionStorage.setItem(`--preview-${this.fileId}-`, JSON.stringify(dumpJson))
     sessionStorage.setItem(`--preview--comlibs--${this.fileId}-`, JSON.stringify(comlibs))
     sessionStorage.setItem(`--preview--hasPermissionFn--${this.fileId}-`, hasPermissionFn)
-    sessionStorage.setItem(`--preview--headTags--${this.fileId}-`, headTags)
     sessionStorage.setItem(`--preview--executeEnv--${this.fileId}-`, executeEnv)
+    sessionStorage.setItem(`--preview--appConfig--${this.fileId}-`, appConfig)
+    sessionStorage.setItem(`--preview--envList--${this.fileId}-`, JSON.stringify(envList))
   }
 
   getPreviewPageData = () => {
     let dumpJson = sessionStorage.getItem(`--preview-${this.fileId}-`)
     let comlibs = sessionStorage.getItem(`--preview--comlibs--${this.fileId}-`)
     let hasPermissionFn = sessionStorage.getItem(`--preview--hasPermissionFn--${this.fileId}-`)
-    let headTags = sessionStorage.getItem(`--preview--headTags--${this.fileId}-`)
     let executeEnv = sessionStorage.getItem(`--preview--executeEnv--${this.fileId}-`)
+    let appConfig
+    let envList = []
+
+
 
     try {
       dumpJson = JSON.parse(dumpJson)
@@ -31,12 +35,30 @@ export class PreviewStorage {
     }
 
     try {
+      appConfig = JSON.parse(sessionStorage.getItem(`--preview--appConfig--${this.fileId}-`))
+    } catch (ex) {
+    }
+    try {
+      envList = JSON.parse(sessionStorage.getItem(`--preview--envList--${this.fileId}-`))
+    } catch (ex) {
+    }
+
+    try {
       comlibs = JSON.parse(comlibs)
     } catch (error) {
 
     }
 
-    return { dumpJson, comlibs, hasPermissionFn, headTags, executeEnv }
+    return {
+      // TODO: 没找到 dumpJson 对应的类型，等这个类型补上了吧这里修改掉
+      dumpJson: dumpJson as any,
+      // TODO: 没找到 comlibs 对应的类型，等这个类型补上了吧这里修改掉
+      comlibs: comlibs as any,
+      hasPermissionFn,
+      executeEnv,
+      appConfig,
+      envList,
+    }
   }
 }
 

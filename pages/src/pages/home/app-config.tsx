@@ -15,6 +15,7 @@ import { comLibAdderFunc } from "./configs/comLibAdder";
 // import { runJs } from '../../utils/runJs'
 
 import axios from "axios";
+import { shapeUrlByEnv } from '../../utils/shapeUrlByEnv';
 
 const getComs = () => {
   const comDefs = {};
@@ -114,6 +115,7 @@ export default function (ctx, save, designerRef, remotePlugins = []) {
       "ctrl+s": [save],
     },
     plugins: [
+      servicePlugin(),
       versionPlugin({
         user: ctx.user,
         file: ctx.fileItem,
@@ -189,6 +191,70 @@ export default function (ctx, save, designerRef, remotePlugins = []) {
               },
             },
           },
+          {
+            title: '调试',
+            items: [
+              {
+                title: '调试环境',
+                type: 'select',
+                ifVisible({ data }) {
+                  return envList.length > 0;
+                },
+                description: '选择调试时采用的环境配置，发布时的环境不受此控制，你可以在应用配置处修改可选环境（需管理员权限）',
+                options: {
+                  options: envList.map(item => ({
+                    value: item.name,
+                    label: item.title
+                  })),
+                  placeholder: '请选择调试环境'
+                },
+                value: {
+                  get() {
+                    return ctx.executeEnv || ''
+                  },
+                  set(context, v) {
+                    ctx.executeEnv = v
+                  }
+                }
+              },
+              {
+                title: '环境信息设置',
+                description: '可以在应用配置处修改使用的环境',
+                ifVisible({ data }) {
+                  return envList.length > 0;
+                },
+                type: 'array',
+                options: {
+                  getTitle: (item) => {
+                    return item.title
+                  },
+                  items: [{
+                    title: '环境标识(禁止修改)',
+                    type: 'text',
+                    value: 'name',
+                    options: {
+                      readonly: true
+                    }
+                  }, {
+                    title: '域名',
+                    type: 'text',
+                    value: 'value'
+                  }],
+                  addable: false,
+                  deletable: false,
+                  draggable: false
+                },
+                value: {
+                  get({ data, focusArea }) {
+                    return envList
+                  },
+                  set({ data, focusArea, output, input, ...res }, value) {
+                    ctx.envList = value
+                  }
+                }
+              },
+            ]
+          }
           // {
           //   title: '调试',
           //   items: [
@@ -314,48 +380,68 @@ export default function (ctx, save, designerRef, remotePlugins = []) {
               edit: false,
               runtime: true,
             },
-            callConnector(connector, params) {
+            callConnector(connector, params, connectorConfig = {}) {
+              const plugin = designerRef.current?.getPlugin(connector.connectorName);
               //调用连接器
-              if (
-                connector.type === "http" ||
-                connector.type === "http-manatee"
-              ) {
+              if (!plugin) {
                 //服务接口类型
                 return callConnectorHttp(
+                  { script: connector.script, useProxy: true },
+                  params,
                   {
-                    script: connector.script,
-                    useProxy: true,
-                    executeEnv: ctx.executeEnv,
-                  },
-                  params
+                    ...connectorConfig,
+                    before: options => {
+                      return {
+                        ...options,
+                        url: shapeUrlByEnv(envList, ctx.executeEnv, options.url)
+                      }
+                    }
+                  }
                 );
               } else {
-                return Promise.reject("错误的连接器类型.");
+                return plugin.callConnector({ ...connector, executeEnv: ctx.executeEnv }, params, {
+                  ...connectorConfig,
+                  before: options => {
+                    return {
+                      ...options,
+                      url: shapeUrlByEnv(envList, ctx.executeEnv, options.url)
+                    }
+                  }
+                });
               }
-            },
+            }
           });
         },
-        callConnector(connector, params, connectorConfig) {
-          /** 启动 Mock */
-          if (connectorConfig?.openMock) {
-            return connectorHttpMock({
-              ...connector,
-              outputSchema: connectorConfig.mockSchema,
-            });
-          }
-          //调用连接器
-          if (connector.type === "http" || connector.type === "http-manatee") {
+        callConnector(connector, params, connectorConfig = {}) {
+          const plugin = designerRef.current?.getPlugin(connector.connectorName);
+          if (!plugin) {
+            /** 启动 Mock */
+            if (connectorConfig?.openMock) {
+              return connectorHttpMock({ ...connector, outputSchema: connectorConfig.mockSchema });
+            }
             //服务接口类型
             return callConnectorHttp(
+              { ...connector, script: connector.script, useProxy: true },
+              params,
               {
-                script: connector.script,
-                useProxy: true,
-                executeEnv: ctx.executeEnv,
-              },
-              params
+                before: options => {
+                  return {
+                    ...options,
+                    url: shapeUrlByEnv(envList, ctx.executeEnv, options.url)
+                  }
+                }
+              }
             );
           } else {
-            return Promise.reject("错误的连接器类型.");
+            return plugin.callConnector({ ...connector, executeEnv: ctx.executeEnv }, params, {
+              ...connectorConfig,
+              before: options => {
+                return {
+                  ...options,
+                  url: shapeUrlByEnv(envList, ctx.executeEnv, options.url)
+                }
+              }
+            });
           }
         },
         // 文件上传实现
