@@ -98,7 +98,7 @@ export default class PcPageService {
       const publishFilePath = path.resolve(__dirname, "./template");
 
       let template = fs.readFileSync(
-        publishFilePath + `/preview.${targetEnv}.html`,
+        publishFilePath + `/publish.${targetEnv}.html`,
         "utf8"
       );
 

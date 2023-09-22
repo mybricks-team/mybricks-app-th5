@@ -48,33 +48,33 @@ module.exports = merge(common, {
       template: path.resolve(__dirname, '../templates/setting.html'),
       chunks: ['setting'],
     }),
-    new HtmlWebpackPlugin({
-      filename: 'preview.vue2.html',
-      template: path.resolve(__dirname, '../templates/preview.ejs'),
-      inlineSource: '.(js)$',
-      inject: 'body',
-      removeComments: false,
-      chunks: ['preview'],
-      target: 'vue2'
-    }),
-    new HtmlWebpackPlugin({
-      filename: 'preview.vue3.html',
-      template: path.resolve(__dirname, '../templates/preview.ejs'),
-      inlineSource: '.(js)$',
-      inject: 'body',
-      removeComments: false,
-      chunks: ['preview'],
-      target: 'vue3'
-    }),
-    new HtmlWebpackPlugin({
-      filename: 'preview.react.html',
-      template: path.resolve(__dirname, '../templates/preview.ejs'),
-      inlineSource: '.(js)$',
-      inject: 'body',
-      removeComments: false,
-      chunks: ['preview'],
-      target: 'react'
-    }),
+    // new HtmlWebpackPlugin({
+    //   filename: 'preview.vue2.html',
+    //   template: path.resolve(__dirname, '../templates/preview.ejs'),
+    //   inlineSource: '.(js)$',
+    //   inject: 'body',
+    //   removeComments: false,
+    //   chunks: ['preview'],
+    //   target: 'vue2'
+    // }),
+    // new HtmlWebpackPlugin({
+    //   filename: 'preview.vue3.html',
+    //   template: path.resolve(__dirname, '../templates/preview.ejs'),
+    //   inlineSource: '.(js)$',
+    //   inject: 'body',
+    //   removeComments: false,
+    //   chunks: ['preview'],
+    //   target: 'vue3'
+    // }),
+    // new HtmlWebpackPlugin({
+    //   filename: 'preview.react.html',
+    //   template: path.resolve(__dirname, '../templates/preview.ejs'),
+    //   inlineSource: '.(js)$',
+    //   inject: 'body',
+    //   removeComments: false,
+    //   chunks: ['preview'],
+    //   target: 'react'
+    // }),
     new HtmlWebpackPlugin({
       filename: 'publish.vue2.html',
       template: path.resolve(__dirname, '../templates/publish.ejs'),
