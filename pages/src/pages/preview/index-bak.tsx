@@ -1,10 +1,38 @@
-import { shapeUrlByEnv } from './../../utils/shapeUrlByEnv'
+import { H5_BASIC_COM_LIB } from './../../constants'
+import { getQueryString, shapeUrlByEnv } from './../../utils'
+import { PreviewStorage } from './../../utils/previewStorage'
 import { getRenderEnv } from './../../utils/getRenderEnv'
 
-const projectJson = '--projectJson--' //replace it
-const projectId = '--slot-project-id--' //replace it
-const executeEnv = '--executeEnv--' //replace it
-const envList = "--envList--" //replace it
+const fileId = getQueryString('fileId')
+
+const previewStorage = new PreviewStorage({ fileId })
+
+let { dumpJson, comlibs, hasPermissionFn, executeEnv, appConfig, envList } = previewStorage.getPreviewPageData()
+
+// const promiseCustomConnector = new Promise((res, rej) => {
+//   const { plugins = [] } = appConfig
+//   const connectorPlugin = plugins.find(item => item?.type === 'connector')
+//   if (!connectorPlugin) {
+//     return res(false)
+//   }
+//   if (!connectorPlugin.runtimeUrl) {
+//     return res(false)
+//   }
+//   const script = document.createElement('script')
+//   script.src = connectorPlugin.runtimeUrl
+//   script.onload = () => {
+//     res(true)
+//   }
+//   script.onerror = () => {
+//     return res(false)
+//   }
+
+//   document.body.appendChild(script)
+// })
+
+if (!dumpJson) {
+  throw new Error('数据错误：项目数据缺失')
+}
 
 function cssVariable(dumpJson) {
   const themes = dumpJson?.plugins?.['@mybricks/plugins/theme/use']?.themes
@@ -32,7 +60,22 @@ function cssVariable(dumpJson) {
   }
 }
 
-cssVariable(projectJson)
+cssVariable(dumpJson)
+
+if (!comlibs) {
+  console.warn('数据错误: 组件库缺失')
+  comlibs = [H5_BASIC_COM_LIB.rtJs]
+}
+
+const requireScript = (src) => {
+  var script = document.createElement('script')
+  script.setAttribute('src', src)
+
+  return new Promise((resolve, reject) => {
+    script.onload = resolve
+    document.body.appendChild(script)
+  })
+}
 
 const getComs = () => {
   const comDefs = {}
@@ -46,11 +89,11 @@ const getComs = () => {
     })
   }
   // Object.keys(window['CloudComponentDependentComponents']).forEach((key) => {
-  //   const [namespace, version] = key.split('@');
+  //   const [namespace, version] = key.split('@')
 
   //   comDefs[`${namespace}-${version}`] =
-  //     window['CloudComponentDependentComponents'][key];
-  // });
+  //     window['CloudComponentDependentComponents'][key]
+  // })
   const comlibs = [
     ...(window['__comlibs_edit_'] || []),
     ...(window['__comlibs_rt_'] || []),
@@ -68,19 +111,18 @@ function render() {
   if (window._mybricks_render_web && window.ReactDOM) {
     const renderUI = window._mybricks_render_web.render;
 
-    const dom = renderUI(projectJson, {
+    const dom = renderUI(dumpJson, {
       env: {
         ...getRenderEnv(),
-        projectId,
-        callConnector(connector, params) {
+        async callConnector(connector, params) {
+          // await promiseCustomConnector
           const plugin = window[connector.connectorName] || window['@mybricks/plugins/service'];
-
           if (plugin) {
             /** 兼容云组件，云组件会自带 script */
             const curConnector = connector.script
               ? connector
-              : (projectJson.plugins[connector.connectorName] || []).find(con => con.id === connector.id);
-
+              : (dumpJson.plugins[connector.connectorName] || []).find(con => con.id === connector.id);
+      
             return curConnector ? plugin.call({ ...connector, ...curConnector, executeEnv }, params, {
               // 只在官方插件上做环境域名处理
               before: connector.connectorName === '@mybricks/plugins/service'
@@ -117,4 +159,8 @@ function render() {
   }
 }
 
-render();
+if (comlibs && Array.isArray(comlibs)) {
+  Promise.all(comlibs.map((t) => requireScript(t))).then(() => {
+    render()
+  })
+}

@@ -5,7 +5,7 @@ import axios from "axios";
 import * as path from "path";
 import API from "@mybricks/sdk-for-app/api";
 import { generateComLib } from "./generateComLib";
-import { TargetEnv } from './types'
+import { TargetEnv } from "./types";
 
 @Injectable()
 export default class PcPageService {
@@ -90,11 +90,17 @@ export default class PcPageService {
     );
   }
 
-  async publish(req, { json, userId, fileId, envType, commitInfo, targetEnv = TargetEnv.React }) {
+  async preview(
+    req,
+    { json, userId, fileId, envType, commitInfo, targetEnv = TargetEnv.React }
+  ) {
     try {
       const publishFilePath = path.resolve(__dirname, "./template");
 
-      let template = fs.readFileSync(publishFilePath + `/publish.${targetEnv}.html`, "utf8");
+      let template = fs.readFileSync(
+        publishFilePath + `/preview.${targetEnv}.html`,
+        "utf8"
+      );
 
       const {
         title,
@@ -106,6 +112,8 @@ export default class PcPageService {
         publisherName,
         groupId,
         groupName,
+        executeEnv,
+        envList = [],
         headTags,
       } = json.configuration;
 
@@ -119,7 +127,7 @@ export default class PcPageService {
       // const domainName = 'https://my.mybricks.world';
       console.info("[publish] domainName is:", domainName);
 
-      const themesStyleStr = this._genThemesStyleStr(json)
+      const themesStyleStr = this._genThemesStyleStr(json);
 
       console.info("[publish] getLatestPub begin");
       const latestPub = (
@@ -145,7 +153,7 @@ export default class PcPageService {
         }
       });
 
-      const comlibRtName = `${fileId}-${envType}-${version}.js`
+      const comlibRtName = `${fileId}-${envType}-${version}.js`;
       /** 需要聚合的组件资源 */
       if (
         comlibs.find((lib) => lib?.defined)?.comAray?.length ||
@@ -160,16 +168,24 @@ export default class PcPageService {
         .replace(`-- themes-style --`, themesStyleStr)
         .replace(`-- comlib-rt --`, comLibRtScript)
         .replace(`"--projectJson--"`, JSON.stringify(json))
-        .replace(`-- head-tags --`, decodeURIComponent(headTags || ""));
-      // .replace(`"--executeEnv--"`, JSON.stringify(envType))
-      // .replace(`"--slot-project-id--"`, projectId ? projectId : JSON.stringify(null));
+        .replace(`-- head-tags --`, decodeURIComponent(headTags || ""))
+        .replace(`"--executeEnv--"`, JSON.stringify(executeEnv))
+        .replace(`"--envList--"`, JSON.stringify(envList))
+        .replace(
+          `"--slot-project-id--"`,
+          projectId ? projectId : JSON.stringify(null)
+        );
       let publishMaterialInfo;
       const customPublishApi = await getCustomPublishApi();
       console.info("[publish] getCustomPublishApi=", customPublishApi);
-      let comboScriptText = '';
+      let comboScriptText = "";
       /** 生成 combo 组件库代码 */
       if (needCombo) {
-        comboScriptText = await this._generateComLibRT(comlibs, json, {domainName, fileId, noThrowError: hasOldComLib});
+        comboScriptText = await this._generateComLibRT(comlibs, json, {
+          domainName,
+          fileId,
+          noThrowError: hasOldComLib,
+        });
       }
 
       if (customPublishApi) {
@@ -177,24 +193,185 @@ export default class PcPageService {
       } else {
         console.info("[publish] upload to static server");
 
-        needCombo && await API.Upload.staticServer({
-          content: comboScriptText,
-          folderPath: `${folderPath}/${envType || 'prod'}`,
-          fileName: comlibRtName,
-          noHash: true
-        })
+        needCombo &&
+          (await API.Upload.staticServer({
+            content: comboScriptText,
+            folderPath: `${folderPath}/${envType || "prod"}`,
+            fileName: comlibRtName,
+            noHash: true,
+          }));
 
         publishMaterialInfo = await API.Upload.staticServer({
           content: template,
-          folderPath: `${folderPath}/${envType || 'prod'}`,
+          folderPath: `${folderPath}/${envType || "prod"}`,
           fileName,
-          noHash: true
+          noHash: true,
+        });
+
+        console.info(
+          "[publish] upload to static server ok",
+          publishMaterialInfo
+        );
+
+        if (publishMaterialInfo?.url?.startsWith("https")) {
+          publishMaterialInfo.url = publishMaterialInfo.url.replace(
+            "https",
+            "http"
+          );
+        }
+
+        return {
+          code: 1,
+          url: publishMaterialInfo.url,
+        };
+      }
+
+      console.info("[publish] API.File.publish: begin ");
+      // const result = await API.File.publish({
+      //   userId,
+      //   fileId,
+      //   extName: "th5-page",
+      //   commitInfo,
+      //   content: JSON.stringify({ ...publishMaterialInfo, json }),
+      //   type: envType,
+      // });
+
+      console.info("[publish] API.File.publish: ok ");
+
+      // return result;
+    } catch (e) {
+      console.error("th5page publish error", e);
+      throw e;
+    }
+  }
+
+  async publish(
+    req,
+    { json, userId, fileId, envType, commitInfo, targetEnv = TargetEnv.React }
+  ) {
+    try {
+      const publishFilePath = path.resolve(__dirname, "./template");
+
+      let template = fs.readFileSync(
+        publishFilePath + `/publish.${targetEnv}.html`,
+        "utf8"
+      );
+
+      const {
+        title,
+        comlibs,
+        projectId,
+        fileName,
+        folderPath,
+        publisherEmail,
+        publisherName,
+        groupId,
+        groupName,
+        envList = [],
+        headTags,
+      } = json.configuration;
+
+      Reflect.deleteProperty(json, "configuration");
+
+      /** 本地测试 根目录 npm run start:nodejs，调平台接口需要起平台（apaas-platform）服务 */
+      const domainName =
+        process.env.NODE_ENV === "development"
+          ? "http://localhost:9001"
+          : getRealDomain(req);
+      // const domainName = 'https://my.mybricks.world';
+      console.info("[publish] domainName is:", domainName);
+
+      const themesStyleStr = this._genThemesStyleStr(json);
+
+      console.info("[publish] getLatestPub begin");
+      const latestPub = (
+        await API.File.getLatestPub({
+          fileId,
         })
+      )?.[0];
+      console.info("[publish] getLatestPub ok");
+      const version = getNextVersion(latestPub?.version);
+      let comLibRtScript = "";
+      let needCombo = false;
+      let hasOldComLib = false;
+      comlibs.forEach((lib) => {
+        if (typeof lib === "string") {
+          comLibRtScript += `<script src="${lib}"></script>`;
+          return;
+        }
 
-        console.info("[publish] upload to static server ok", publishMaterialInfo);
+        /** 旧组件库，未带组件 runtime 描述文件 */
+        if (!lib.coms && !lib.defined) {
+          comLibRtScript += `<script src="${lib.rtJs}"></script>`;
+          hasOldComLib = true;
+        }
+      });
 
-        if (publishMaterialInfo?.url?.startsWith('https')) {
-          publishMaterialInfo.url = publishMaterialInfo.url.replace('https', 'http')
+      const comlibRtName = `${fileId}-${envType}-${version}.js`;
+      /** 需要聚合的组件资源 */
+      if (
+        comlibs.find((lib) => lib?.defined)?.comAray?.length ||
+        comlibs.find((lib) => lib.componentRuntimeMap)
+      ) {
+        comLibRtScript += `<script src="./${comlibRtName}"></script>`;
+        needCombo = true;
+      }
+
+      template = template
+        .replace(`--title--`, title)
+        .replace(`-- themes-style --`, themesStyleStr)
+        .replace(`-- comlib-rt --`, comLibRtScript)
+        .replace(`"--projectJson--"`, JSON.stringify(json))
+        .replace(`-- head-tags --`, decodeURIComponent(headTags || ""))
+        .replace(`"--executeEnv--"`, JSON.stringify(envType))
+        .replace(`"--envList--"`, JSON.stringify(envList))
+        .replace(
+          `"--slot-project-id--"`,
+          projectId ? projectId : JSON.stringify(null)
+        );
+      let publishMaterialInfo;
+      const customPublishApi = await getCustomPublishApi();
+      console.info("[publish] getCustomPublishApi=", customPublishApi);
+      let comboScriptText = "";
+      /** 生成 combo 组件库代码 */
+      if (needCombo) {
+        comboScriptText = await this._generateComLibRT(comlibs, json, {
+          domainName,
+          fileId,
+          noThrowError: hasOldComLib,
+        });
+      }
+
+      if (customPublishApi) {
+        // TODO
+      } else {
+        console.info("[publish] upload to static server");
+
+        needCombo &&
+          (await API.Upload.staticServer({
+            content: comboScriptText,
+            folderPath: `${folderPath}/${envType || "prod"}`,
+            fileName: comlibRtName,
+            noHash: true,
+          }));
+
+        publishMaterialInfo = await API.Upload.staticServer({
+          content: template,
+          folderPath: `${folderPath}/${envType || "prod"}`,
+          fileName,
+          noHash: true,
+        });
+
+        console.info(
+          "[publish] upload to static server ok",
+          publishMaterialInfo
+        );
+
+        if (publishMaterialInfo?.url?.startsWith("https")) {
+          publishMaterialInfo.url = publishMaterialInfo.url.replace(
+            "https",
+            "http"
+          );
         }
       }
 
@@ -218,32 +395,32 @@ export default class PcPageService {
   }
 
   _genThemesStyleStr(json) {
-    let themesStyleStr = ''
+    let themesStyleStr = "";
 
-    const themes = json?.plugins?.['@mybricks/plugins/theme/use']?.themes
+    const themes = json?.plugins?.["@mybricks/plugins/theme/use"]?.themes;
 
     if (Array.isArray(themes)) {
       themes.forEach(({ namespace, content }) => {
-        const variables = content?.variables
+        const variables = content?.variables;
 
         if (Array.isArray(variables)) {
-          let styleHtml = ''
+          let styleHtml = "";
 
           variables.forEach(({ configs }) => {
             if (Array.isArray(configs)) {
               configs.forEach(({ key, value }) => {
-                styleHtml = styleHtml + `${key}: ${value};\n`
-              })
+                styleHtml = styleHtml + `${key}: ${value};\n`;
+              });
             }
-          })
+          });
 
-          styleHtml = `<style id="${namespace}">\n:root {\n${styleHtml}}\n</style>\n`
-          themesStyleStr = themesStyleStr + styleHtml
+          styleHtml = `<style id="${namespace}">\n:root {\n${styleHtml}}\n</style>\n`;
+          themesStyleStr = themesStyleStr + styleHtml;
         }
-      })
+      });
     }
 
-    return themesStyleStr
+    return themesStyleStr;
   }
 }
 

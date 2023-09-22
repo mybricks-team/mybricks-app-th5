@@ -15,7 +15,7 @@ import { comLibAdderFunc } from "./configs/comLibAdder";
 // import { runJs } from '../../utils/runJs'
 
 import axios from "axios";
-import { shapeUrlByEnv } from '../../utils/shapeUrlByEnv';
+import { shapeUrlByEnv } from "../../utils/shapeUrlByEnv";
 
 const getComs = () => {
   const comDefs = {};
@@ -103,7 +103,8 @@ const injectUpload = (
 };
 
 export default function (ctx, save, designerRef, remotePlugins = []) {
-  const envList = ctx?.appConfig?.publishEnvConfig?.envList || [];
+  const envList = ctx?.envList || [];
+
   // 获得环境信息映射表
   const envMap = envList.reduce((res, item) => {
     res[item.name] = item.title;
@@ -192,69 +193,73 @@ export default function (ctx, save, designerRef, remotePlugins = []) {
             },
           },
           {
-            title: '调试',
+            title: "调试",
             items: [
               {
-                title: '调试环境',
-                type: 'select',
+                title: "调试环境",
+                type: "select",
                 ifVisible({ data }) {
                   return envList.length > 0;
                 },
-                description: '选择调试时采用的环境配置，发布时的环境不受此控制，你可以在应用配置处修改可选环境（需管理员权限）',
+                description:
+                  "选择调试时采用的环境配置，发布时的环境不受此控制，你可以在应用配置处修改可选环境（需管理员权限）",
                 options: {
-                  options: envList.map(item => ({
+                  options: envList.map((item) => ({
                     value: item.name,
-                    label: item.title
+                    label: item.title,
                   })),
-                  placeholder: '请选择调试环境'
+                  placeholder: "请选择调试环境",
                 },
                 value: {
                   get() {
-                    return ctx.executeEnv || ''
+                    return ctx.executeEnv || "";
                   },
                   set(context, v) {
-                    ctx.executeEnv = v
-                  }
-                }
+                    ctx.executeEnv = v;
+                  },
+                },
               },
               {
-                title: '环境信息设置',
-                description: '可以在应用配置处修改使用的环境',
+                title: "环境信息设置",
+                description: "可以在应用配置处修改使用的环境",
                 ifVisible({ data }) {
                   return envList.length > 0;
                 },
-                type: 'array',
+                type: "array",
                 options: {
                   getTitle: (item) => {
-                    return item.title
+                    return item.title;
                   },
-                  items: [{
-                    title: '环境标识(禁止修改)',
-                    type: 'text',
-                    value: 'name',
-                    options: {
-                      readonly: true
-                    }
-                  }, {
-                    title: '域名',
-                    type: 'text',
-                    value: 'value'
-                  }],
+                  items: [
+                    {
+                      title: "环境标识(禁止修改)",
+                      type: "text",
+                      value: "name",
+                      options: {
+                        readonly: true,
+                      },
+                    },
+                    {
+                      title: "域名",
+                      type: "text",
+                      value: "value",
+                    },
+                  ],
                   addable: false,
                   deletable: false,
-                  draggable: false
+                  draggable: false,
                 },
                 value: {
                   get({ data, focusArea }) {
-                    return envList
+                    return envList;
                   },
                   set({ data, focusArea, output, input, ...res }, value) {
-                    ctx.envList = value
-                  }
-                }
+                    ctx.envList = value;
+                  },
+                },
               },
-            ]
-          }
+            ],
+          },
           // {
           //   title: '调试',
           //   items: [
@@ -381,68 +386,43 @@ export default function (ctx, save, designerRef, remotePlugins = []) {
               runtime: true,
             },
             callConnector(connector, params, connectorConfig = {}) {
-              const plugin = designerRef.current?.getPlugin(connector.connectorName);
-              //调用连接器
-              if (!plugin) {
-                //服务接口类型
-                return callConnectorHttp(
-                  { script: connector.script, useProxy: true },
-                  params,
-                  {
-                    ...connectorConfig,
-                    before: options => {
-                      return {
-                        ...options,
-                        url: shapeUrlByEnv(envList, ctx.executeEnv, options.url)
-                      }
-                    }
-                  }
-                );
-              } else {
-                return plugin.callConnector({ ...connector, executeEnv: ctx.executeEnv }, params, {
+              const plugin = designerRef.current?.getPlugin(
+                connector.connectorName || "@mybricks/plugins/service"
+              );
+              return plugin.callConnector(
+                { ...connector, executeEnv: ctx.executeEnv },
+                params,
+                {
                   ...connectorConfig,
-                  before: options => {
+                  before: (options) => {
                     return {
                       ...options,
-                      url: shapeUrlByEnv(envList, ctx.executeEnv, options.url)
-                    }
-                  }
-                });
-              }
-            }
+                      url: shapeUrlByEnv(envList, ctx.executeEnv, options.url),
+                    };
+                  },
+                }
+              );
+            },
           });
         },
         callConnector(connector, params, connectorConfig = {}) {
-          const plugin = designerRef.current?.getPlugin(connector.connectorName);
-          if (!plugin) {
-            /** 启动 Mock */
-            if (connectorConfig?.openMock) {
-              return connectorHttpMock({ ...connector, outputSchema: connectorConfig.mockSchema });
-            }
-            //服务接口类型
-            return callConnectorHttp(
-              { ...connector, script: connector.script, useProxy: true },
-              params,
-              {
-                before: options => {
-                  return {
-                    ...options,
-                    url: shapeUrlByEnv(envList, ctx.executeEnv, options.url)
-                  }
-                }
-              }
-            );
-          } else {
-            return plugin.callConnector({ ...connector, executeEnv: ctx.executeEnv }, params, {
+          const plugin = designerRef.current?.getPlugin(
+            connector.connectorName || "@mybricks/plugins/service"
+          );
+
+          return plugin.callConnector(
+            { ...connector, executeEnv: ctx.executeEnv },
+            params,
+            {
               ...connectorConfig,
-              before: options => {
+              before: (options) => {
                 return {
                   ...options,
-                  url: shapeUrlByEnv(envList, ctx.executeEnv, options.url)
-                }
-              }
-            });
-          }
+                  url: shapeUrlByEnv(envList, ctx.executeEnv, options.url),
+                };
+              },
+            }
+          );
         },
         // 文件上传实现
         fileUploader(file) {

@@ -60,7 +60,7 @@
   "dependencies": {
     "@mybricks/designer-spa": "^1.1.78",
     "@mybricks/file-parser": "^1.0.14",
-    "@mybricks/plugin-connector-http": "1.1.45",
+    "@mybricks/plugin-connector-http": "1.1.62",
     "@mybricks/plugin-theme": "0.0.36-beta0",
     "@mybricks/plugin-tools": "^1.0.12",
     "@mybricks/render-web": "^1.1.51",
