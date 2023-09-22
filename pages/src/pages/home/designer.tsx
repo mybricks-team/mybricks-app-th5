@@ -19,6 +19,7 @@ import { getRtComlibsFromConfigEdit } from "./../../utils/comlib";
 import { PreviewStorage } from "./../../utils/previewStorage";
 import { MySelf_COM_LIB, H5_BASIC_COM_LIB } from "../../constants";
 import PublishModal from "./components/PublishModal";
+import { TargetEnv } from "./../../types";
 
 import css from "./app.less";
 
@@ -410,7 +411,7 @@ export default function MyDesigner({ appData }) {
         });
 
         console.error(res);
-        window.open(res.data.url)
+        window.open(res.data.url);
       } else {
         close();
         message.error({
@@ -420,7 +421,6 @@ export default function MyDesigner({ appData }) {
       }
 
       setPreviewLoading(false);
-
     })()
       .catch((e) => {
         console.error(e);
@@ -505,6 +505,7 @@ export default function MyDesigner({ appData }) {
             json: toJSON,
             envType,
             commitInfo,
+            targetEnv: getTargetEnv(curComLibs),
           }
         );
 
@@ -592,11 +593,11 @@ export default function MyDesigner({ appData }) {
           }}
           dotTip={beforeunload}
         />
-        <Toolbar.Button 
-          disabled={isDebugMode} 
+        <Toolbar.Button
+          disabled={isDebugMode}
           loading={previewLoading}
           onClick={preview}
-          >
+        >
           预览
         </Toolbar.Button>
         <Toolbar.Button
@@ -753,4 +754,23 @@ const getMergedEnvList = (appData, appConfig) => {
     (item) => item.name && !pageEnvlist.find((env) => env.name === item.name)
   );
   return [...pageEnvlist, ...newEnvList];
+};
+
+/**
+ *
+ * @description TODO
+ */
+const getTargetEnv = (curComLibs) => {
+  let hasNoVueComponent = false;
+
+  curComLibs.forEach((lib) => {
+    if (lib?.componentRuntimeMap) {
+      Object.keys(lib.componentRuntimeMap).forEach((key) => {
+        const comp = lib.componentRuntimeMap[key];
+        hasNoVueComponent = hasNoVueComponent || !!!comp["runtime.vue"];
+      });
+    }
+  });
+
+  return hasNoVueComponent ? TargetEnv.React : TargetEnv.Vue2;
 };

@@ -1,129 +1,118 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN" class="no-js">
-  <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta
-      name="viewport"
-      content="width=device-width,user-scalable=no,viewport-fit=cover"
-    />
 
-    <title>--title--</title>
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width,user-scalable=no,viewport-fit=cover" />
 
-    <style>
-      @charset "utf-8";
+  <title>--title--</title>
 
-      * {
-        -webkit-tap-highlight-color: transparent;
-      }
+  <style>
+    @charset "utf-8";
 
-      *::-webkit-scrollbar {
-        display: none;
-      }
+    * {
+      -webkit-tap-highlight-color: transparent
+    }
 
-      body,
-      html {
-        min-height: 100vh;
-      }
+    *::-webkit-scrollbar {
+      display: none;
+    }
 
-      body {
-        -webkit-overflow-scrolling: touch;
-        word-wrap: break-word;
-        word-break: break-all;
-        -webkit-user-select: none;
-        user-select: none;
-        text-rendering: optimizeLegibility;
-        -webkit-font-smoothing: antialiased;
+    body,
+    html {
+      min-height: 100vh
+    }
 
-        font-size: 3.2vw;
-      }
+    body {
+      -webkit-overflow-scrolling: touch;
+      word-wrap: break-word;
+      word-break: break-all;
+      -webkit-user-select: none;
+      user-select: none;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
 
-      a,
-      blockquote,
-      body,
-      button,
-      dd,
-      div,
-      dl,
-      dt,
-      fieldset,
-      h1,
-      h2,
-      h3,
-      h4,
-      h5,
-      h6,
-      hr,
-      input,
-      legend,
-      li,
-      ol,
-      p,
-      pre,
-      td,
-      textarea,
-      th,
-      ul {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
+      font-size: 3.2vw;
+    }
 
-      body,
-      button,
-      input,
-      select,
-      textarea {
-        font:
-          system-ui,
-          -apple-system,
-          BlinkMacSystemFont,
-          "PingFang SC",
-          miui,
-          Roboto,
-          Helvetica Neue,
-          Helvetica,
-          sans-serif;
-      }
+    a,
+    blockquote,
+    body,
+    button,
+    dd,
+    div,
+    dl,
+    dt,
+    fieldset,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    hr,
+    input,
+    legend,
+    li,
+    ol,
+    p,
+    pre,
+    td,
+    textarea,
+    th,
+    ul {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
 
-      button,
-      input,
-      optgroup,
-      option,
-      select,
-      textarea {
-        -webkit-box-sizing: content-box;
-        box-sizing: content-box;
-        font: inherit;
-        background: 0 0;
-        border: 0;
-        outline: 0;
-        -webkit-appearance: none;
-        appearance: none;
-      }
+    body,
+    button,
+    input,
+    select,
+    textarea {
+      font: system-ui, -apple-system, BlinkMacSystemFont, 'PingFang SC', miui, Roboto, Helvetica Neue, Helvetica, sans-serif
+    }
 
-      a {
-        text-decoration: none;
-        cursor: pointer;
-        -webkit-touch-callout: none;
-      }
+    button,
+    input,
+    optgroup,
+    option,
+    select,
+    textarea {
+      -webkit-box-sizing: content-box;
+      box-sizing: content-box;
+      font: inherit;
+      background: 0 0;
+      border: 0;
+      outline: 0;
+      -webkit-appearance: none;
+      appearance: none
+    }
 
-      ol,
-      ul {
-        list-style: none;
-      }
+    a {
+      text-decoration: none;
+      cursor: pointer;
+      -webkit-touch-callout: none
+    }
 
-      img {
-        -webkit-touch-callout: none;
-        transition: opacity 0.3s ease;
-      }
+    ol,
+    ul {
+      list-style: none
+    }
 
-      img:not([src]),
-      img[src=""] {
-        opacity: 0;
-      }
+    img {
+      -webkit-touch-callout: none;
+      transition: opacity .3s ease
+    }
 
-      /* #loading {
+    img:not([src]),
+    img[src=""] {
+      opacity: 0
+    }
+
+    /* #loading {
       position: fixed;
       top: 0;
       right: 0;
@@ -173,54 +162,58 @@
       flex-direction: column
     } */
 
-      #root {
-        min-height: 100vh;
-        overflow-x: hidden;
-        display: flex;
-        flex-direction: column;
-      }
+    #root {
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column
+    }
 
-      div[class*="com-"] > .slot {
-        background-color: transparent !important;
-      }
-    </style>
+    div[class*='com-']>.slot {
+      background-color: transparent !important;
+    }
 
-    <% if (htmlWebpackPlugin.options.target == 'react') { %>
+  </style>
+
+  <% if (htmlWebpackPlugin.options.target == 'react') { %>
     <!-- react -->
     <script src="//f2.eckwai.com/kos/nlav11092/fangzhou/pub/temp/1690446345009.react.18.0.0.production.min.js"></script>
     <script src="//f2.eckwai.com/kos/nlav11092/fangzhou/pub/temp/1690446368294.umd_react-dom.18.0.0.production.min.js"></script>
     <!-- react -->
-    <% } else if (htmlWebpackPlugin.options.target == 'vue2') { %>
+  <% } else if (htmlWebpackPlugin.options.target == 'vue2') { %>
     <!-- vue2相关代码 -->
     <script src="https://f2.beckwai.com/udata/pkg/eshop/fangzhou/pub/pkg/vue/2.7.14/vue.min.js"></script>
     <script>
-      window.Vue ? (window.vue = window.Vue) : null;
+      window.Vue ? (window.vue = window.Vue) : null
     </script>
-    <script src="https://f2.beckwai.com/udata/pkg/eshop/fangzhou/pub/pkg/vue-polyfill/0.0.3/vue2.js"></script>
     <!-- vue2相关代码 -->
-    <% } else if (htmlWebpackPlugin.options.target == 'vue3') { %>
+  <% } else if (htmlWebpackPlugin.options.target == 'vue3') { %>
     <!-- vue3相关代码 -->
     <script src="//f2.eckwai.com/udata/pkg/eshop/fangzhou/pub/pkg/vue/3.2.33/vue.global.js"></script>
     <script>
-      window.Vue ? (window.vue = window.Vue) : null;
+      window.Vue ? (window.vue = window.Vue) : null
     </script>
-    <script src="https://f2.beckwai.com/udata/pkg/eshop/fangzhou/pub/pkg/vue-polyfill/0.0.3/vue3.js"></script>
     <!-- vue3相关代码 -->
-    <% } %>
+  <% } %>
 
-    <!-- <script src="//f2.eckwai.com/kos/nlav11092/fangzhou/pub/temp/1690444304807.0.18.1_axios.min.js"></script> -->
-    <script src="//f2.eckwai.com/kos/nlav12333/mybricks/plugin-http-connector/1.1.62/index.js"></script>
-    <script src="https://f2.eckwai.com/udata/pkg/eshop/fangzhou/pub/pkg/mybricks/rxui-1.0.86/index.js"></script>
+  <!-- <script src="//f2.eckwai.com/kos/nlav11092/fangzhou/pub/temp/1690444304807.0.18.1_axios.min.js"></script> -->
+  <script src="//f2.eckwai.com/kos/nlav12333/mybricks/plugin-http-connector/1.1.50/index.js"></script>
+  <!-- <script src="https://f2.eckwai.com/udata/pkg/eshop/fangzhou/pub/pkg/mybricks/rxui-1.0.86/index.js"></script> -->
 
-    <% if (htmlWebpackPlugin.options.target == 'react') { %>
-    <!-- mybricks-render-web -->
+  <!-- mybricks-render-web -->
+  <% if (htmlWebpackPlugin.options.target == 'react') { %>
     <script src="https://f2.beckwai.com/kos/nlav12333/mybricks/render-web/1.1.92-beta1/index.min.js"></script>
-    <!-- mybricks-render-web -->
-    <% } %> -- themes-style -- -- head-tags --
-  </head>
+  <% } else if (htmlWebpackPlugin.options.target == 'vue2') { %>
+    <script src="https://f2.eckwai.com/kos/nlav12333/test/index.umd.e43d5fb57364b3c0.cjs"></script>
+  <% } %>
 
-  <body>
-      <div id="root"></div>
-    -- comlib-rt --
-  </body>
+  -- themes-style --
+
+  -- head-tags --
+</head>
+
+<body>
+  <div id="root"></div>
+  -- comlib-rt --
+</body>
 </html>

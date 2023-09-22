@@ -41,6 +41,7 @@ module.exports = {
         amd: 'react-dom',
         root: 'ReactDOM',
       },
+      vue: 'vue',
       moment: 'moment',
       antd: 'antd',
       '@ant-design/icons': 'icons',
