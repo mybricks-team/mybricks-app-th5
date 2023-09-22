@@ -9,7 +9,7 @@ import { TargetEnv } from './types'
 
 @Injectable()
 export default class PcPageService {
-  async _generateComLibRT(comlibs, json, { domainName, fileId, noThrowError }) {
+  async _generateComLibRT(comlibs, json, { domainName, fileId, noThrowError, targetEnv }) {
     /**
      * TODO:
      * 1.目前应用里配置的edit.js 一定有 rt.js
@@ -86,7 +86,7 @@ export default class PcPageService {
     return generateComLib(
       comLibContents.filter((lib) => !!lib.componentRuntimeMap),
       deps,
-      { comLibId: fileId, noThrowError }
+      { comLibId: fileId, noThrowError, targetEnv }
     );
   }
 
@@ -106,6 +106,8 @@ export default class PcPageService {
         publisherName,
         groupId,
         groupName,
+        envList = [],
+        appConfig = {},
         headTags,
       } = json.configuration;
 
@@ -160,6 +162,8 @@ export default class PcPageService {
         .replace(`-- themes-style --`, themesStyleStr)
         .replace(`-- comlib-rt --`, comLibRtScript)
         .replace(`"--projectJson--"`, JSON.stringify(json))
+        .replace(`"--executeEnv--"`, JSON.stringify(envType))
+        .replace(`"--envList--"`, JSON.stringify(envList))
         .replace(`-- head-tags --`, decodeURIComponent(headTags || ""));
       // .replace(`"--executeEnv--"`, JSON.stringify(envType))
       // .replace(`"--slot-project-id--"`, projectId ? projectId : JSON.stringify(null));
@@ -169,7 +173,7 @@ export default class PcPageService {
       let comboScriptText = '';
       /** 生成 combo 组件库代码 */
       if (needCombo) {
-        comboScriptText = await this._generateComLibRT(comlibs, json, {domainName, fileId, noThrowError: hasOldComLib});
+        comboScriptText = await this._generateComLibRT(comlibs, json, {domainName, fileId, noThrowError: hasOldComLib, targetEnv });
       }
 
       if (customPublishApi) {
