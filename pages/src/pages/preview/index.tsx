@@ -129,9 +129,14 @@ function render() {
   }
 }
 
-if (isMobile || location.search.indexOf("isPc=1") > -1) {
+console.warn("preview");
+if (isMobile() || location.search.indexOf("isPc=1") > -1) {
+  console.warn("preview isMobile");
+
   render();
 } else {
+  console.warn("preview isPC");
+
   const RenderIframe = () => {
     return window.React.createElement("iframe", {
       src: location.href + `${location.search ? "&" : "?"}isPc=1`,
@@ -148,13 +153,12 @@ if (isMobile || location.search.indexOf("isPc=1") > -1) {
   const QRCode = () => {
     window.React.useEffect(() => {
       const script = document.createElement("script");
-
       script.src =
         "https://f2.eckwai.com/udata/pkg/eshop/fangzhou/pub/pkg/qrcode/qrcode.js";
       script.onload = () => {
         window.QRCode.toCanvas(
           document.getElementById("preview-qrcode"),
-          `${location.href}${location.search ? "&" : "?"}layoutType=4`,
+          `${location.href}`,
           {
             height: 150,
             width: 150,
@@ -175,26 +179,10 @@ if (isMobile || location.search.indexOf("isPc=1") > -1) {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
+          marginTop: 60,
           marginLeft: 10,
         },
       },
-      window.React.createElement(
-        "div",
-        {
-          style: {
-            marginTop: 10,
-          },
-        },
-        window.React.createElement(
-          "div",
-          {
-            style: {
-              textAlign: "center",
-            },
-          },
-          "建议使用快手APP扫码预览"
-        )
-      ),
       window.React.createElement(
         "div",
         {
@@ -206,19 +194,6 @@ if (isMobile || location.search.indexOf("isPc=1") > -1) {
             position: "relative",
           },
         },
-        window.React.createElement("div", {
-          style: {
-            width: 20,
-            height: 20,
-            left: "50%",
-            top: "50%",
-            transform: "translate(-50%, -50%)",
-            position: "absolute",
-            backgroundSize: "contain",
-            backgroundImage:
-              "url(https://f2.eckwai.com/udata/pkg/eshop/fangzhou/images/kwai_icon.c84a6252fe8e3e37.png)",
-          },
-        }),
         window.React.createElement("canvas", {
           id: "preview-qrcode",
         })
@@ -228,36 +203,34 @@ if (isMobile || location.search.indexOf("isPc=1") > -1) {
 
   const Container = () => {
     return window.React.createElement(
-      'div',
+      "div",
       {
         style: {
-          display: 'flex',
+          display: "flex",
           maxWidth: 900,
-          width: '100%',
-          height: '100vh',
-          position: 'absolute',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          marginLeft: 140
-        }
+          width: "100%",
+          height: "100vh",
+          position: "absolute",
+          left: "50%",
+          transform: "translateX(-50%)",
+          marginLeft: 140,
+        },
       },
       window.React.createElement(RenderIframe, null),
       window.React.createElement(QRCode, null)
     );
   };
-  
-  window.ReactDOM.render(window.React.createElement(Container, null), document.querySelector("#root"));
+
+  window.ReactDOM.render(
+    window.React.createElement(Container, null),
+    document.querySelector("#root")
+  );
 }
 
 function isMobile() {
-  let isMobile = false;
-
   const ua = navigator.userAgent;
-  if (ua) {
-    isMobile =
-      /(iPhone|iPod|iPad|Android|ios)/i.test(ua) ||
-      /AppleWebKit.*Mobile.*/i.test(ua);
-  }
-
-  return isMobile;
+  return (
+    /(iPhone|iPod|iPad|Android|ios)/i.test(ua) ||
+    /AppleWebKit.*Mobile.*/i.test(ua)
+  );
 }

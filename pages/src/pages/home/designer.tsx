@@ -399,6 +399,7 @@ export default function MyDesigner({ appData }) {
           json: toJSON,
           envType,
           commitInfo,
+          targetEnv: getTargetEnv(curComLibs),
         }
       );
 
