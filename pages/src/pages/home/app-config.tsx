@@ -631,7 +631,7 @@ export default function (ctx, save, designerRef, remotePlugins = []) {
             type: "popup",
             title: "弹出层",
             template: {
-              namespace: "mybricks.normal-h5.popup",
+              namespace: "mybricks.normal-vue.popup",
               deletable: false,
               asRoot: true,
             },
