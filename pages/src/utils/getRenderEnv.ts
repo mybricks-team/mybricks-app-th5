@@ -5,7 +5,7 @@ export const getRenderEnv = () => {
     pxToVw: {},
     events,
     pageType: 'H5',
-    silent: false,
+    silent: true,
     runtime: true,
     showErrorNotification: false,
     canvasElement: document.body,

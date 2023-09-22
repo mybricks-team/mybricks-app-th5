@@ -17,6 +17,35 @@ export default class Th5Controller {
   @Inject(Service)
   service: Service
 
+  @Post('/preview')
+  async preview(
+    @Body('userId') userId: string,
+    @Body('fileId') fileId: number,
+    @Body('json') json: any,
+    @Body('envType') envType: string,
+    @Body('commitInfo') commitInfo: string,
+    @Body('targetEnv') targetEnv: string,
+    @Req() req: any
+  ) {
+    if (!isDefined(json) || !isDefined(userId) || !isDefined(fileId)) {
+      return { code: 0, message: '参数 json、userId、fileId 不能为空' };
+    }
+    try {
+      const result = await this.service.preview(req, { json, userId, fileId, envType, commitInfo, targetEnv });
+
+      return {
+        code: 1,
+        data: result,
+        message: '发布完成'
+      }
+    } catch (error) {
+      return {
+        code: -1,
+        message: error.message || '发布失败'
+      }
+    }
+  }
+
   @Post('/publish')
   async publish(
     @Body('userId') userId: string,

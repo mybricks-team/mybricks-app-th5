@@ -8,7 +8,6 @@ const projectId = '--slot-project-id--' //replace it
 const executeEnv = '--executeEnv--' //replace it
 const envList = "--envList--" //replace it
 
-
 function cssVariable(dumpJson) {
   const themes = dumpJson?.plugins?.['@mybricks/plugins/theme/use']?.themes
   if (Array.isArray(themes)) {

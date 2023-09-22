@@ -9,6 +9,7 @@ const BuildPlugin = require('./buildplugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const WebpackBar = require('webpackbar')
 const HtmlWebpackInlineSourcePlugin = require('@effortlessmotion/html-webpack-inline-source-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = merge(common, {
   mode: 'production',
@@ -37,15 +38,42 @@ module.exports = merge(common, {
       template: path.resolve(__dirname, '../templates/index.html'),
       chunks: ['index'],
     }),
-    new HtmlWebpackPlugin({
-      filename: 'preview.html',
-      template: path.resolve(__dirname, '../templates/preview.html'),
-      chunks: ['preview'],
-    }),
+    // new HtmlWebpackPlugin({
+    //   filename: 'preview.html',
+    //   template: path.resolve(__dirname, '../templates/preview.html'),
+    //   chunks: ['preview'],
+    // }),
     new HtmlWebpackPlugin({
       filename: 'setting.html',
       template: path.resolve(__dirname, '../templates/setting.html'),
       chunks: ['setting'],
+    }),
+    new HtmlWebpackPlugin({
+      filename: 'preview.vue2.html',
+      template: path.resolve(__dirname, '../templates/preview.ejs'),
+      inlineSource: '.(js)$',
+      inject: 'body',
+      removeComments: false,
+      chunks: ['preview'],
+      target: 'vue2'
+    }),
+    new HtmlWebpackPlugin({
+      filename: 'preview.vue3.html',
+      template: path.resolve(__dirname, '../templates/preview.ejs'),
+      inlineSource: '.(js)$',
+      inject: 'body',
+      removeComments: false,
+      chunks: ['preview'],
+      target: 'vue3'
+    }),
+    new HtmlWebpackPlugin({
+      filename: 'preview.react.html',
+      template: path.resolve(__dirname, '../templates/preview.ejs'),
+      inlineSource: '.(js)$',
+      inject: 'body',
+      removeComments: false,
+      chunks: ['preview'],
+      target: 'react'
     }),
     new HtmlWebpackPlugin({
       filename: 'publish.vue2.html',
@@ -74,6 +102,11 @@ module.exports = merge(common, {
       chunks: ['publish'],
       target: 'react'
     }),
-    new HtmlWebpackInlineSourcePlugin()
+    new HtmlWebpackInlineSourcePlugin(),
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: path.resolve(__dirname, '../templates/public'), to: "public" },
+      ],
+    })
   ]
 })
