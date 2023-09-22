@@ -9,7 +9,7 @@ import { TargetEnv } from "./types";
 
 @Injectable()
 export default class PcPageService {
-  async _generateComLibRT(comlibs, json, { domainName, fileId, noThrowError }) {
+  async _generateComLibRT(comlibs, json, { domainName, fileId, noThrowError, targetEnv }) {
     /**
      * TODO:
      * 1.目前应用里配置的edit.js 一定有 rt.js
@@ -86,7 +86,7 @@ export default class PcPageService {
     return generateComLib(
       comLibContents.filter((lib) => !!lib.componentRuntimeMap),
       deps,
-      { comLibId: fileId, noThrowError }
+      { comLibId: fileId, noThrowError, targetEnv }
     );
   }
 
@@ -181,11 +181,7 @@ export default class PcPageService {
       let comboScriptText = "";
       /** 生成 combo 组件库代码 */
       if (needCombo) {
-        comboScriptText = await this._generateComLibRT(comlibs, json, {
-          domainName,
-          fileId,
-          noThrowError: hasOldComLib,
-        });
+        comboScriptText = await this._generateComLibRT(comlibs, json, {domainName, fileId, noThrowError: hasOldComLib, targetEnv });
       }
 
       if (customPublishApi) {
@@ -339,6 +335,7 @@ export default class PcPageService {
           domainName,
           fileId,
           noThrowError: hasOldComLib,
+          targetEnv,
         });
       }
 

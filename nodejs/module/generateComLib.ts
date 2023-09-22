@@ -1,5 +1,7 @@
-export const generateComLib = (allComLibs: any[], allComponents: any[], options: { comLibId: number; noThrowError: boolean, targetEnv?: 'react' | 'vue' | 'vue3' }) => {
-	const { comLibId, noThrowError, targetEnv = 'react' } = options;
+import { TargetEnv } from "./types";
+
+export const generateComLib = (allComLibs: any[], allComponents: any[], options: { comLibId: number; noThrowError: boolean, targetEnv?: TargetEnv }) => {
+	const { comLibId, noThrowError, targetEnv = TargetEnv.React } = options;
 	let script = '';
 
 	allComponents.forEach(component => {
@@ -28,10 +30,34 @@ export const generateComLib = (allComLibs: any[], allComponents: any[], options:
 			}
 		}
 
+		console.log('curComponent', curComponent)
+		let componentRuntime = ''
+		switch (true) {
+			case targetEnv === TargetEnv.React: {
+				componentRuntime = curComponent.runtime;
+				break
+			}
+
+			case targetEnv === TargetEnv.Vue2: {
+				componentRuntime = curComponent['runtime.vue'] ?? curComponent.runtime;
+				break
+			}
+
+			case targetEnv === TargetEnv.Vue3: {
+				componentRuntime = curComponent['runtime.vue'] ?? curComponent.runtime;
+				break
+			}
+		
+			default: {
+				componentRuntime = curComponent.runtime;
+				break
+			}
+		}
+
 		script += lib.defined ? `
-			comAray.push({ namespace: '${component.namespace}', version: '${curComponent.version}', runtime: ${decodeURIComponent(curComponent.runtime)} });
+			comAray.push({ namespace: '${component.namespace}', version: '${curComponent.version}', runtime: ${decodeURIComponent(componentRuntime)} });
 		` : `
-			eval(${JSON.stringify(decodeURIComponent(curComponent.runtime))});
+			eval(${JSON.stringify(decodeURIComponent(componentRuntime))});
 			comAray.push({ namespace: '${component.namespace}', version: '${curComponent.version}', runtime: window.fangzhouComDef.default });
 		`;
 	});

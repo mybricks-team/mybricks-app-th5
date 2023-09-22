@@ -10,6 +10,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express'
 
 import Service from './service'
+import { TargetEnv } from './types';
 
 @Controller('api/th5')
 export default class Th5Controller {
@@ -23,13 +24,14 @@ export default class Th5Controller {
     @Body('json') json: any,
     @Body('envType') envType: string,
     @Body('commitInfo') commitInfo: string,
+    @Body('targetEnv') targetEnv: string,
     @Req() req: any
   ) {
     if (!isDefined(json) || !isDefined(userId) || !isDefined(fileId)) {
       return { code: 0, message: '参数 json、userId、fileId 不能为空' };
     }
     try {
-      const result = await this.service.preview(req, { json, userId, fileId, envType, commitInfo });
+      const result = await this.service.preview(req, { json, userId, fileId, envType, commitInfo, targetEnv });
 
       return {
         code: 1,
@@ -51,6 +53,7 @@ export default class Th5Controller {
     @Body('json') json: any,
     @Body('envType') envType: string,
     @Body('commitInfo') commitInfo: string,
+    @Body('targetEnv') targetEnv: string,
 
     // @Body('manateeUserInfo') manateeUserInfo: {token: string, session: string},
     @Req() req: any
@@ -59,7 +62,7 @@ export default class Th5Controller {
       return { code: 0, message: '参数 json、userId、fileId 不能为空' };
     }
     try {
-      const result = await this.service.publish(req, { json, userId, fileId, envType, commitInfo });
+      const result = await this.service.publish(req, { json, userId, fileId, envType, commitInfo, targetEnv });
 
       return {
         code: 1,
