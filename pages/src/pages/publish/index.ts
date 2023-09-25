@@ -104,10 +104,25 @@ function render() {
   }
 }
 
+const injectBodyBackground = (projectJson, root) => {
+  if (Array.isArray(projectJson?.scenes)) {
+    const backgroundColor = projectJson?.scenes?.[0]?.slot?.style?.backgroundColor;
+
+    const style = document.createElement("style");
+    style.innerHTML = `${root} {
+      background-color: ${backgroundColor ?? '#ffffff'}
+    }
+    `;
+    document.body.appendChild(style);
+  }
+}
+
 // render();
 if (isMobile() || location.search.indexOf("isPc=1") > -1) {
+  injectBodyBackground(projectJson, 'body');
   render();
 } else {
+  injectBodyBackground(projectJson, 'iframe');
   document.querySelector("#root").remove();
 
   let iframe = document.createElement("iframe");
