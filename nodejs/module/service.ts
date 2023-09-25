@@ -71,10 +71,12 @@ export default class PcPageService {
         finalComponents.forEach((finalComponent) => {
           const { version, namespace, runtime } = finalComponent;
 
-          if (version && namespace && runtime) {
+          const runtimeContent = targetEnv === TargetEnv.Vue2 ? encodeURIComponent(finalComponent['runtime.vue']) : encodeURIComponent(runtime);
+
+          if (version && namespace && runtimeContent) {
             comLibContents[0].componentRuntimeMap[namespace + "@" + version] = {
               version,
-              runtime: encodeURIComponent(runtime),
+              runtime: runtimeContent,
             };
           }
         });

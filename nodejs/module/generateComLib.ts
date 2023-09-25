@@ -30,7 +30,6 @@ export const generateComLib = (allComLibs: any[], allComponents: any[], options:
 			}
 		}
 
-		console.log('curComponent', curComponent)
 		let componentRuntime = ''
 		switch (true) {
 			case targetEnv === TargetEnv.React: {
