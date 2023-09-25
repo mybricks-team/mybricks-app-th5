@@ -1,41 +1,70 @@
-import React, { useEffect, useState } from "react";
-import API from "@mybricks/sdk-for-app/api";
+import React, { useEffect, useState } from 'react'
+import API from '@mybricks/sdk-for-app/api'
 
-import ConfigServer from "./ConfigServer";
-import ConfigEnv from "./ConfigEnv";
-import useConfig from "./useConfig";
-import ConfigPlugin from "./ConfigPlugin";
-export const _NAMESPACE_ = APP_NAME;
-import style from "./app.less";
-import { Collapse, Spin } from "antd";
+import ConfigServer from './ConfigServer'
+import ConfigEnv from './ConfigEnv'
+import useConfig from './useConfig'
+import ConfigPlugin from './ConfigPlugin'
+export const _NAMESPACE_ = APP_NAME
+import style from './app.less'
+import { Collapse, Spin, Card, Form, Switch } from 'antd'
 
 export default (props) => {
-  const { options = {} } = props;
-  const configContext = useConfig(_NAMESPACE_, {}, options);
+  const { options = {} } = props
+  const configContext = useConfig(_NAMESPACE_, {}, options)
 
-  const isInGroup = options?.type === "group";
+  const isInGroup = options?.type === 'group'
   return (
-    <Spin spinning={configContext.loading}>
-      <Collapse
-        style={{ padding: 24 }}
-        className={style.wrapper}
-        defaultActiveKey={[1, 2, 3]}
-      >
-        {/* {!isInGroup && <Collapse.Panel key={1} header="服务地址">
-        <ConfigServer {...configContext} />
-      </Collapse.Panel>} */}
-        <Collapse.Panel key={1} header="发布环境">
+    <div style={{ paddingBottom: 30 }}>
+      <Spin spinning={configContext.loading}>
+      <Card type="inner" title="页面渲染" style={{ marginTop: 0 }}>
+          <Form>
+            <Form.Item
+              label="智能分包"
+              name="splitChunk"
+              extra={<p style={{ fontSize: 13 }}>开启后将会自动对超过文件大小阈值的bundle进行拆包</p>}
+              // rules={[
+              //   { required: true, message: 'Please input your username!' },
+              // ]}
+            >
+              <Switch checked={configContext.config?.splitChunk} onChange={val => configContext.mergeUpdateConfig({ splitChunk: val })} />
+            </Form.Item>
+            <Form.Item
+              label="图片懒加载"
+              name="lazyImage"
+              extra={<p style={{ fontSize: 13 }}>开启后，使用了data-src的img标签图片将会等到出现在视口区域再加载</p>}
+              // rules={[
+              //   { required: true, message: 'Please input your username!' },
+              // ]}
+            >
+              <Switch checked={configContext.config?.lazyImage} onChange={val => configContext.mergeUpdateConfig({ lazyImage: val })} />
+            </Form.Item>
+          </Form>
+        </Card>
+        <Card type="inner" title="发布环境" style={{ marginTop: 30 }}>
           <ConfigEnv {...configContext} />
-        </Collapse.Panel>
+        </Card>
+        {/* <Collapse
+          style={{ padding: 24 }}
+          className={style.wrapper}
+          defaultActiveKey={[1, 2, 3]}
+        >
+          {!isInGroup && <Collapse.Panel key={1} header="服务地址">
+          <ConfigServer {...configContext} />
+        </Collapse.Panel>}
+          <Collapse.Panel key={1} header="发布环境">
+            <ConfigEnv {...configContext} />
+          </Collapse.Panel>
 
-        {/* <Collapse.Panel key={2} header="header 注入">
-          <div ref={headerEditor} style={{ height: 300 }}></div>
-        </Collapse.Panel> */}
+          <Collapse.Panel key={2} header="header 注入">
+            <div ref={headerEditor} style={{ height: 300 }}></div>
+          </Collapse.Panel>
 
-        {/* {!isInGroup && <Collapse.Panel key={3} header="插件配置">
-        <ConfigPlugin {...configContext} />
-      </Collapse.Panel>} */}
-      </Collapse>
-    </Spin>
-  );
-};
+          {!isInGroup && <Collapse.Panel key={3} header="插件配置">
+          <ConfigPlugin {...configContext} />
+        </Collapse.Panel>}
+        </Collapse> */}
+      </Spin>
+    </div>
+  )
+}

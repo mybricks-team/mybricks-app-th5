@@ -773,5 +773,7 @@ const getTargetEnv = (curComLibs) => {
     }
   });
 
+  return TargetEnv.Vue2
+
   return hasNoVueComponent ? TargetEnv.React : TargetEnv.Vue2;
 };

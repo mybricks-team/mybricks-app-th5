@@ -33,6 +33,13 @@ module.exports = merge(common, {
         secure: false,
         changeOrigin: true,
       },
+      // {
+      //   context: ['/api/material/components/combo'],
+      //   target: 'http://localhost:9002',
+      //   pathRewrite: { '^/api/material/components/combo': '/api/th5/getMock' },
+      //   secure: false,
+      //   changeOrigin: true,
+      // },
       {
         context: ['/'],
         // target: 'http://testweb.manateeai.com/',

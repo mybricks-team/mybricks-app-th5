@@ -158,7 +158,7 @@ export default (ctx) => (libDesc) => {
 		            defaultSelected: getSelfComponents(),
 		            userId: ctx.user?.id,
 		            combo: true,
-                scene: "H5"
+                tags: [1]
 	            },
 	            onSuccess: ({ materials, updatedMaterials }) => {
                 const newComponents = addSelfLibComponents(materials)
