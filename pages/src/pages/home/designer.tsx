@@ -355,7 +355,6 @@ export default function MyDesigner({ appData }) {
       json.debugMainProps = ctx.debugMainProps;
       json.hasPermissionFn = ctx.hasPermissionFn;
       json.debugHasPermissionFn = ctx.debugHasPermissionFn;
-      json.headTags = ctx.headTags;
       json.projectId = ctx.sdk.projectId;
 
       await ctx.save(
@@ -374,7 +373,6 @@ export default function MyDesigner({ appData }) {
           configuration: {
             // scripts: encodeURIComponent(scripts),
             comlibs: curComLibs,
-            headTags: ctx.headTags,
             title: ctx.fileItem.name,
             publisherEmail: ctx.user.email,
             publisherName: ctx.user?.name,
@@ -463,7 +461,6 @@ export default function MyDesigner({ appData }) {
         json.debugMainProps = ctx.debugMainProps;
         json.hasPermissionFn = ctx.hasPermissionFn;
         json.debugHasPermissionFn = ctx.debugHasPermissionFn;
-        json.headTags = ctx.headTags;
         json.projectId = ctx.sdk.projectId;
 
         await ctx.save(
@@ -482,7 +479,6 @@ export default function MyDesigner({ appData }) {
             configuration: {
               // scripts: encodeURIComponent(scripts),
               comlibs: curComLibs,
-              headTags: ctx.headTags,
               title: ctx.fileItem.name,
               publisherEmail: ctx.user.email,
               publisherName: ctx.user?.name,

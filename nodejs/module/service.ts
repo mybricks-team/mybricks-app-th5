@@ -5,6 +5,7 @@ import axios from "axios";
 import * as path from "path";
 import API from "@mybricks/sdk-for-app/api";
 import { generateComLib } from "./generateComLib";
+import pkgJson from './../../package.json';
 import { TargetEnv } from "./types";
 
 @Injectable()
@@ -116,7 +117,6 @@ export default class PcPageService {
         groupName,
         executeEnv,
         envList = [],
-        headTags,
       } = json.configuration;
 
       Reflect.deleteProperty(json, "configuration");
@@ -130,6 +130,11 @@ export default class PcPageService {
       console.info("[publish] domainName is:", domainName);
 
       const themesStyleStr = this._genThemesStyleStr(json);
+      
+      const appConfig = await getAppConfig();
+      const headTags = await this.getHeadTagFromConfig(appConfig);
+
+      console.info('插入代码', headTags, appConfig)
 
       console.info("[publish] getLatestPub begin");
       const latestPub = (
@@ -266,7 +271,6 @@ export default class PcPageService {
         groupId,
         groupName,
         envList = [],
-        headTags,
       } = json.configuration;
 
       Reflect.deleteProperty(json, "configuration");
@@ -280,6 +284,9 @@ export default class PcPageService {
       console.info("[publish] domainName is:", domainName);
 
       const themesStyleStr = this._genThemesStyleStr(json);
+      
+      const appConfig = await getAppConfig();
+      const headTags = await this.getHeadTagFromConfig(appConfig);
 
       console.info("[publish] getLatestPub begin");
       const latestPub = (
@@ -421,11 +428,21 @@ export default class PcPageService {
 
     return themesStyleStr;
   }
+
+  private getHeadTagFromConfig(appConfig) {
+    const { headTags, lazyImage } = appConfig ?? {};
+
+    const mutationObserver = '<script data-must="1" crossorigin="anonymous" src="https://f2.eckwai.com/udata/pkg/eshop/fangzhou/res/mutationobserver.min.js"></script>'
+
+    const scriptsContent = `${headTags ?? ''}${lazyImage ? mutationObserver : ''}`;
+
+    return scriptsContent
+  }
 }
 
 // 不传groupId表示获取的是全局配置
 const getAppConfig = async ({ groupId } = {} as any) => {
-  const _NAMESPACE_ = "mybricks-app-pcspa";
+  const _NAMESPACE_ = pkgJson.name;
   const options = !!groupId ? { type: "group", id: groupId } : {};
   const res = await API.Setting.getSetting([_NAMESPACE_], options);
 

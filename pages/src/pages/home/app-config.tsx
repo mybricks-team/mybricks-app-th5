@@ -348,28 +348,28 @@ export default function (ctx, save, designerRef, remotePlugins = []) {
 
         cate1.title = `高级`;
         cate1.items = [
-          {
-            title: "头部标签",
-            type: "code",
-            description: "可在<head>标签内注入内容，注入位置在标签的最后",
-            options: {
-              title: "编辑",
-              language: "html",
-              width: 500,
-              minimap: {
-                enabled: false,
-              },
-              displayType: "button",
-            },
-            value: {
-              get() {
-                return ctx.headTags || "";
-              },
-              set(context: any, v: string) {
-                ctx.headTags = v;
-              },
-            },
-          },
+          // {
+          //   title: "头部标签",
+          //   type: "code",
+          //   description: "可在<head>标签内注入内容，注入位置在标签的最后",
+          //   options: {
+          //     title: "编辑",
+          //     language: "html",
+          //     width: 500,
+          //     minimap: {
+          //       enabled: false,
+          //     },
+          //     displayType: "button",
+          //   },
+          //   value: {
+          //     get() {
+          //       return ctx.headTags || "";
+          //     },
+          //     set(context: any, v: string) {
+          //       ctx.headTags = v;
+          //     },
+          //   },
+          // },
         ];
       },
     },

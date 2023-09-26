@@ -7,7 +7,7 @@ import useConfig from './useConfig'
 import ConfigPlugin from './ConfigPlugin'
 export const _NAMESPACE_ = APP_NAME
 import style from './app.less'
-import { Collapse, Spin, Card, Form, Switch } from 'antd'
+import { Collapse, Spin, Card, Form, Switch, Input } from 'antd'
 // import ManacoEditor from './../components/manaco';
 
 const HTML_CODE =
@@ -53,6 +53,7 @@ export default (props) => {
               //   { required: true, message: 'Please input your username!' },
               // ]}
             >
+              <Input.TextArea rows={3} placeholder={HTML_CODE} value={configContext.config?.headTags} onBlur={(e) => { configContext.mergeUpdateConfig({ headTags: e.target.value }) }} />
               {/* <ManacoEditor defaultValue={HTML_CODE}  onChange={val => configContext.mergeUpdateConfig({ headTags: val })} /> */}
             </Form.Item>
           </Form>
