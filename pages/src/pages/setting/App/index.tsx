@@ -8,6 +8,12 @@ import ConfigPlugin from './ConfigPlugin'
 export const _NAMESPACE_ = APP_NAME
 import style from './app.less'
 import { Collapse, Spin, Card, Form, Switch } from 'antd'
+// import ManacoEditor from './../components/manaco';
+
+const HTML_CODE =
+`<!-- 请输入Html代码，使用非常耗时的代码可能会影响页面渲染速度 -->
+<!-- <script src="链接"></script> -->
+`;
 
 export default (props) => {
   const { options = {} } = props
@@ -38,6 +44,16 @@ export default (props) => {
               // ]}
             >
               <Switch checked={configContext.config?.lazyImage} onChange={val => configContext.mergeUpdateConfig({ lazyImage: val })} />
+            </Form.Item>
+            <Form.Item
+              label="头部标签"
+              name="headTags"
+              // extra={<p style={{ fontSize: 13 }}>开启后，使用了data-src的img标签图片将会等到出现在视口区域再加载</p>}
+              // rules={[
+              //   { required: true, message: 'Please input your username!' },
+              // ]}
+            >
+              {/* <ManacoEditor defaultValue={HTML_CODE}  onChange={val => configContext.mergeUpdateConfig({ headTags: val })} /> */}
             </Form.Item>
           </Form>
         </Card>
