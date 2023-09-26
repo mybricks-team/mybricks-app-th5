@@ -5,8 +5,12 @@ import axios from "axios";
 import * as path from "path";
 import API from "@mybricks/sdk-for-app/api";
 import { generateComLib } from "./generateComLib";
-import pkgJson from './../../package.json';
+// import pkgJson from './../../package.json';
 import { TargetEnv } from "./types";
+
+const pkgJson =  {
+  name: 'mybricks-app-th5'
+}
 
 @Injectable()
 export default class PcPageService {
