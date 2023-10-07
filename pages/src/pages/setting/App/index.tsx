@@ -56,6 +56,7 @@ export default (props) => {
               <Input.TextArea rows={3} placeholder={HTML_CODE} value={configContext.config?.headTags} onBlur={(e) => { configContext.mergeUpdateConfig({ headTags: e.target.value }) }} />
               {/* <ManacoEditor defaultValue={HTML_CODE}  onChange={val => configContext.mergeUpdateConfig({ headTags: val })} /> */}
             </Form.Item>
+
           </Form>
         </Card>
         <Card type="inner" title="发布环境" style={{ marginTop: 30 }}>

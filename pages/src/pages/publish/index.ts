@@ -69,6 +69,8 @@ const env = {
       return Promise.reject("错误的连接器类型.");
     }
   },
+  // 自定义方法
+
 };
 
 function render() {
@@ -167,8 +169,7 @@ if (isMobile() || location.search.indexOf("isPc=1") > -1) {
   document.body.appendChild(Container);
 
   let script = document.createElement("script");
-  script.src =
-    "https://f2.eckwai.com/udata/pkg/eshop/fangzhou/pub/pkg/qrcode/qrcode.js";
+  script.src = "https://f2.eckwai.com/udata/pkg/eshop/fangzhou/pub/pkg/qrcode/qrcode.js";
   script.onload = () => {
     window.QRCode.toCanvas(
       document.getElementById("preview-qrcode"),

@@ -5,8 +5,12 @@ import axios from "axios";
 import * as path from "path";
 import API from "@mybricks/sdk-for-app/api";
 import { generateComLib } from "./generateComLib";
-import pkgJson from './../../package.json';
+// import pkgJson from './../../package.json';
 import { TargetEnv } from "./types";
+
+const pkgJson =  {
+  name: 'mybricks-app-th5'
+}
 
 @Injectable()
 export default class PcPageService {
@@ -432,7 +436,7 @@ export default class PcPageService {
   private getHeadTagFromConfig(appConfig) {
     const { headTags, lazyImage } = appConfig ?? {};
 
-    const mutationObserver = '<script data-must="1" crossorigin="anonymous" src="https://f2.eckwai.com/udata/pkg/eshop/fangzhou/res/mutationobserver.min.js"></script>'
+    const mutationObserver = '<script data-must="1" crossorigin="anonymous" src="//f2.eckwai.com/udata/pkg/eshop/fangzhou/res/mutationobserver.min.js"></script>'
 
     const scriptsContent = `${headTags ?? ''}${lazyImage ? mutationObserver : ''}`;
 
