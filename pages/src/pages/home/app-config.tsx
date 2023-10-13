@@ -8,7 +8,8 @@ import servicePlugin, {
 import versionPlugin from "mybricks-plugin-version";
 import toolsPlugin from "@mybricks/plugin-tools";
 import { use as useTheme } from "@mybricks/plugin-theme";
-
+// import { use as useTheme } from "../../../../../plugin-theme/src";
+import { burialPoint } from "./plugins/burialPoint";
 import { render as renderUI } from "@mybricks/render-web";
 import comlibLoaderFunc from "./configs/comlibLoader";
 import { comLibAdderFunc } from "./configs/comLibAdder";
@@ -117,6 +118,9 @@ export default function (ctx, save, designerRef, remotePlugins = []) {
     },
     plugins: [
       servicePlugin(),
+      burialPoint(
+        designerRef
+      ),
       versionPlugin({
         user: ctx.user,
         file: ctx.fileItem,

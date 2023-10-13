@@ -365,6 +365,9 @@ export default function MyDesigner({ appData }) {
       setBeforeunload(false);
 
       const curToJSON = designerRef?.current?.toJSON();
+
+      // window.test = designerRef?.current?.toJSON;
+
       const curComLibs = await genLazyloadComs(ctx.comlibs, curToJSON);
 
       const toJSON = JSON.parse(
