@@ -3,6 +3,7 @@ import css from "./burialPoint.less";
 import viewStyle from "./view.less";
 import useStyle from "./index.less";
 import classNames from "classnames";
+import { PlusOutlined, RemoveOutlined } from './pl-icon'
 import { Drawer, Input, Button, Radio } from "antd";
 
 export default function BurialPoint(props) {
@@ -177,36 +178,55 @@ export default function BurialPoint(props) {
   }, [comInstanceTrack]);
 
   return (
-    <div className={css.panel}>
-      <div className={css.title}>埋点编辑</div>
-      <div className={css.content}>
-        <div className={css.pageCode}>
-          编辑 {pageCodeTitle}：
-          <input
-            className={css.input}
-            type="text"
-            onChange={pageCodeChange}
-            value={pageCode}
-          />{" "}
-        </div>
-        {Ary.map((item, index) => (
-          <div className={css.item}>
-            <div className={css.name}>{item.title}</div>
-            <div className={css.id}>{item.id}</div>
-            <div
-              className={css.btn}
-              onClick={() => {
-                setDrawShow(true);
-                setEditItem(item);
-              }}
-            >
-              编辑
-            </div>
-          </div>
-        ))}
+    <div className={viewStyle.view}>
+      <div className={viewStyle.header}>
+        埋点方案配置
       </div>
+      <div className={useStyle.toolbar}>
+        <div className={useStyle.search}>
+          <input
+            type={'text'}
+            placeholder={'请输入 pagecode '}
+            onChange={()=>{}}
+          />
+          <div className={useStyle.icon} data-mybricks-tip='添加埋点方案' onClick={()=>{}}>
+            {PlusOutlined}
+          </div>
+        </div>
+      </div>
+    {/* 这里放列表 */}
+    </div>
 
-      <Drawer
+    // <div className={css.panel}>
+    //   <div className={css.title}>埋点编辑</div>
+    //   <div className={css.content}>
+    //     <div className={css.pageCode}>
+    //       编辑 {pageCodeTitle}：
+    //       <input
+    //         className={css.input}
+    //         type="text"
+    //         onChange={pageCodeChange}
+    //         value={pageCode}
+    //       />{" "}
+    //     </div>
+    //     {Ary.map((item, index) => (
+    //       <div className={css.item}>
+    //         <div className={css.name}>{item.title}</div>
+    //         <div className={css.id}>{item.id}</div>
+    //         <div
+    //           className={css.btn}
+    //           onClick={() => {
+    //             setDrawShow(true);
+    //             setEditItem(item);
+    //           }}
+    //         >
+    //           编辑
+    //         </div>
+    //       </div>
+    //     ))}
+    //   </div>
+
+      /* <Drawer
         title="埋点信息编辑"
         placement="left"
         closable={true}
@@ -242,8 +262,8 @@ export default function BurialPoint(props) {
         >
           确定
         </div>
-      </Drawer>
-    </div>
+      </Drawer> */
+
   );
 }
 
