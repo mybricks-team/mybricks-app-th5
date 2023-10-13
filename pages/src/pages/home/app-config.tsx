@@ -4,6 +4,10 @@ import servicePlugin, {
   call as callConnectorHttp,
   mock as connectorHttpMock,
 } from "@mybricks/plugin-connector-http";
+// import servicePlugin, {
+//   call as callConnectorHttp,
+//   mock as connectorHttpMock,
+// } from "../../../../../plugin-connector-http/src";
 // import { openFilePanel } from "@mybricks/sdk-for-app/ui";
 import versionPlugin from "mybricks-plugin-version";
 import toolsPlugin from "@mybricks/plugin-tools";

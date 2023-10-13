@@ -3,7 +3,7 @@ import css from "./burialPoint.less";
 import viewStyle from "./view.less";
 import useStyle from "./index.less";
 import classNames from "classnames";
-import { PlusOutlined, RemoveOutlined } from './pl-icon'
+import { PlusOutlined, RemoveOutlined } from "./pl-icon";
 import { Drawer, Input, Button, Radio } from "antd";
 
 export default function BurialPoint(props) {
@@ -12,11 +12,13 @@ export default function BurialPoint(props) {
   const [Ary, setAry] = useState([]);
   const [pageCode, setPageCode] = useState();
   const [pageCodeTitle, setPageCodeTitle] = useState("pageCode");
-  const [drawerShow, setDrawShow] = useState(false);
   const [editItem, setEditItem] = useState<any>({});
   const [editEvent, setEditEvent] = useState<any>([]);
   const [targetEventKeyValues, setTargetEventKeyValues] = useState({});
-  const [comInstanceTrack, setComInstanceTrack] = useState(data.comInstanceTrack);
+  const [comInstanceTrack, setComInstanceTrack] = useState(
+    data.comInstanceTrack
+  );
+  const [drawerShow, setDrawShow] = useState(false);
 
   let burialPointComAry = {
     pageEnv: {
@@ -178,23 +180,39 @@ export default function BurialPoint(props) {
   }, [comInstanceTrack]);
 
   return (
-    <div className={viewStyle.view}>
-      <div className={viewStyle.header}>
-        埋点方案配置
-      </div>
-      <div className={useStyle.toolbar}>
-        <div className={useStyle.search}>
-          <input
-            type={'text'}
-            placeholder={'请输入 pagecode '}
-            onChange={()=>{}}
-          />
-          <div className={useStyle.icon} data-mybricks-tip='添加埋点方案' onClick={()=>{}}>
-            {PlusOutlined}
+    <div>
+      <div className={viewStyle.view}>
+        <div className={viewStyle.header}>埋点方案配置</div>
+        <div className={useStyle.toolbar}>
+          <div className={useStyle.search}>
+            <input
+              type={"text"}
+              placeholder={`请输入 ${pageCodeTitle} `}
+              onChange={() => {}}
+            />
+            <div
+              className={useStyle.icon}
+              data-mybricks-tip="添加埋点方案"
+              onClick={() => {
+                setDrawShow(!drawerShow);
+              }}
+            >
+              {PlusOutlined}
+            </div>
           </div>
         </div>
+        {/* 这里放选取之后的列表 */}
       </div>
-    {/* 这里放列表 */}
+
+      {drawerShow && (
+        <div className={css.drawer}>
+          <div className={css.title}>埋点方案列表</div>
+          <div className={css.contant}>
+            <div className={css.item}>方案1</div>
+            <div className={css.item}>方案2</div>
+          </div>
+        </div>
+      )}
     </div>
 
     // <div className={css.panel}>
@@ -226,7 +244,7 @@ export default function BurialPoint(props) {
     //     ))}
     //   </div>
 
-      /* <Drawer
+    /* <Drawer
         title="埋点信息编辑"
         placement="left"
         closable={true}
@@ -263,7 +281,6 @@ export default function BurialPoint(props) {
           确定
         </div>
       </Drawer> */
-
   );
 }
 
