@@ -136,6 +136,17 @@ export default function BurialPoint(props) {
           </div>
         </div>
         {/* 这里放选取之后的列表 */}
+        <div className={css.selectedInfo}>
+          <div className={css.title}>当前选择的方案</div>
+          <div className={css.contant}>
+            <img
+            className={css.img}
+              src="http://my.mybricks.world/mfs/files/1697443385246/e2XETMYyEJ3iBu8GXTjgIKQE4IXrI92A-1697443385560.png"
+              alt=""
+            />
+            <div className={css.text}>当前未选择方案，请点击右上角+进行选择</div>
+          </div>
+        </div>
       </div>
 
       {drawerShow && (
