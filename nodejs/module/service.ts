@@ -7,6 +7,7 @@ import API from "@mybricks/sdk-for-app/api";
 import { generateComLib } from "./generateComLib";
 // import pkgJson from './../../package.json';
 import { TargetEnv } from "./types";
+import { Logger } from '@mybricks/rocker-commons'
 
 const pkgJson =  {
   name: 'mybricks-app-th5'
@@ -131,22 +132,23 @@ export default class PcPageService {
           ? "http://localhost:9001"
           : getRealDomain(req);
       // const domainName = 'https://my.mybricks.world';
-      console.info("[publish] domainName is:", domainName);
+      Logger.info(`[publish] domainName is: ${domainName}`);
 
       const themesStyleStr = this._genThemesStyleStr(json);
       
       const appConfig = await getAppConfig();
       const headTags = await this.getHeadTagFromConfig(appConfig);
 
-      console.info('插入代码', headTags, appConfig)
+      // Logger.info('插入代码', headTags)
+      // Logger.info('插入代码', appConfig)
 
-      console.info("[publish] getLatestPub begin");
+      Logger.info("[publish] getLatestPub begin");
       const latestPub = (
         await API.File.getLatestPub({
           fileId,
         })
       )?.[0];
-      console.info("[publish] getLatestPub ok");
+      Logger.info("[publish] getLatestPub ok");
       const version = getNextVersion(latestPub?.version);
       let comLibRtScript = "";
       let needCombo = false;
@@ -188,7 +190,7 @@ export default class PcPageService {
         );
       let publishMaterialInfo;
       const customPublishApi = await getCustomPublishApi();
-      console.info("[publish] getCustomPublishApi=", customPublishApi);
+      Logger.info("[publish] getCustomPublishApi=", customPublishApi);
       let comboScriptText = "";
       /** 生成 combo 组件库代码 */
       if (needCombo) {
@@ -198,7 +200,7 @@ export default class PcPageService {
       if (customPublishApi) {
         // TODO
       } else {
-        console.info("[publish] upload to static server");
+        Logger.info("[publish] upload to static server");
 
         needCombo &&
           (await API.Upload.staticServer({
@@ -206,6 +208,7 @@ export default class PcPageService {
             folderPath: `${folderPath}/${envType || "prod"}`,
             fileName: comlibRtName,
             noHash: true,
+            domainName
           }));
 
         publishMaterialInfo = await API.Upload.staticServer({
@@ -213,9 +216,10 @@ export default class PcPageService {
           folderPath: `${folderPath}/${envType || "prod"}`,
           fileName,
           noHash: true,
+          domainName
         });
 
-        console.info(
+        Logger.info(
           "[publish] upload to static server ok",
           publishMaterialInfo
         );
@@ -233,7 +237,7 @@ export default class PcPageService {
         };
       }
 
-      console.info("[publish] API.File.publish: begin ");
+      Logger.info("[publish] API.File.publish: begin ");
       // const result = await API.File.publish({
       //   userId,
       //   fileId,
@@ -243,11 +247,11 @@ export default class PcPageService {
       //   type: envType,
       // });
 
-      console.info("[publish] API.File.publish: ok ");
+      Logger.info("[publish] API.File.publish: ok ");
 
       // return result;
     } catch (e) {
-      console.error("th5page publish error", e);
+      Logger.info("th5page publish error", e);
       throw e;
     }
   }
@@ -285,20 +289,20 @@ export default class PcPageService {
           ? "http://localhost:9001"
           : getRealDomain(req);
       // const domainName = 'https://my.mybricks.world';
-      console.info("[publish] domainName is:", domainName);
+      Logger.info(`[publish] domainName is: ${domainName}`);
 
       const themesStyleStr = this._genThemesStyleStr(json);
       
       const appConfig = await getAppConfig();
       const headTags = await this.getHeadTagFromConfig(appConfig);
 
-      console.info("[publish] getLatestPub begin");
+      Logger.info("[publish] getLatestPub begin");
       const latestPub = (
         await API.File.getLatestPub({
           fileId,
         })
       )?.[0];
-      console.info("[publish] getLatestPub ok");
+      Logger.info("[publish] getLatestPub ok");
       const version = getNextVersion(latestPub?.version);
       let comLibRtScript = "";
       let needCombo = false;
@@ -340,7 +344,7 @@ export default class PcPageService {
         );
       let publishMaterialInfo;
       const customPublishApi = await getCustomPublishApi();
-      console.info("[publish] getCustomPublishApi=", customPublishApi);
+      Logger.info("[publish] getCustomPublishApi=", customPublishApi);
       let comboScriptText = "";
       /** 生成 combo 组件库代码 */
       if (needCombo) {
@@ -355,7 +359,7 @@ export default class PcPageService {
       if (customPublishApi) {
         // TODO
       } else {
-        console.info("[publish] upload to static server");
+        Logger.info("[publish] upload to static server");
 
         needCombo &&
           (await API.Upload.staticServer({
@@ -363,6 +367,7 @@ export default class PcPageService {
             folderPath: `${folderPath}/${envType || "prod"}`,
             fileName: comlibRtName,
             noHash: true,
+            domainName
           }));
 
         publishMaterialInfo = await API.Upload.staticServer({
@@ -370,9 +375,10 @@ export default class PcPageService {
           folderPath: `${folderPath}/${envType || "prod"}`,
           fileName,
           noHash: true,
+          domainName
         });
 
-        console.info(
+        Logger.info(
           "[publish] upload to static server ok",
           publishMaterialInfo
         );
@@ -385,7 +391,7 @@ export default class PcPageService {
         }
       }
 
-      console.info("[publish] API.File.publish: begin ");
+      Logger.info("[publish] API.File.publish: begin ");
       const result = await API.File.publish({
         userId,
         fileId,
@@ -395,11 +401,11 @@ export default class PcPageService {
         type: envType,
       });
 
-      console.info("[publish] API.File.publish: ok ");
+      Logger.info("[publish] API.File.publish: ok ");
 
       return result;
     } catch (e) {
-      console.error("th5page publish error", e);
+      Logger.info("th5page publish error", e);
       throw e;
     }
   }
@@ -458,7 +464,7 @@ const getAppConfig = async ({ groupId } = {} as any) => {
         ? JSON.parse(originConfig)
         : originConfig;
   } catch (e) {
-    console.error("getAppConfig error", e);
+    Logger.info("getAppConfig error", e);
   }
   return config;
 };
@@ -468,7 +474,7 @@ const getCustomPublishApi = async () => {
   const { publishApiConfig = {} } = await getAppConfig();
   const { publishApi } = publishApiConfig;
   if (!publishApi) {
-    console.warn(`未配置发布集成接口`);
+    Logger.info(`未配置发布集成接口`);
   }
   return publishApi;
 };

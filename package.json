@@ -1,6 +1,6 @@
 {
   "name": "mybricks-app-th5",
-  "version": "1.0.19",
+  "version": "1.0.21",
   "description": "mybricks H5页面",
   "main": "index.js",
   "scripts": {
@@ -14,8 +14,9 @@
     "publishToNpm:beta": "npm run build:fe && npm publish --tag beta --registry=https://registry.npmjs.org --access=public && node sync.js --origin=https://my.mybricks.world"
   },
   "dependencies": {
+    "@mybricks/rocker-commons": "0.0.2",
     "@mybricks/rocker-dao": "^0.0.6",
-    "@mybricks/sdk-for-app": "^0.1.85",
+    "@mybricks/sdk-for-app": "^0.1.96",
     "@nestjs/common": "^8.0.0",
     "@nestjs/core": "^8.0.0",
     "@nestjs/platform-express": "^8.0.0",
