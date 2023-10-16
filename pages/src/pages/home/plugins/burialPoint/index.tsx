@@ -2,7 +2,7 @@ import { Icon } from "./Icons";
 import BurialPoint from "./burialPoint";
 import data from "./data";
 
-export const burialPoint = (designerRef) => {
+export const burialPoint = (designerRef,appData) => {
   return {
     name: "mybricks.pointer.bind",
     title: "埋点绑定插件",
@@ -18,7 +18,7 @@ export const burialPoint = (designerRef) => {
           icon: Icon,
           apiSet: [],
           render(args) {
-            const props = { ...args, designerRef };
+            const props = { ...args, designerRef,appData };
             //View渲染
             return <BurialPoint {...props} />;
           },

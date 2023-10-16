@@ -107,7 +107,7 @@ const injectUpload = (
   }
 };
 
-export default function (ctx, save, designerRef, remotePlugins = []) {
+export default function (ctx, save, designerRef,appData) {
   const envList = ctx?.envList || [];
 
   // 获得环境信息映射表
@@ -122,9 +122,7 @@ export default function (ctx, save, designerRef, remotePlugins = []) {
     },
     plugins: [
       servicePlugin(),
-      burialPoint(
-        designerRef
-      ),
+      burialPoint(designerRef, appData),
       versionPlugin({
         user: ctx.user,
         file: ctx.fileItem,

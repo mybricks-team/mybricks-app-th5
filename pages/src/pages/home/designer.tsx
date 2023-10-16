@@ -616,7 +616,8 @@ export default function MyDesigner({ appData }) {
               config={config(
                 Object.assign(ctx, { latestComlibs }),
                 save,
-                designerRef
+                designerRef,
+                appData
               )}
               onEdit={onEdit}
               onMessage={onMessage}

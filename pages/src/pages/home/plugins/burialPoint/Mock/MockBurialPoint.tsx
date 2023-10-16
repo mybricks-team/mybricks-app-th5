@@ -1,7 +1,9 @@
 const mockData = () => {
     return {
         pageEnv: {
-          pageCode: "",
+          pageCode: "22",
+          xx: "",
+          yy:""
         },
         pageHooks: {
           initial:
