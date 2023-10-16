@@ -5,6 +5,14 @@ import useStyle from "./index.less";
 import classNames from "classnames";
 import { PlusOutlined, RemoveOutlined } from "./pl-icon";
 import { Drawer, Input, Button, Radio } from "antd";
+import {
+  comFilter,
+  getEventTitlesByNamespace,
+  generateComInstanceTrack,
+} from "./model";
+
+import mockList from './Mock/MockBurialPointComAryList'
+import mock from "./Mock/MockBurialPoint";
 
 export default function BurialPoint(props) {
   const { TextArea } = Input;
@@ -19,87 +27,13 @@ export default function BurialPoint(props) {
     data.comInstanceTrack
   );
   const [drawerShow, setDrawShow] = useState(false);
+  console.log("mockList", mockList());
 
-  let burialPointComAry = {
-    pageEnv: {
-      pageCode: "",
-    },
-    pageHooks: {
-      initial:
-        "<script>\n  window.aplus = {\n    record: (params) => {\n      console.warn('SDK携带的环境参数', window.mybricks_track?.pageCode);\n      console.warn('我是SDK上报的参数', params);\n    }\n  }\n</script>",
-    },
-    comTrackPoints: {
-      "mybricks.normal-vue.button": {
-        btn_active: {
-          title: "按钮点击",
-          func: "\n            function  __com_track_def__  ({ point, title, type, namespace }, extra) {\n              aplus.record({\n                point,\n                title,\n              })\n            }\n          ",
-        },
-        btn_expose: {
-          title: "按钮曝光",
-          func: "\n            function  __com_track_def__  ({ point, title, type, namespace }, extra) {\n              aplus.record({\n                point,\n                title,\n              })\n            }\n          ",
-        },
-      },
-    },
-  };
+  let burialPointComAry = mock()
 
   const [comAry, setComAry] = useState(
     designerRef.current.components.getAll()[0].comAry
   );
-
-  const comFilter = (comAry, burialPointComAry) => {
-    let newComAry = [];
-    const trackPointKeys = Object.keys(burialPointComAry.comTrackPoints);
-    for (let i = 0; i < comAry.length; i++) {
-      if (trackPointKeys.includes(comAry[i].def.namespace)) {
-        newComAry.push(comAry[i]);
-      }
-    }
-    return newComAry;
-  };
-
-  function getEventTitlesByNamespace(data, namespace) {
-    const events = data.comTrackPoints[namespace];
-    if (!events) {
-      return [];
-    }
-
-    const result = [];
-
-    for (const [eventName, eventData] of Object.entries(events)) {
-      result.push({
-        event: eventName,
-        title: eventData.title,
-      });
-    }
-
-    return result;
-  }
-
-  function generateComInstanceTrack(
-    key,
-    targetEventKeyValues,
-    title,
-    namespace,
-    jsonData
-  ) {
-    const result = {
-      [key]: {},
-    };
-
-    for (const [eventName, eventData] of Object.entries(
-      jsonData.comTrackPoints[namespace]
-    )) {
-      result[key][eventName] = {
-        common: {
-          title: title,
-          namespace: namespace,
-        },
-        extra: targetEventKeyValues[eventName] || {}, // 添加指定的键值对，如果没有则默认为空对象
-      };
-    }
-
-    return result;
-  }
 
   // 更新或添加到埋点实例化列表
   const updateOrAddToComInstanceTrack = (key: string, value: any) => {
@@ -208,8 +142,15 @@ export default function BurialPoint(props) {
         <div className={css.drawer}>
           <div className={css.title}>埋点方案列表</div>
           <div className={css.contant}>
-            <div className={css.item}>方案1</div>
-            <div className={css.item}>方案2</div>
+            {mockList().map((item, index) => (
+              <div className={css.item}>
+                <div className={css.left}>
+                  <div>方案名称：xxxxx</div>
+                  <div>pageCode:{item.pageEnv.pageCode}</div>
+                </div>
+                <div className={css.right}>选择</div>
+              </div>
+            ))}
           </div>
         </div>
       )}
