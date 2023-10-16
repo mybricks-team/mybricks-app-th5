@@ -1,6 +1,6 @@
 {
   "name": "mybricks-app-th5",
-  "version": "1.0.21",
+  "version": "1.0.22",
   "description": "mybricks H5页面",
   "main": "index.js",
   "scripts": {

@@ -17,8 +17,10 @@ export const LOCAL_COM_LIB_ID = '';
 
 export const H5_BASIC_COM_LIB = {
   id: LOCAL_COM_LIB_ID,
-  namespace: 'mybricks.normal-h5-comlib',
-  editJs: 'https://tx-ec.static.yximgs.com/kos/nlav11092/comlibs/mybricks.normal-h5/202309211729/edit.js',
-  rtJs: 'https://tx-ec.static.yximgs.com/kos/nlav11092/comlibs/mybricks.normal-h5/202309211729/rt.js',
-  version: '0.0.5'
+  namespace: "mybricks.normal-h5-comlib.vue",
+  editJs: './public/comlibs/edit.js',
+  // editJs: 'https://tx-ec.static.yximgs.com/kos/nlav11092/comlibs/mybricks.normal-h5/202309211729/edit.js',
+  rtJs: './public/comlibs/rt.js',
+  // rtJs: 'https://tx-ec.static.yximgs.com/kos/nlav11092/comlibs/mybricks.normal-h5/202309211729/rt.js',
+  version: '0.0.11'
 }
