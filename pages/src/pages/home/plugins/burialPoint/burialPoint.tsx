@@ -62,7 +62,6 @@ export default function BurialPoint(props) {
         </div>
         {/* 这里放选取之后的列表 */}
         <div className={css.selectedInfo}>
-          {/* <div className={css.title}>当前方案配置项</div> */}
           <div className={css.contant}>
             {trackPointAry ? (
               <>
