@@ -3,6 +3,8 @@ import { getRenderEnv } from "./../../utils/getRenderEnv";
 import { renderReact, isReactEnv } from "./render-react";
 import { renderVue2, isVue2Env } from "./render-vue2";
 
+import { tracker } from './track';
+
 const projectJson = "--projectJson--"; //replace it
 const projectId = "--slot-project-id--"; //replace it
 const executeEnv = "--executeEnv--"; //replace it
@@ -69,6 +71,8 @@ const env = {
       return Promise.reject("错误的连接器类型.");
     }
   },
+  // 自定义方法
+
 };
 
 function render() {
@@ -92,6 +96,7 @@ function render() {
           json: projectJson,
           opts: {
             env: env,
+            registSpm: tracker.registSpm,
           },
         },
         "#root"
@@ -117,83 +122,86 @@ const injectBodyBackground = (projectJson, root) => {
   }
 }
 
-// render();
-if (isMobile() || location.search.indexOf("isPc=1") > -1) {
-  injectBodyBackground(projectJson, 'body');
-  render();
-} else {
-  injectBodyBackground(projectJson, 'iframe');
-  document.querySelector("#root").remove();
+injectBodyBackground(projectJson, 'body');
+render();
 
-  let iframe = document.createElement("iframe");
-  iframe.style.borderWidth = "0";
-  iframe.style.width = "100%";
-  iframe.style.maxWidth = "640px";
-  iframe.style.height = "100%";
-  iframe.style.boxShadow = "0 2px 6px #aaa";
-  iframe.src = location.href + `${location.search ? "&" : "?"}isPc=1`;
-  console.warn(iframe);
 
-  //
-  let Qrcode = document.createElement("div");
-  Qrcode.style.width = "100%";
-  Qrcode.style.maxWidth = "280px";
-  Qrcode.style.display = "flex";
-  Qrcode.style.flexDirection = "column";
-  Qrcode.style.alignItems = "center";
-  Qrcode.style.marginTop = "60px";
-  Qrcode.style.marginLeft = "10px";
+// // render();
+// if (isMobile() || location.search.indexOf("isPc=1") > -1) {
+//   injectBodyBackground(projectJson, 'body');
+//   render();
+// } else {
+//   injectBodyBackground(projectJson, 'iframe');
+//   document.querySelector("#root").remove();
 
-  let QrcodeCanvas = document.createElement("canvas");
-  QrcodeCanvas.id = "preview-qrcode";
-  QrcodeCanvas.style.width = "150px";
-  QrcodeCanvas.style.height = "150px";
+//   let iframe = document.createElement("iframe");
+//   iframe.style.borderWidth = "0";
+//   iframe.style.width = "100%";
+//   iframe.style.maxWidth = "640px";
+//   iframe.style.height = "100%";
+//   iframe.style.boxShadow = "0 2px 6px #aaa";
+//   iframe.src = location.href + `${location.search ? "&" : "?"}isPc=1`;
+//   console.warn(iframe);
 
-  Qrcode.appendChild(QrcodeCanvas);
+//   //
+//   let Qrcode = document.createElement("div");
+//   Qrcode.style.width = "100%";
+//   Qrcode.style.maxWidth = "280px";
+//   Qrcode.style.display = "flex";
+//   Qrcode.style.flexDirection = "column";
+//   Qrcode.style.alignItems = "center";
+//   Qrcode.style.marginTop = "60px";
+//   Qrcode.style.marginLeft = "10px";
 
-  let Container = document.createElement("div");
-  Container.style.display = "flex";
-  Container.style.maxWidth = "900px";
-  Container.style.width = "100%";
-  Container.style.height = "100vh";
-  Container.style.position = "absolute";
-  Container.style.left = "50%";
-  Container.style.transform = "translateX(-50%)";
-  Container.style.marginLeft = "140px";
+//   let QrcodeCanvas = document.createElement("canvas");
+//   QrcodeCanvas.id = "preview-qrcode";
+//   QrcodeCanvas.style.width = "150px";
+//   QrcodeCanvas.style.height = "150px";
 
-  Container.appendChild(iframe);
-  Container.appendChild(Qrcode);
+//   Qrcode.appendChild(QrcodeCanvas);
 
-  document.body.appendChild(Container);
+//   let Container = document.createElement("div");
+//   Container.style.display = "flex";
+//   Container.style.maxWidth = "900px";
+//   Container.style.width = "100%";
+//   Container.style.height = "100vh";
+//   Container.style.position = "absolute";
+//   Container.style.left = "50%";
+//   Container.style.transform = "translateX(-50%)";
+//   Container.style.marginLeft = "140px";
 
-  let script = document.createElement("script");
-  script.src =
-    "https://f2.eckwai.com/udata/pkg/eshop/fangzhou/pub/pkg/qrcode/qrcode.js";
-  script.onload = () => {
-    window.QRCode.toCanvas(
-      document.getElementById("preview-qrcode"),
-      `${location.href}`,
-      {
-        height: 150,
-        width: 150,
-      },
-      function (error) {
-        if (error) console.error(error);
-      }
-    );
-  };
-  document.body.appendChild(script);
+//   Container.appendChild(iframe);
+//   Container.appendChild(Qrcode);
 
-  // window.ReactDOM.render(
-  //   window.React.createElement(Container, null),
-  //   document.querySelector("#root")
-  // );
-}
+//   document.body.appendChild(Container);
 
-function isMobile() {
-  const ua = navigator.userAgent;
-  return (
-    /(iPhone|iPod|iPad|Android|ios)/i.test(ua) ||
-    /AppleWebKit.*Mobile.*/i.test(ua)
-  );
-}
+//   let script = document.createElement("script");
+//   script.src = "https://f2.eckwai.com/udata/pkg/eshop/fangzhou/pub/pkg/qrcode/qrcode.js";
+//   script.onload = () => {
+//     window.QRCode.toCanvas(
+//       document.getElementById("preview-qrcode"),
+//       `${location.href}`,
+//       {
+//         height: 150,
+//         width: 150,
+//       },
+//       function (error) {
+//         if (error) console.error(error);
+//       }
+//     );
+//   };
+//   document.body.appendChild(script);
+
+//   // window.ReactDOM.render(
+//   //   window.React.createElement(Container, null),
+//   //   document.querySelector("#root")
+//   // );
+// }
+
+// // function isMobile() {
+// //   const ua = navigator.userAgent;
+// //   return (
+// //     /(iPhone|iPod|iPad|Android|ios)/i.test(ua) ||
+// //     /AppleWebKit.*Mobile.*/i.test(ua)
+// //   );
+// // }

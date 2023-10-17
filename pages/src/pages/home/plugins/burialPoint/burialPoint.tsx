@@ -16,7 +16,7 @@ export default function BurialPoint(props) {
       url: "MYBRICKS://mybricks-material/materialSelectorPage",
       params: {
         title: "选择埋点方案",
-        type: "theme",
+        type: "spm",
         // defaultSelected: data.themes
       },
       onSuccess: async ({ materials }) => {

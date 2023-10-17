@@ -7,6 +7,7 @@ import API from "@mybricks/sdk-for-app/api";
 import { generateComLib } from "./generateComLib";
 // import pkgJson from './../../package.json';
 import { TargetEnv } from "./types";
+import { Logger } from '@mybricks/rocker-commons'
 
 const pkgJson =  {
   name: 'mybricks-app-th5'
@@ -121,6 +122,7 @@ export default class PcPageService {
         groupName,
         executeEnv,
         envList = [],
+        tracksConfig = {},
       } = json.configuration;
 
       Reflect.deleteProperty(json, "configuration");
@@ -131,22 +133,23 @@ export default class PcPageService {
           ? "http://localhost:9001"
           : getRealDomain(req);
       // const domainName = 'https://my.mybricks.world';
-      console.info("[publish] domainName is:", domainName);
+      Logger.info(`[publish] domainName is: ${domainName}`);
 
       const themesStyleStr = this._genThemesStyleStr(json);
       
       const appConfig = await getAppConfig();
-      const headTags = await this.getHeadTagFromConfig(appConfig);
+      const headTags = await this.getHeadTagFromConfig(appConfig, tracksConfig);
 
-      console.info('插入代码', headTags, appConfig)
+      // Logger.info('插入代码', headTags)
+      // Logger.info('插入代码', appConfig)
 
-      console.info("[publish] getLatestPub begin");
+      Logger.info("[publish] getLatestPub begin");
       const latestPub = (
         await API.File.getLatestPub({
           fileId,
         })
       )?.[0];
-      console.info("[publish] getLatestPub ok");
+      Logger.info("[publish] getLatestPub ok");
       const version = getNextVersion(latestPub?.version);
       let comLibRtScript = "";
       let needCombo = false;
@@ -188,7 +191,7 @@ export default class PcPageService {
         );
       let publishMaterialInfo;
       const customPublishApi = await getCustomPublishApi();
-      console.info("[publish] getCustomPublishApi=", customPublishApi);
+      Logger.info("[publish] getCustomPublishApi=", customPublishApi);
       let comboScriptText = "";
       /** 生成 combo 组件库代码 */
       if (needCombo) {
@@ -198,7 +201,55 @@ export default class PcPageService {
       if (customPublishApi) {
         // TODO
       } else {
-        console.info("[publish] upload to static server");
+        Logger.info("[publish] upload to static server");
+
+        // 将所有的公共依赖上传到对应位置
+        let targetPath = path.resolve(__dirname, "./../../assets/public");
+        Logger.info(`[publish] targetPath: ${targetPath}`);
+
+        // 读取 targetPath 下的所有文件，可能是文件夹，也可能是文件
+        let resourceURLs = [];
+        const readDir = (targetPath) => {
+          let files = fs.readdirSync(targetPath);
+          files.forEach(filename => {
+            let filePath = `${targetPath}/${filename}`;
+            let stats = fs.statSync(filePath);
+            if (stats.isDirectory()) {
+              readDir(filePath);
+            } else {
+              resourceURLs.push(filePath);
+            }
+          })
+        }
+        readDir(targetPath);
+
+        Logger.info(`[publish] resourceURLs: ${JSON.stringify(resourceURLs)}`);
+
+        // 读取文件内容，组合成 { content, path, name } 的数组
+        let globalDeps = resourceURLs.map(url => {
+          let content = fs.readFileSync(url, 'utf-8');
+
+          // url 是资源的绝对路径，需要去掉 /public 之前的部分
+          let publicPath = url.split('/assets').slice(-1)[0]; 
+
+          return {
+            content,
+            path: publicPath.split('/').slice(0, -1).join('/'),
+            name: url.split('/').slice(-1)[0]
+          }
+        });
+
+        await Promise.all(globalDeps.map(({ content, path, name }) => {
+          Logger.info(`[publish] name: ${name}, path: ${path}`);
+          return API.Upload.staticServer({
+            content,
+            folderPath: `${folderPath}/${envType || 'prod'}/${path}`,
+            fileName: name,
+            noHash: true,
+            domainName
+          })
+        }))
+        Logger.info("[publish] 公共依赖上传成功！");
 
         needCombo &&
           (await API.Upload.staticServer({
@@ -206,6 +257,7 @@ export default class PcPageService {
             folderPath: `${folderPath}/${envType || "prod"}`,
             fileName: comlibRtName,
             noHash: true,
+            domainName
           }));
 
         publishMaterialInfo = await API.Upload.staticServer({
@@ -213,9 +265,10 @@ export default class PcPageService {
           folderPath: `${folderPath}/${envType || "prod"}`,
           fileName,
           noHash: true,
+          domainName
         });
 
-        console.info(
+        Logger.info(
           "[publish] upload to static server ok",
           publishMaterialInfo
         );
@@ -233,7 +286,7 @@ export default class PcPageService {
         };
       }
 
-      console.info("[publish] API.File.publish: begin ");
+      Logger.info("[publish] API.File.publish: begin ");
       // const result = await API.File.publish({
       //   userId,
       //   fileId,
@@ -243,11 +296,11 @@ export default class PcPageService {
       //   type: envType,
       // });
 
-      console.info("[publish] API.File.publish: ok ");
+      Logger.info("[publish] API.File.publish: ok ");
 
       // return result;
     } catch (e) {
-      console.error("th5page publish error", e);
+      Logger.info("th5page publish error", e);
       throw e;
     }
   }
@@ -275,6 +328,7 @@ export default class PcPageService {
         groupId,
         groupName,
         envList = [],
+        tracksConfig = {},
       } = json.configuration;
 
       Reflect.deleteProperty(json, "configuration");
@@ -285,20 +339,20 @@ export default class PcPageService {
           ? "http://localhost:9001"
           : getRealDomain(req);
       // const domainName = 'https://my.mybricks.world';
-      console.info("[publish] domainName is:", domainName);
+      Logger.info(`[publish] domainName is: ${domainName}`);
 
       const themesStyleStr = this._genThemesStyleStr(json);
       
       const appConfig = await getAppConfig();
-      const headTags = await this.getHeadTagFromConfig(appConfig);
+      const headTags = await this.getHeadTagFromConfig(appConfig, tracksConfig);
 
-      console.info("[publish] getLatestPub begin");
+      Logger.info("[publish] getLatestPub begin");
       const latestPub = (
         await API.File.getLatestPub({
           fileId,
         })
       )?.[0];
-      console.info("[publish] getLatestPub ok");
+      Logger.info("[publish] getLatestPub ok");
       const version = getNextVersion(latestPub?.version);
       let comLibRtScript = "";
       let needCombo = false;
@@ -340,7 +394,7 @@ export default class PcPageService {
         );
       let publishMaterialInfo;
       const customPublishApi = await getCustomPublishApi();
-      console.info("[publish] getCustomPublishApi=", customPublishApi);
+      Logger.info("[publish] getCustomPublishApi=", customPublishApi);
       let comboScriptText = "";
       /** 生成 combo 组件库代码 */
       if (needCombo) {
@@ -355,7 +409,55 @@ export default class PcPageService {
       if (customPublishApi) {
         // TODO
       } else {
-        console.info("[publish] upload to static server");
+        Logger.info("[publish] upload to static server");
+
+         // 将所有的公共依赖上传到对应位置
+         let targetPath = path.resolve(__dirname, "./../../assets/public");
+         Logger.info(`[publish] targetPath: ${targetPath}`);
+ 
+         // 读取 targetPath 下的所有文件，可能是文件夹，也可能是文件
+         let resourceURLs = [];
+         const readDir = (targetPath) => {
+           let files = fs.readdirSync(targetPath);
+           files.forEach(filename => {
+             let filePath = `${targetPath}/${filename}`;
+             let stats = fs.statSync(filePath);
+             if (stats.isDirectory()) {
+               readDir(filePath);
+             } else {
+               resourceURLs.push(filePath);
+             }
+           })
+         }
+         readDir(targetPath);
+ 
+         Logger.info(`[publish] resourceURLs: ${JSON.stringify(resourceURLs)}`);
+ 
+         // 读取文件内容，组合成 { content, path, name } 的数组
+         let globalDeps = resourceURLs.map(url => {
+           let content = fs.readFileSync(url, 'utf-8');
+ 
+           // url 是资源的绝对路径，需要去掉 /public 之前的部分
+           let publicPath = url.split('/assets').slice(-1)[0]; 
+ 
+           return {
+             content,
+             path: publicPath.split('/').slice(0, -1).join('/'),
+             name: url.split('/').slice(-1)[0]
+           }
+         });
+ 
+         await Promise.all(globalDeps.map(({ content, path, name }) => {
+           Logger.info(`[publish] name: ${name}, path: ${path}`);
+           return API.Upload.staticServer({
+             content,
+             folderPath: `${folderPath}/${envType || 'prod'}/${path}`,
+             fileName: name,
+             noHash: true,
+             domainName
+           })
+         }))
+         Logger.info("[publish] 公共依赖上传成功！");
 
         needCombo &&
           (await API.Upload.staticServer({
@@ -363,6 +465,7 @@ export default class PcPageService {
             folderPath: `${folderPath}/${envType || "prod"}`,
             fileName: comlibRtName,
             noHash: true,
+            domainName
           }));
 
         publishMaterialInfo = await API.Upload.staticServer({
@@ -370,9 +473,10 @@ export default class PcPageService {
           folderPath: `${folderPath}/${envType || "prod"}`,
           fileName,
           noHash: true,
+          domainName
         });
 
-        console.info(
+        Logger.info(
           "[publish] upload to static server ok",
           publishMaterialInfo
         );
@@ -385,7 +489,7 @@ export default class PcPageService {
         }
       }
 
-      console.info("[publish] API.File.publish: begin ");
+      Logger.info("[publish] API.File.publish: begin ");
       const result = await API.File.publish({
         userId,
         fileId,
@@ -395,11 +499,11 @@ export default class PcPageService {
         type: envType,
       });
 
-      console.info("[publish] API.File.publish: ok ");
+      Logger.info("[publish] API.File.publish: ok ");
 
       return result;
     } catch (e) {
-      console.error("th5page publish error", e);
+      Logger.info("th5page publish error", e);
       throw e;
     }
   }
@@ -433,15 +537,63 @@ export default class PcPageService {
     return themesStyleStr;
   }
 
-  private getHeadTagFromConfig(appConfig) {
+  private getHeadTagFromConfig(appConfig, tracksConfig) {
     const { headTags, lazyImage } = appConfig ?? {};
 
-    const mutationObserver = '<script data-must="1" crossorigin="anonymous" src="https://f2.eckwai.com/udata/pkg/eshop/fangzhou/res/mutationobserver.min.js"></script>'
+    const mutationObserver = '<script data-must="1" crossorigin="anonymous" src="//f2.eckwai.com/udata/pkg/eshop/fangzhou/res/mutationobserver.min.js"></script>'
 
-    const scriptsContent = `${headTags ?? ''}${lazyImage ? mutationObserver : ''}`;
+    let scriptsContent = `${headTags ?? ''}${lazyImage ? mutationObserver : ''}`;
+
+
+    let trackMetaScript = '<script>';
+    if (tracksConfig?.pageEnv) {
+      trackMetaScript+= `window.mybricks_track = ${JSON.stringify(tracksConfig?.pageEnv ?? {})};`
+    }
+    trackMetaScript+= getSpmFuncsFromConfig(tracksConfig?.spmDefinitions ?? {}, tracksConfig?.spmExtraParams ?? {});
+    trackMetaScript+= '</script>'
+    if (tracksConfig?.pageHooks?.initial) {
+      scriptsContent+=tracksConfig?.pageHooks?.initial;
+    }
+
+    scriptsContent+=trackMetaScript
 
     return scriptsContent
   }
+}
+
+function getSpmFuncsFromConfig (spmDefinitions, spmExtraParams) {
+  let scripts = `
+    window.__mybricks_collect_point_defines__ = ${JSON.stringify(spmDefinitions)};
+    var t = {};
+  `;
+
+  const backupFunc = `() => console.warn("没有找到当前组件的埋点定义")`
+
+  let comItem = '';
+  Object.keys(spmExtraParams).forEach(comId => {
+    comItem+= `t["${comId}"] = {};`
+    const { namespace } = spmExtraParams[comId];
+    const spmDefinition = spmDefinitions[namespace];
+
+    if (Array.isArray(spmDefinition) && spmDefinition.length > 0) {
+      spmDefinition.forEach(spm => {
+        const spmParams = (Array.isArray(spmExtraParams[comId]?.spms) ? spmExtraParams[comId].spms : []).find(s => s.id === spm.id)?.params ?? {};
+        if (spm.id) {
+          comItem+= `if(!t["${comId}"]["${spm.id}"]) { t["${comId}"]["${spm.id}"] = {}; };`
+          comItem+= `
+t["${comId}"]["${spm.id}"]["${spm.type ?? 'CUSTOM'}"] = (common, extra) => {
+  var params = ${JSON.stringify(spmParams ?? '{}')};
+  var func = ${spm?.func ?? backupFunc};
+  func(common, Object.assign(extra, params));
+};`
+        }
+      })
+    }
+  })
+
+  scripts+=comItem
+
+  return scripts+= 'window.__mybricks_collect_function_defines__ = t;'
 }
 
 // 不传groupId表示获取的是全局配置
@@ -458,7 +610,7 @@ const getAppConfig = async ({ groupId } = {} as any) => {
         ? JSON.parse(originConfig)
         : originConfig;
   } catch (e) {
-    console.error("getAppConfig error", e);
+    Logger.info("getAppConfig error", e);
   }
   return config;
 };
@@ -468,7 +620,7 @@ const getCustomPublishApi = async () => {
   const { publishApiConfig = {} } = await getAppConfig();
   const { publishApi } = publishApiConfig;
   if (!publishApi) {
-    console.warn(`未配置发布集成接口`);
+    Logger.info(`未配置发布集成接口`);
   }
   return publishApi;
 };
