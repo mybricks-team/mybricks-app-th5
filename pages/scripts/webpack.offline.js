@@ -10,6 +10,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const WebpackBar = require('webpackbar')
 const HtmlWebpackInlineSourcePlugin = require('@effortlessmotion/html-webpack-inline-source-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+// const fs = require('fs')
+// const pkg = require('../../package.json')
 
 module.exports = merge(common, {
   mode: 'production',
@@ -37,6 +39,11 @@ module.exports = merge(common, {
       filename: 'index.html',
       template: path.resolve(__dirname, '../templates/index.html'),
       chunks: ['index'],
+      // templateContent: ({ htmlWebpackPlugin }) => {
+      //   let content = fs.readFileSync(path.resolve(__dirname, '../templates/index.html'), 'utf-8')
+      //   content = content.replace('<!-- _APP_CONFIG_ -->', `<script>const _APP_CONFIG_ = {namespace: '${pkg.name}'}</script>`)
+      //   return content
+      // }
     }),
     new HtmlWebpackPlugin({
       filename: 'setting.html',

@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width,user-scalable=no,viewport-fit=cover" />
 
-  <title>预览</title>
+  <title>--title--</title>
 
   <style>
     @charset "utf-8";
@@ -112,81 +112,53 @@
       opacity: 0
     }
 
-    /* #loading {
-      position: fixed;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-      z-index: 999
-    }
-
-    .loading__svg {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 40px;
-      height: 40px;
-      -webkit-transform: translate(-50%, -50%);
-      transform: translate(-50%, -50%);
-      -webkit-animation: loadingAni 1s infinite linear;
-      animation: loadingAni 1s infinite linear;
-      stroke: rgba(255, 255, 255, 1);
-      stroke-width: 2px
-    }
-
-    @-webkit-keyframes loadingAni {
-      0% {
-        stroke-dashoffset: 0
-      }
-
-      100% {
-        stroke-dashoffset: 320
-      }
-    }
-
-    @keyframes loadingAni {
-      0% {
-        stroke-dashoffset: 0
-      }
-
-      100% {
-        stroke-dashoffset: 320
-      }
-    }
-
-    #appview {
-      min-height: 100vh;
-      overflow-x: hidden;
-      display: flex;
-      flex-direction: column
-    } */
-
     #root {
       min-height: 100vh;
       overflow-x: hidden;
       display: flex;
       flex-direction: column
     }
-
-    div[class*='com-']>.slot {
-      background-color: transparent !important;
-    }
-    
   </style>
 
-  <!-- react -->
-  <script src="./public/react-18.0.0/react.production.min.js"></script>
-  <script src="./public/react-dom-18.0.0/react-dom.production.min.js"></script>
+  <% if (htmlWebpackPlugin.options.target == 'react') { %>
+    <!-- react -->
+    <script src="//f2.eckwai.com/kos/nlav11092/fangzhou/pub/temp/1690446345009.react.18.0.0.production.min.js"></script>
+    <script src="//f2.eckwai.com/kos/nlav11092/fangzhou/pub/temp/1690446368294.umd_react-dom.18.0.0.production.min.js"></script>
+    <!-- react -->
+  <% } else if (htmlWebpackPlugin.options.target == 'vue2') { %>
+    <!-- vue2相关代码 -->
+    <script src="https://f2.beckwai.com/udata/pkg/eshop/fangzhou/pub/pkg/vue/2.7.14/vue.min.js"></script>
+    <script>
+      window.Vue ? (window.vue = window.Vue) : null
+    </script>
+    <!-- vue2相关代码 -->
+  <% } else if (htmlWebpackPlugin.options.target == 'vue3') { %>
+    <!-- vue3相关代码 -->
+    <script src="//f2.eckwai.com/udata/pkg/eshop/fangzhou/pub/pkg/vue/3.2.33/vue.global.js"></script>
+    <script>
+      window.Vue ? (window.vue = window.Vue) : null
+    </script>
+    <!-- vue3相关代码 -->
+  <% } %>
 
-  <script src="//f2.eckwai.com/kos/nlav12333/mybricks/plugin-http-connector/1.1.62/index.js"></script>
+  <!-- <script src="//f2.eckwai.com/kos/nlav11092/fangzhou/pub/temp/1690444304807.0.18.1_axios.min.js"></script> -->
+  <script src="//f2.eckwai.com/kos/nlav12333/mybricks/plugin-http-connector/1.1.50/index.js"></script>
   <!-- <script src="https://f2.eckwai.com/udata/pkg/eshop/fangzhou/pub/pkg/mybricks/rxui-1.0.86/index.js"></script> -->
 
   <!-- mybricks-render-web -->
-  <script src="https://f2.beckwai.com/kos/nlav12333/mybricks/render-web/1.1.92-beta1/index.min.js"></script>
+  <% if (htmlWebpackPlugin.options.target == 'react') { %>
+    <script src="https://f2.beckwai.com/kos/nlav12333/mybricks/render-web/1.1.92-beta1/index.min.js"></script>
+  <% } else if (htmlWebpackPlugin.options.target == 'vue2') { %>
+    <script src="https://f2.eckwai.com/kos/nlav12333/test/index.umd.b54dc941fec27fd7.js"></script>
+  <% } %>
+
+  -- themes-style --
+
+  -- head-tags --
 </head>
 
 <body>
   <div id="root"></div>
+  -- comlib-rt --
 </body>
 </html>

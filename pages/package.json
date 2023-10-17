@@ -6,7 +6,8 @@
   "private": true,
   "scripts": {
     "dev": "webpack serve --config ./scripts/webpack.dev.js",
-    "build": "webpack --config ./scripts/webpack.prod.js  && node ./scripts/publishRemove.js"
+    "build": "webpack --config ./scripts/webpack.prod.js  && node ./scripts/publishRemove.js",
+    "build:offline": "npm install && webpack --config ./scripts/webpack.offline.js && node ./scripts/publishRemove.js"
   },
   "keywords": [
     "mybricks",

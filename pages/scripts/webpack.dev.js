@@ -43,7 +43,8 @@ module.exports = merge(common, {
       {
         context: ['/'],
         // target: 'http://testweb.manateeai.com/',
-        target: 'https://my.mybricks.world',
+        // target: 'https://my.mybricks.world',
+        target: 'https://test.mybricks.world',
         // target: 'http://localhost:3100',
         secure: false,
         changeOrigin: true,
@@ -64,11 +65,11 @@ module.exports = merge(common, {
         return content
       }
     }),
-    new HtmlWebpackPlugin({
-      filename: 'preview.html',
-      template: path.resolve(__dirname, '../templates/preview.html'),
-      chunks: ['preview'],
-    }),
+    // new HtmlWebpackPlugin({
+    //   filename: 'preview.html',
+    //   template: path.resolve(__dirname, '../templates/preview.html'),
+    //   chunks: ['preview'],
+    // }),
     new HtmlWebpackPlugin({
       filename: 'setting.html',
       template: path.resolve(__dirname, '../templates/setting.html'),
