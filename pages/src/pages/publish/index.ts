@@ -3,6 +3,8 @@ import { getRenderEnv } from "./../../utils/getRenderEnv";
 import { renderReact, isReactEnv } from "./render-react";
 import { renderVue2, isVue2Env } from "./render-vue2";
 
+import { tracker } from './track';
+
 const projectJson = "--projectJson--"; //replace it
 const projectId = "--slot-project-id--"; //replace it
 const executeEnv = "--executeEnv--"; //replace it
@@ -94,6 +96,7 @@ function render() {
           json: projectJson,
           opts: {
             env: env,
+            registSpm: tracker.registSpm,
           },
         },
         "#root"
