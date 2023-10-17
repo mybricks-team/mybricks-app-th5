@@ -202,6 +202,54 @@ export default class PcPageService {
       } else {
         Logger.info("[publish] upload to static server");
 
+        // 将所有的公共依赖上传到对应位置
+        let targetPath = path.resolve(__dirname, "./../../assets/public");
+        Logger.info(`[publish] targetPath: ${targetPath}`);
+
+        // 读取 targetPath 下的所有文件，可能是文件夹，也可能是文件
+        let resourceURLs = [];
+        const readDir = (targetPath) => {
+          let files = fs.readdirSync(targetPath);
+          files.forEach(filename => {
+            let filePath = `${targetPath}/${filename}`;
+            let stats = fs.statSync(filePath);
+            if (stats.isDirectory()) {
+              readDir(filePath);
+            } else {
+              resourceURLs.push(filePath);
+            }
+          })
+        }
+        readDir(targetPath);
+
+        Logger.info(`[publish] resourceURLs: ${JSON.stringify(resourceURLs)}`);
+
+        // 读取文件内容，组合成 { content, path, name } 的数组
+        let globalDeps = resourceURLs.map(url => {
+          let content = fs.readFileSync(url, 'utf-8');
+
+          // url 是资源的绝对路径，需要去掉 /public 之前的部分
+          let publicPath = url.split('/assets').slice(-1)[0]; 
+
+          return {
+            content,
+            path: publicPath.split('/').slice(0, -1).join('/'),
+            name: url.split('/').slice(-1)[0]
+          }
+        });
+
+        await Promise.all(globalDeps.map(({ content, path, name }) => {
+          Logger.info(`[publish] name: ${name}, path: ${path}`);
+          return API.Upload.staticServer({
+            content,
+            folderPath: `${folderPath}/${envType || 'prod'}/${path}`,
+            fileName: name,
+            noHash: true,
+            domainName
+          })
+        }))
+        Logger.info("[publish] 公共依赖上传成功！");
+
         needCombo &&
           (await API.Upload.staticServer({
             content: comboScriptText,
@@ -360,6 +408,54 @@ export default class PcPageService {
         // TODO
       } else {
         Logger.info("[publish] upload to static server");
+
+         // 将所有的公共依赖上传到对应位置
+         let targetPath = path.resolve(__dirname, "./../../assets/public");
+         Logger.info(`[publish] targetPath: ${targetPath}`);
+ 
+         // 读取 targetPath 下的所有文件，可能是文件夹，也可能是文件
+         let resourceURLs = [];
+         const readDir = (targetPath) => {
+           let files = fs.readdirSync(targetPath);
+           files.forEach(filename => {
+             let filePath = `${targetPath}/${filename}`;
+             let stats = fs.statSync(filePath);
+             if (stats.isDirectory()) {
+               readDir(filePath);
+             } else {
+               resourceURLs.push(filePath);
+             }
+           })
+         }
+         readDir(targetPath);
+ 
+         Logger.info(`[publish] resourceURLs: ${JSON.stringify(resourceURLs)}`);
+ 
+         // 读取文件内容，组合成 { content, path, name } 的数组
+         let globalDeps = resourceURLs.map(url => {
+           let content = fs.readFileSync(url, 'utf-8');
+ 
+           // url 是资源的绝对路径，需要去掉 /public 之前的部分
+           let publicPath = url.split('/assets').slice(-1)[0]; 
+ 
+           return {
+             content,
+             path: publicPath.split('/').slice(0, -1).join('/'),
+             name: url.split('/').slice(-1)[0]
+           }
+         });
+ 
+         await Promise.all(globalDeps.map(({ content, path, name }) => {
+           Logger.info(`[publish] name: ${name}, path: ${path}`);
+           return API.Upload.staticServer({
+             content,
+             folderPath: `${folderPath}/${envType || 'prod'}/${path}`,
+             fileName: name,
+             noHash: true,
+             domainName
+           })
+         }))
+         Logger.info("[publish] 公共依赖上传成功！");
 
         needCombo &&
           (await API.Upload.staticServer({
