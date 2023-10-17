@@ -14,7 +14,7 @@ import API from "@mybricks/sdk-for-app/api";
 import { Locker, Toolbar } from "@mybricks/sdk-for-app/ui";
 import config from "./app-config";
 // import { getManateeUserInfo } from '../../utils'
-import { fetchPlugins, getManateeUserInfo } from "../../utils";
+import { fetchPlugins, getManateeUserInfo, traverseAllComponents } from "../../utils";
 import { getRtComlibsFromConfigEdit } from "./../../utils/comlib";
 import { PreviewStorage } from "./../../utils/previewStorage";
 import { MySelf_COM_LIB, H5_BASIC_COM_LIB } from "../../constants";
@@ -328,6 +328,28 @@ export default function MyDesigner({ appData }) {
       });
   }, []);
 
+  const getTracksConfig = useCallback((toJSON) => {
+    const allComponents = traverseAllComponents(designerRef.current.components.getAll());
+    const spmExtraParams = {};
+    allComponents.forEach(com => {
+      const { model, id, title } = com
+      const { spm } = model
+      if (Array.isArray(spm)) {
+        spmExtraParams[id] = spm
+      }
+    })
+
+    const pluginToJson = toJSON.plugins?.['mybricks.pointer.bind'] ?? {};
+
+    return MockTrackJson
+
+    return {
+      ...pluginToJson,
+      spmExtraParams
+    }
+
+  }, [])
+
   const preview = useCallback(() => {
     if (previewingRef.current) {
       return;
@@ -370,6 +392,8 @@ export default function MyDesigner({ appData }) {
 
       const curComLibs = await genLazyloadComs(ctx.comlibs, curToJSON);
 
+      const tracksConfig = getTracksConfig(curToJSON);
+
       const toJSON = JSON.parse(
         JSON.stringify({
           ...curToJSON,
@@ -381,7 +405,7 @@ export default function MyDesigner({ appData }) {
             publisherName: ctx.user?.name,
             projectId: ctx.sdk.projectId,
             executeEnv: ctx.executeEnv,
-            // tracksConfig: MockTrackJson,
+            tracksConfig: tracksConfig,
             envList: ctx.envList,
             // 非模块下的页面直接发布到项目空间下
             folderPath: "/app/th5",
@@ -786,7 +810,7 @@ var MockTrackJson = {
   "pageHooks": {
       "initial": "<script>\n  window.aplus = {\n    record: (params) => {\n      console.warn('SDK携带的环境参数', window.mybricks_track?.pageCode);\n      console.warn('我是SDK上报的参数', params);\n    }\n  }\n</script>"
   },
-  "comTrackPoints": {
+  "spmDefinitions": {
       "mybricks.normal-vue.button": [
         {
           "id": "button",
@@ -804,7 +828,7 @@ var MockTrackJson = {
         }
       ]
   },
-  "comInstanceTrack": {
+  "spmExtraParams": {
     "u_tCK81": {
         "namespace": "mybricks.normal-vue.button",
         "spms": [

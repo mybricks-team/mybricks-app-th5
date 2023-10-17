@@ -2,6 +2,7 @@ import axios from 'axios'
 import React from "react"
 import ReactDOM from "react-dom"
 import { message } from 'antd'
+import _flattenDeep from 'lodash/flatMapDeep'
 import { PluginType } from '@/pages/setting/ConfigPlugin/type';
 export * from './shapeUrlByEnv';
 
@@ -251,4 +252,42 @@ export const fetchPlugins = async (plugins: PluginType[]) => {
 
   const loadedPlugins = await Promise.all(promises);
   return loadedPlugins.filter(item => item !== null);
+}
+
+
+
+interface TraverseCompModel {
+  id: string,
+  title: string,
+  def: {
+    namespace: string,
+    version: string
+  },
+  model: {
+    css: any,
+    spm: any,
+    data: any
+  }
+}
+
+/**
+ * @description 从设计器遍历出所有的组件及其模型
+ * @param slots 从设计器拿到的值，designerRef.current.components.getAll()
+ * @returns 
+ */
+export function traverseAllComponents (slots): TraverseCompModel[] {
+  return _flattenDeep(slots.map(({ comAry }) => {
+    if (Array.isArray(comAry)) {
+      return comAry.map((com) => {
+        const { slots } = com
+        if (Array.isArray(slots)) {
+          return [com, ..._flattenDeep(traverseAllComponents(slots))]
+        }
+
+        return [com]
+      })
+    }
+
+    return []
+  }))
 }
