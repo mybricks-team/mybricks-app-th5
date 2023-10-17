@@ -10,6 +10,7 @@ export default function BurialPoint(props) {
   let burialPointComAry = mock();
 
   const addClick = () => {
+    //测试用
     setTrackPointAry(burialPointComAry);
     appData.openUrl({
       url: "MYBRICKS://mybricks-material/materialSelectorPage",
