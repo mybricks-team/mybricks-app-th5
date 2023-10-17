@@ -122,6 +122,7 @@ export default class PcPageService {
         groupName,
         executeEnv,
         envList = [],
+        tracksConfig = {},
       } = json.configuration;
 
       Reflect.deleteProperty(json, "configuration");
@@ -137,7 +138,7 @@ export default class PcPageService {
       const themesStyleStr = this._genThemesStyleStr(json);
       
       const appConfig = await getAppConfig();
-      const headTags = await this.getHeadTagFromConfig(appConfig);
+      const headTags = await this.getHeadTagFromConfig(appConfig, tracksConfig);
 
       // Logger.info('插入代码', headTags)
       // Logger.info('插入代码', appConfig)
@@ -279,6 +280,7 @@ export default class PcPageService {
         groupId,
         groupName,
         envList = [],
+        tracksConfig = {},
       } = json.configuration;
 
       Reflect.deleteProperty(json, "configuration");
@@ -294,7 +296,7 @@ export default class PcPageService {
       const themesStyleStr = this._genThemesStyleStr(json);
       
       const appConfig = await getAppConfig();
-      const headTags = await this.getHeadTagFromConfig(appConfig);
+      const headTags = await this.getHeadTagFromConfig(appConfig, tracksConfig);
 
       Logger.info("[publish] getLatestPub begin");
       const latestPub = (
@@ -439,15 +441,69 @@ export default class PcPageService {
     return themesStyleStr;
   }
 
-  private getHeadTagFromConfig(appConfig) {
+  private getHeadTagFromConfig(appConfig, tracksConfig = {}) {
     const { headTags, lazyImage } = appConfig ?? {};
 
     const mutationObserver = '<script data-must="1" crossorigin="anonymous" src="//f2.eckwai.com/udata/pkg/eshop/fangzhou/res/mutationobserver.min.js"></script>'
 
-    const scriptsContent = `${headTags ?? ''}${lazyImage ? mutationObserver : ''}`;
+    let scriptsContent = `${headTags ?? ''}${lazyImage ? mutationObserver : ''}`;
+
+
+    let trackMetaScript = '<script>';
+    if (tracksConfig?.pageEnv) {
+      trackMetaScript+= `window.mybricks_track = ${JSON.stringify(tracksConfig?.pageEnv ?? {})};`
+    }
+    // trackMetaScript+= `
+    //   window.mybricks_track_json = {
+    //     comTrackDefinitions: ${JSON.stringify(tracksConfig?.comTrackPoints ?? {})},
+    //     comInstanceTrackParams: ${JSON.stringify(tracksConfig?.comInstanceTrack ?? {})}
+    //   }
+    // `;
+    trackMetaScript+= getSpmFuncsFromConfig(tracksConfig?.comTrackPoints ?? {}, tracksConfig?.comInstanceTrack ?? {});
+    trackMetaScript+= '</script>'
+    if (tracksConfig?.pageHooks?.initial) {
+      scriptsContent+=tracksConfig?.pageHooks?.initial;
+    }
+
+    scriptsContent+=trackMetaScript
 
     return scriptsContent
   }
+}
+
+function getSpmFuncsFromConfig (spmDefinitions, spmExtraParams) {
+  let scripts = `
+    window.__mybricks_collect_point_defines__ = ${JSON.stringify(spmDefinitions)};
+    var t = {};
+  `;
+
+  const backupFunc = `() => console.warn("没有找到当前组件的埋点定义")`
+
+  let comItem = '';
+  Object.keys(spmExtraParams).forEach(comId => {
+    comItem+= `t["${comId}"] = {};`
+    const { namespace } = spmExtraParams[comId];
+    const spmDefinition = spmDefinitions[namespace];
+
+    if (Array.isArray(spmDefinition) && spmDefinition.length > 0) {
+      spmDefinition.forEach(spm => {
+        const spmParams = (Array.isArray(spmExtraParams[comId]?.spms) ? spmExtraParams[comId].spms : []).find(s => s.id === spm.id)?.params ?? {};
+        if (spm.id) {
+          comItem+= `if(!t["${comId}"]["${spm.id}"]) { t["${comId}"]["${spm.id}"] = {}; };`
+          comItem+= `
+t["${comId}"]["${spm.id}"]["${spm.type ?? 'CUSTOM'}"] = (common, extra) => {
+  var params = ${JSON.stringify(spmParams ?? '{}')};
+  var func = ${spm?.func ?? backupFunc};
+  func(common, Object.assign(extra, params));
+};`
+        }
+      })
+    }
+  })
+
+  scripts+=comItem
+
+  return scripts+= 'window.__mybricks_collect_function_defines__ = t;'
 }
 
 // 不传groupId表示获取的是全局配置

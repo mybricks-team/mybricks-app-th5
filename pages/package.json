@@ -71,6 +71,7 @@
     "classnames": "^2.3.1",
     "compare-versions": "^6.1.0",
     "dayjs": "^1.11.3",
+    "intersection-observer": "^0.12.2",
     "lodash": "^4.17.21",
     "monaco-editor": "^0.43.0",
     "mybricks-plugin-version": "^0.0.10",
