@@ -12,7 +12,7 @@ interface RenderParams {
 }
 
 export const renderVue2 = (param: RenderParams, ele) => {
-  const renderUI = window?.['mybricks-render-vue2']?.render;
+  const renderUI = window?.['mybricks-render-vue2'];
   if (!renderUI) {
     console.error('找不到Vue2页面渲染器')
   }

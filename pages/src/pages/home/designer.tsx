@@ -378,6 +378,7 @@ export default function MyDesigner({ appData }) {
             publisherName: ctx.user?.name,
             projectId: ctx.sdk.projectId,
             executeEnv: ctx.executeEnv,
+            // tracksConfig: MockTrackJson,
             envList: ctx.envList,
             // 非模块下的页面直接发布到项目空间下
             folderPath: "/app/th5",
@@ -773,3 +774,47 @@ const getTargetEnv = (curComLibs) => {
 
   return hasNoVueComponent ? TargetEnv.React : TargetEnv.Vue2;
 };
+
+var MockTrackJson = {
+  "pageEnv": {
+      "pageCode": ""
+  },
+  "pageHooks": {
+      "initial": "<script>\n  window.aplus = {\n    record: (params) => {\n      console.warn('SDK携带的环境参数', window.mybricks_track?.pageCode);\n      console.warn('我是SDK上报的参数', params);\n    }\n  }\n</script>"
+  },
+  "comTrackPoints": {
+      "mybricks.normal-vue.button": [
+        {
+          "id": "button",
+          "type": "CLK",
+          "func": "({ title }, extra) => { aplus.record({ title, extra }) }"
+        },
+        {
+          "id": "button",
+          "type": "EXP",
+          "func": "({ title }, extra) => { aplus.record({ title, extra }) }"
+        },
+        {
+          "id": "action",
+          "func": "({ title }, extra) => { aplus.record({ title, extra }) }"
+        }
+      ]
+  },
+  "comInstanceTrack": {
+    "u_tCK81": {
+        "namespace": "mybricks.normal-vue.button",
+        "spms": [
+          {
+            id: "button",
+            params: {
+              "hhhhhh": "我是测试参数哈哈哈哈"
+            }
+          }
+        ]
+    },
+    "u_7Ipt_": {
+        "namespace": "mybricks.normal-vue.button",
+        "spms": [],
+    }
+  }
+}
