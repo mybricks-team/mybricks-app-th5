@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import css from "./burialPoint.less";
 import { PlusOutlined, RemoveOutlined } from "./pl-icon";
 import mock from "./Mock/MockBurialPoint";
+import { Button, message } from "antd";
 
 export default function BurialPoint(props) {
   const { data, designerRef, appData } = props;
@@ -84,6 +85,20 @@ export default function BurialPoint(props) {
                     </div>
                   );
                 })}
+                <Button
+                  onClick={() => {
+                    message.success("保存成功");
+                  }}
+                  type="primary"
+                  style={{
+                    marginTop: 12,
+                    width: "70px",
+                    height: "26px",
+                    fontSize: "12px",
+                  }}
+                >
+                  保存
+                </Button>
               </>
             ) : (
               <>
