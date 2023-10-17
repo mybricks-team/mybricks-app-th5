@@ -10,8 +10,6 @@ export default function BurialPoint(props) {
   let burialPointComAry = mock();
 
   const addClick = () => {
-    //测试用
-    setTrackPointAry(burialPointComAry);
     appData.openUrl({
       url: "MYBRICKS://mybricks-material/materialSelectorPage",
       params: {
@@ -20,8 +18,9 @@ export default function BurialPoint(props) {
         // defaultSelected: data.themes
       },
       onSuccess: async ({ materials }) => {
-        console.log("materials", materials);
-        setTrackPointAry(burialPointComAry);
+        console.log("materials", materials[0]);
+        const list = Object.assign(materials[0], burialPointComAry);
+        setTrackPointAry(list);
       },
     });
   };
@@ -67,6 +66,7 @@ export default function BurialPoint(props) {
           <div className={css.contant}>
             {trackPointAry ? (
               <>
+                <div className={css.title}>{trackPointAry.title}</div>
                 {Object.keys(trackPointAry.pageEnv).map((key, index) => {
                   return (
                     <div className={css.item}>
