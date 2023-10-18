@@ -339,7 +339,7 @@ export default function MyDesigner({ appData }) {
       }
     })
 
-    const pluginToJson = toJSON.plugins?.['mybricks.pointer.bind'] ?? {};
+    const pluginToJson = toJSON.plugins?.['@mybricks/plugins/trackPoint'] ?? {};
 
     return {}
 
@@ -352,8 +352,8 @@ export default function MyDesigner({ appData }) {
   }, [])
 
   const deleteTracksConfig = useCallback((toJSON) => {
-    if (toJSON?.plugins?.['mybricks.pointer.bind']) {
-      delete toJSON.plugins?.['mybricks.pointer.bind']
+    if (toJSON?.plugins?.['@mybricks/plugins/trackPoint']) {
+      delete toJSON.plugins?.['@mybricks/plugins/trackPoint']
     }
   }, [])
 

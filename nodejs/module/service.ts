@@ -226,29 +226,29 @@ export default class PcPageService {
         Logger.info(`[publish] resourceURLs: ${JSON.stringify(resourceURLs)}`);
 
         // 读取文件内容，组合成 { content, path, name } 的数组
-        // let globalDeps = resourceURLs.map(url => {
-        //   let content = fs.readFileSync(url, 'utf-8');
+        let globalDeps = resourceURLs.map(url => {
+          let content = fs.readFileSync(url, 'utf-8');
 
-        //   // url 是资源的绝对路径，需要去掉 /public 之前的部分
-        //   let publicPath = url.split('/assets').slice(-1)[0]; 
+          // url 是资源的绝对路径，需要去掉 /public 之前的部分
+          let publicPath = url.split('/assets').slice(-1)[0]; 
 
-        //   return {
-        //     content,
-        //     path: publicPath.split('/').slice(0, -1).join('/'),
-        //     name: url.split('/').slice(-1)[0]
-        //   }
-        // });
+          return {
+            content,
+            path: publicPath.split('/').slice(0, -1).join('/'),
+            name: url.split('/').slice(-1)[0]
+          }
+        });
 
-        // await Promise.all(globalDeps.map(({ content, path, name }) => {
-        //   Logger.info(`[publish] name: ${name}, path: ${path}`);
-        //   return API.Upload.staticServer({
-        //     content,
-        //     folderPath: `${folderPath}/${envType || 'prod'}/${path}`,
-        //     fileName: name,
-        //     noHash: true,
-        //     domainName
-        //   })
-        // }))
+        await Promise.all(globalDeps.map(({ content, path, name }) => {
+          Logger.info(`[publish] name: ${name}, path: ${path}`);
+          return API.Upload.staticServer({
+            content,
+            folderPath: `${folderPath}/${envType || 'prod'}/${path}`,
+            fileName: name,
+            noHash: true,
+            domainName
+          })
+        }))
         Logger.info("[publish] 公共依赖上传成功！");
 
         needCombo &&
@@ -434,29 +434,29 @@ export default class PcPageService {
          Logger.info(`[publish] resourceURLs: ${JSON.stringify(resourceURLs)}`);
  
          // 读取文件内容，组合成 { content, path, name } 的数组
-        //  let globalDeps = resourceURLs.map(url => {
-        //    let content = fs.readFileSync(url, 'utf-8');
+         let globalDeps = resourceURLs.map(url => {
+           let content = fs.readFileSync(url, 'utf-8');
  
-        //    // url 是资源的绝对路径，需要去掉 /public 之前的部分
-        //    let publicPath = url.split('/assets').slice(-1)[0]; 
+           // url 是资源的绝对路径，需要去掉 /public 之前的部分
+           let publicPath = url.split('/assets').slice(-1)[0]; 
  
-        //    return {
-        //      content,
-        //      path: publicPath.split('/').slice(0, -1).join('/'),
-        //      name: url.split('/').slice(-1)[0]
-        //    }
-        //  });
+           return {
+             content,
+             path: publicPath.split('/').slice(0, -1).join('/'),
+             name: url.split('/').slice(-1)[0]
+           }
+         });
  
-        //  await Promise.all(globalDeps.map(({ content, path, name }) => {
-        //    Logger.info(`[publish] name: ${name}, path: ${path}`);
-        //    return API.Upload.staticServer({
-        //      content,
-        //      folderPath: `${folderPath}/${envType || 'prod'}/${path}`,
-        //      fileName: name,
-        //      noHash: true,
-        //      domainName
-        //    })
-        //  }))
+         await Promise.all(globalDeps.map(({ content, path, name }) => {
+           Logger.info(`[publish] name: ${name}, path: ${path}`);
+           return API.Upload.staticServer({
+             content,
+             folderPath: `${folderPath}/${envType || 'prod'}/${path}`,
+             fileName: name,
+             noHash: true,
+             domainName
+           })
+         }))
          Logger.info("[publish] 公共依赖上传成功！");
 
         needCombo &&
