@@ -10,18 +10,21 @@ export default function BurialPoint(props) {
   let burialPointComAry = mock();
 
   const addClick = () => {
-    //测试用
-    setTrackPointAry(burialPointComAry);
     appData.openUrl({
       url: "MYBRICKS://mybricks-material/materialSelectorPage",
       params: {
         title: "选择埋点方案",
         type: "spm",
+        config: { pure: true },
         // defaultSelected: data.themes
       },
       onSuccess: async ({ materials }) => {
-        console.log("materials", materials);
-        setTrackPointAry(burialPointComAry);
+        let content = materials[0].content
+        content = decodeURIComponent(content);
+        content = JSON.parse(content);
+        materials[0].content = content;
+        console.log("materials", materials[0]);
+        setTrackPointAry(materials[0]);
       },
     });
   };
@@ -40,7 +43,6 @@ export default function BurialPoint(props) {
       }));
     }
   };
-
 
   useEffect(() => {
     console.log("trackPointAry", trackPointAry);
@@ -67,39 +69,92 @@ export default function BurialPoint(props) {
           <div className={css.contant}>
             {trackPointAry ? (
               <>
-                {Object.keys(trackPointAry.pageEnv).map((key, index) => {
-                  return (
-                    <div className={css.item}>
-                      <label>{key}</label>
-                      <div className={`${css.editor} ${css.textEdt}`}>
-                        <input
-                          type={"text"}
-                          placeholder={""}
-                          defaultValue={
-                            trackPointAry ? trackPointAry.pageEnv[key] : ""
-                          }
-                          key={index}
-                          data-title={key}
-                          onBlur={handleBlur}
-                        />
+                <div className={css.title}>{trackPointAry.title}</div>
+
+                <div className={css.item}>
+                  <label>更新时间</label>
+                  <div className={`${css.editor} ${css.textEdt}`}>
+                    <input
+                      type={"text"}
+                      placeholder={""}
+                      disabled={true}
+                      defaultValue={new Date(
+                        trackPointAry.update_time
+                      ).toLocaleString()}
+                      key={""}
+                      data-title={""}
+                    />
+                  </div>
+                </div>
+
+                <div className={css.item}>
+                  <label>创建人</label>
+                  <div className={`${css.editor} ${css.textEdt}`}>
+                    <input
+                      type={"text"}
+                      placeholder={""}
+                      disabled={true}
+                      defaultValue={trackPointAry.creator_name}
+                      key={""}
+                      data-title={""}
+                    />
+                  </div>
+                </div>
+                {Object.keys(trackPointAry.content.pageEnv).map(
+                  (key, index) => {
+                    return (
+                      <div className={css.item}>
+                        <label>{key}</label>
+                        <div className={`${css.editor} ${css.textEdt}`}>
+                          <input
+                            type={"text"}
+                            placeholder={""}
+                            defaultValue={
+                              trackPointAry
+                                ? trackPointAry.content.pageEnv[key]
+                                : ""
+                            }
+                            key={index}
+                            data-title={key}
+                            onBlur={handleBlur}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
-                <Button
-                  onClick={() => {
-                    message.success("保存成功");
-                  }}
-                  type="primary"
-                  style={{
-                    marginTop: 12,
-                    width: "70px",
-                    height: "26px",
-                    fontSize: "12px",
-                  }}
-                >
-                  保存
-                </Button>
+                    );
+                  }
+                )}
+                <div className={css.btnBox}>
+                  <Button
+                    onClick={() => {
+                      setTrackPointAry(null);
+                      message.success("删除成功");
+                    }}
+                    type="default"
+                    style={{
+                      marginTop: 12,
+                      marginRight: 5,
+                      width: "80px",
+                      height: "30px",
+                      fontSize: "12px",
+                    }}
+                  >
+                    删除方案
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      message.success("保存成功");
+                    }}
+                    type="primary"
+                    style={{
+                      marginTop: 12,
+                      width: "70px",
+                      height: "30px",
+                      fontSize: "12px",
+                    }}
+                  >
+                    保存
+                  </Button>
+                </div>
               </>
             ) : (
               <>
