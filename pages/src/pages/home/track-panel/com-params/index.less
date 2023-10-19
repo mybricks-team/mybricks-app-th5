@@ -1,0 +1,70 @@
+.panel {
+
+  .header {
+    height: 30px;
+    display: flex;
+    align-items: center;
+  }
+
+  .title {
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .extra {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+  }
+}
+
+
+.trackPanel {
+
+
+  .types {
+    margin-left: 6px;
+    display: flex;
+    align-items: center;
+    height: 14px;
+    overflow: hidden;
+    // justify-content: center;
+
+
+
+    &>:not(:first-child) {
+        border-left: 1px solid rgba(221, 221, 221, 1);
+        padding-left: 4px;
+    }
+
+    .type {
+      margin-right: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      cursor: pointer;
+      color: #9B9B9B;
+
+      transition: all ease 0.2s;
+
+      // border-left: 1px solid #9B9B9B;
+
+      &:hover {
+        color: #FA6400;
+      }
+      
+    }
+
+    .typeActive {
+      .type();
+      color: #FA6400;
+    }
+  }
+}
+
+
+
+.track {
+  margin-bottom: 15px;
+}

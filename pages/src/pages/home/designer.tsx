@@ -20,6 +20,7 @@ import { PreviewStorage } from "./../../utils/previewStorage";
 import { MySelf_COM_LIB, H5_BASIC_COM_LIB } from "../../constants";
 import PublishModal from "./components/PublishModal";
 import { TargetEnv } from "./../../types";
+import { trackModel } from './track-panel'
 
 import css from "./app.less";
 
@@ -82,7 +83,7 @@ export default function MyDesigner({ appData }) {
   }
 
   // const designer = "https://f2.beckwai.com/kos/nlav12333/mybricks/designer-spa/1.3.24/index.min.js";
-  const designer = "./public/designer-spa/1.3.27/index.min.js";
+  const designer = "./public/designer-spa/1.3.38/index.min.js";
 
   // const configComlibs = comlibs.map(lib => lib.editJs)
 
@@ -104,6 +105,9 @@ export default function MyDesigner({ appData }) {
 
   const { plugins = [] } = appConfig;
   const uploadService = appConfig?.uploadServer?.uploadService || "";
+
+  // 初始化埋点信息
+  trackModel.init(appData.fileContent?.content?.spmExtraParams)
 
   const [ctx, setCtx] = useState({
     sdk: appData,
@@ -302,6 +306,7 @@ export default function MyDesigner({ appData }) {
     json.hasPermissionFn = ctx.hasPermissionFn;
     json.debugHasPermissionFn = ctx.debugHasPermissionFn;
     json.headTags = ctx.headTags;
+    json.spmExtraParams = trackModel.getSpmExtraParams();
 
     json.projectId = ctx.sdk.projectId;
 
@@ -328,35 +333,6 @@ export default function MyDesigner({ appData }) {
       });
   }, []);
 
-  const getTracksConfig = useCallback((toJSON) => {
-    const allComponents = traverseAllComponents(designerRef.current.components.getAll());
-    const spmExtraParams = {};
-    allComponents.forEach(com => {
-      const { model, id, title } = com
-      const { spm } = model
-      if (Array.isArray(spm)) {
-        spmExtraParams[id] = spm
-      }
-    })
-
-    const pluginToJson = toJSON.plugins?.['@mybricks/plugins/trackPoint'] ?? {};
-
-    return {}
-
-    return MockTrackJson
-
-    return {
-      ...pluginToJson,
-      spmExtraParams
-    }
-  }, [])
-
-  const deleteTracksConfig = useCallback((toJSON) => {
-    if (toJSON?.plugins?.['@mybricks/plugins/trackPoint']) {
-      delete toJSON.plugins?.['@mybricks/plugins/trackPoint']
-    }
-  }, [])
-
   const compile = useCallback(async () => {
     const json = designerRef.current?.dump();
 
@@ -381,9 +357,9 @@ export default function MyDesigner({ appData }) {
 
     const curComLibs = await genLazyloadComs(ctx.comlibs, curToJSON);
 
-    const tracksConfig = getTracksConfig(curToJSON);
+    const tracksConfig = trackModel.getTracksConfig(curToJSON, designerRef.current.components.getAll());
 
-    deleteTracksConfig(curToJSON)
+    trackModel.deleteTracksConfigFromToJson(curToJSON)
 
     const toJSON = JSON.parse(
       JSON.stringify({
@@ -779,47 +755,3 @@ const getTargetEnv = (curComLibs) => {
 
   return hasNoVueComponent ? TargetEnv.React : TargetEnv.Vue2;
 };
-
-var MockTrackJson = {
-  "pageEnv": {
-      "pageCode": "我是pageCode"
-  },
-  "pageHooks": {
-      "initial": "<script>\n  window.aplus = {\n    record: (params) => {\n      console.warn('SDK携带的环境参数', spm_context?.pageCode);\n      console.warn('我是SDK上报的参数', params);\n    }\n  }\n</script>"
-  },
-  "spmDefinitions": {
-      "mybricks.normal-vue.button": [
-        {
-          "id": "button",
-          "type": "CLK",
-          "func": "({ title }, extra) => { aplus.record({ title, extra }) }"
-        },
-        {
-          "id": "button",
-          "type": "EXP",
-          "func": "({ title }, extra) => { aplus.record({ title, extra }) }"
-        },
-        {
-          "id": "action",
-          "func": "({ title }, extra) => { aplus.record({ title, extra }) }"
-        }
-      ]
-  },
-  "spmExtraParams": {
-    "u_tCK81": {
-        "namespace": "mybricks.normal-vue.button",
-        "spms": [
-          {
-            id: "button",
-            params: {
-              "hhhhhh": "我是测试参数哈哈哈哈"
-            }
-          }
-        ]
-    },
-    "u_7Ipt_": {
-        "namespace": "mybricks.normal-vue.button",
-        "spms": [],
-    }
-  }
-}

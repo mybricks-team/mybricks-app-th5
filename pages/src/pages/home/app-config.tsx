@@ -17,6 +17,7 @@ import { burialPoint } from "./plugins/burialPoint";
 import { render as renderUI } from "@mybricks/render-web";
 import comlibLoaderFunc from "./configs/comlibLoader";
 import { comLibAdderFunc } from "./configs/comLibAdder";
+import { trackModel } from './track-panel'
 // import { runJs } from '../../utils/runJs'
 
 import axios from "axios";
@@ -178,6 +179,7 @@ export default function (ctx, save, designerRef,appData) {
       // display: false,
     },
     editView: {
+      panelAppender: trackModel.panelAppender,
       editorAppender(editConfig) {
         injectUpload(editConfig, ctx.uploadService, ctx.manateeUserInfo);
         return;
