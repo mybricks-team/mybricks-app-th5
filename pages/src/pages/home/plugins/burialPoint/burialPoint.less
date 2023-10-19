@@ -104,7 +104,6 @@
             width: 100%;
             min-height: 70px;
             border-radius: 7px;
-            background-color: #fff;
             margin-bottom: 10px;
             display: flex;
             align-items: center;
@@ -136,7 +135,6 @@
     margin-top: 0px;
     min-height: 200px;
     border-radius: 5px;
-    background-color: white;
     padding-top: 7px;
     padding-bottom: 30px;
 
@@ -148,17 +146,19 @@
         align-items: center;
         margin-top: 10px;
 
-        .btnBox{
+        .btnBox {
             width: 100%;
             display: flex;
             align-items: center;
-            justify-content:flex-end;
+            justify-content: flex-end;
         }
-        .title{
+
+        .title {
             font-weight: 500;
             font-size: 14px;
             margin-bottom: 10px;
         }
+
         .img {
             width: 100px;
             height: auto;
@@ -222,6 +222,7 @@
     }
 
     .textEdt {
+
         input,
         textarea {
             border: 1px solid #DDD;
@@ -294,16 +295,17 @@
     }
 
     .icon {
-        cursor: pointer;
+
         color: #555;
         width: 20px;
         height: 20px;
         display: flex;
         align-items: center;
         justify-content: center;
-
+        cursor: pointer;
         &:hover {
             color: @color-primary;
+            cursor: pointer;
         }
     }
 }
@@ -390,17 +392,40 @@
 .view {
     width: 320px;
     height: 100%;
-}
 
-.header {
-    height: 50px;
-    padding: 0 10px;
-    display: flex;
-    align-items: center;
-    font-size: 14px;
-    font-weight: 600;
-    border-bottom: 1px solid #eee;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+
+    .header {
+        height: 50px;
+        padding: 0 10px;
+        display: flex;
+        align-items: center;
+        font-size: 14px;
+        font-weight: 600;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0px;
+        .icon{
+            width: 18px;
+            height: 18px;
+        }
+    }
+
+    .item_s {
+        background-color: #F7F7F7;
+        border-bottom: #CCC 1px solid;
+        padding: 12px 0 12px 16px;
+        margin-top: 0px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .del {
+            width: 18px;
+            height: 18px;
+            margin-right: 7px;
+            cursor: pointer;
+        }
+    }
 }
