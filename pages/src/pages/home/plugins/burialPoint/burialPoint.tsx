@@ -19,7 +19,7 @@ export default function BurialPoint(props) {
         // defaultSelected: data.themes
       },
       onSuccess: async ({ materials }) => {
-        let content = materials[0].content
+        let content = materials[0].content;
         content = decodeURIComponent(content);
         content = JSON.parse(content);
         materials[0].content = content;
@@ -56,6 +56,7 @@ export default function BurialPoint(props) {
           <div>埋点方案配置</div>
           <div
             className={css.icon}
+            style={{ cursor: "pointer" }}
             data-mybricks-tip="添加埋点方案"
             onClick={() => {
               addClick();
@@ -64,40 +65,39 @@ export default function BurialPoint(props) {
             {PlusOutlined}
           </div>
         </div>
+        {trackPointAry && (
+          <div className={css.item_s}>
+            <div className={css.name}>{trackPointAry.title}</div>
+            <div
+              className={css.del}
+              onClick={() => {
+                setTrackPointAry(null);
+                message.success("删除成功");
+              }}
+            >
+              {RemoveOutlined}
+            </div>
+          </div>
+        )}
+
         {/* 这里放选取之后的列表 */}
         <div className={css.selectedInfo}>
           <div className={css.contant}>
             {trackPointAry ? (
               <>
-                <div className={css.title}>{trackPointAry.title}</div>
-
                 <div className={css.item}>
                   <label>更新时间</label>
                   <div className={`${css.editor} ${css.textEdt}`}>
-                    <input
-                      type={"text"}
-                      placeholder={""}
-                      disabled={true}
-                      defaultValue={new Date(
-                        trackPointAry.update_time
-                      ).toLocaleString()}
-                      key={""}
-                      data-title={""}
-                    />
+                    <div>
+                      {new Date(trackPointAry.update_time).toLocaleString()}
+                    </div>
                   </div>
                 </div>
 
                 <div className={css.item}>
                   <label>创建人</label>
                   <div className={`${css.editor} ${css.textEdt}`}>
-                    <input
-                      type={"text"}
-                      placeholder={""}
-                      disabled={true}
-                      defaultValue={trackPointAry.creator_name}
-                      key={""}
-                      data-title={""}
-                    />
+                    <div>{trackPointAry.creator_name}</div>
                   </div>
                 </div>
                 {Object.keys(trackPointAry.content.pageEnv).map(
@@ -123,38 +123,6 @@ export default function BurialPoint(props) {
                     );
                   }
                 )}
-                <div className={css.btnBox}>
-                  <Button
-                    onClick={() => {
-                      setTrackPointAry(null);
-                      message.success("删除成功");
-                    }}
-                    type="default"
-                    style={{
-                      marginTop: 12,
-                      marginRight: 5,
-                      width: "80px",
-                      height: "30px",
-                      fontSize: "12px",
-                    }}
-                  >
-                    删除方案
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      message.success("保存成功");
-                    }}
-                    type="primary"
-                    style={{
-                      marginTop: 12,
-                      width: "70px",
-                      height: "30px",
-                      fontSize: "12px",
-                    }}
-                  >
-                    保存
-                  </Button>
-                </div>
               </>
             ) : (
               <>

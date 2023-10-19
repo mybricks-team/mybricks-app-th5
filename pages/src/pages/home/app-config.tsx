@@ -122,7 +122,7 @@ export default function (ctx, save, designerRef,appData) {
     },
     plugins: [
       servicePlugin(),
-      // burialPoint(designerRef, appData),
+      burialPoint(designerRef, appData),
       versionPlugin({
         user: ctx.user,
         file: ctx.fileItem,
