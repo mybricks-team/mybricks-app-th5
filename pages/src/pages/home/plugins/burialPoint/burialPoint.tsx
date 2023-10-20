@@ -32,13 +32,14 @@ export default function BurialPoint(props) {
   const handleBlur = (e) => {
     const updatedValue = e.target.value;
     const keyToUpdate = e.target.dataset.title;
-
-    if (trackPointAry && trackPointAry.pageEnv) {
+    if (trackPointAry) {
       setTrackPointAry((prevState) => ({
         ...prevState,
-        pageEnv: {
-          ...prevState.pageEnv,
-          [keyToUpdate]: updatedValue,
+        content: {
+          pageEnv: {
+            ...prevState.content.pageEnv,
+            [keyToUpdate]: updatedValue,
+          },
         },
       }));
     }
