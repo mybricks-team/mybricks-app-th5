@@ -537,7 +537,7 @@ export default class PcPageService {
     return themesStyleStr;
   }
 
-  private getHeadTagFromConfig(appConfig, tracksConfig = {}) {
+  private getHeadTagFromConfig(appConfig, tracksConfig) {
     const { headTags, lazyImage } = appConfig ?? {};
 
     const mutationObserver = '<script data-must="1" crossorigin="anonymous" src="//f2.eckwai.com/udata/pkg/eshop/fangzhou/res/mutationobserver.min.js"></script>'
@@ -547,15 +547,9 @@ export default class PcPageService {
 
     let trackMetaScript = '<script>';
     if (tracksConfig?.pageEnv) {
-      trackMetaScript+= `window.mybricks_track = ${JSON.stringify(tracksConfig?.pageEnv ?? {})};`
+      trackMetaScript+= `window.spm_context = ${JSON.stringify(tracksConfig?.pageEnv ?? {})};`
     }
-    // trackMetaScript+= `
-    //   window.mybricks_track_json = {
-    //     comTrackDefinitions: ${JSON.stringify(tracksConfig?.comTrackPoints ?? {})},
-    //     comInstanceTrackParams: ${JSON.stringify(tracksConfig?.comInstanceTrack ?? {})}
-    //   }
-    // `;
-    trackMetaScript+= getSpmFuncsFromConfig(tracksConfig?.comTrackPoints ?? {}, tracksConfig?.comInstanceTrack ?? {});
+    trackMetaScript+= getSpmFuncsFromConfig(tracksConfig?.spmDefinitions ?? {}, tracksConfig?.spmExtraParams ?? {});
     trackMetaScript+= '</script>'
     if (tracksConfig?.pageHooks?.initial) {
       scriptsContent+=tracksConfig?.pageHooks?.initial;
@@ -568,8 +562,15 @@ export default class PcPageService {
 }
 
 function getSpmFuncsFromConfig (spmDefinitions, spmExtraParams) {
+
+  const spmDefinitionsWithoutFunction = {};
+  Object.keys(spmDefinitions ?? {}).forEach(namespace => {
+    const points = spmDefinitions[namespace];
+    spmDefinitionsWithoutFunction[namespace] = (points ?? []).map(({ _func, ...p}) => p);
+  })
+
   let scripts = `
-    window.__mybricks_collect_point_defines__ = ${JSON.stringify(spmDefinitions)};
+    window.__mybricks_collect_point_defines__ = ${JSON.stringify(spmDefinitionsWithoutFunction)};
     var t = {};
   `;
 

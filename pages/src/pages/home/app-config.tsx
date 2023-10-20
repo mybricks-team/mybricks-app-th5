@@ -4,11 +4,16 @@ import servicePlugin, {
   call as callConnectorHttp,
   mock as connectorHttpMock,
 } from "@mybricks/plugin-connector-http";
+// import servicePlugin, {
+//   call as callConnectorHttp,
+//   mock as connectorHttpMock,
+// } from "../../../../../plugin-connector-http/src";
 // import { openFilePanel } from "@mybricks/sdk-for-app/ui";
 import versionPlugin from "mybricks-plugin-version";
 import toolsPlugin from "@mybricks/plugin-tools";
 import { use as useTheme } from "@mybricks/plugin-theme";
-
+// import { use as useTheme } from "../../../../../plugin-theme/src";
+import { burialPoint } from "./plugins/burialPoint";
 import { render as renderUI } from "@mybricks/render-web";
 import comlibLoaderFunc from "./configs/comlibLoader";
 import { comLibAdderFunc } from "./configs/comLibAdder";
@@ -102,7 +107,7 @@ const injectUpload = (
   }
 };
 
-export default function (ctx, save, designerRef, remotePlugins = []) {
+export default function (ctx, save, designerRef,appData) {
   const envList = ctx?.envList || [];
 
   // 获得环境信息映射表
@@ -117,6 +122,7 @@ export default function (ctx, save, designerRef, remotePlugins = []) {
     },
     plugins: [
       servicePlugin(),
+      // burialPoint(designerRef, appData),
       versionPlugin({
         user: ctx.user,
         file: ctx.fileItem,

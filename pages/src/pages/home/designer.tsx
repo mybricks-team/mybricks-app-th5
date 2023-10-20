@@ -14,7 +14,7 @@ import API from "@mybricks/sdk-for-app/api";
 import { Locker, Toolbar } from "@mybricks/sdk-for-app/ui";
 import config from "./app-config";
 // import { getManateeUserInfo } from '../../utils'
-import { fetchPlugins, getManateeUserInfo } from "../../utils";
+import { fetchPlugins, getManateeUserInfo, traverseAllComponents } from "../../utils";
 import { getRtComlibsFromConfigEdit } from "./../../utils/comlib";
 import { PreviewStorage } from "./../../utils/previewStorage";
 import { MySelf_COM_LIB, H5_BASIC_COM_LIB } from "../../constants";
@@ -328,6 +328,92 @@ export default function MyDesigner({ appData }) {
       });
   }, []);
 
+  const getTracksConfig = useCallback((toJSON) => {
+    const allComponents = traverseAllComponents(designerRef.current.components.getAll());
+    const spmExtraParams = {};
+    allComponents.forEach(com => {
+      const { model, id, title } = com
+      const { spm } = model
+      if (Array.isArray(spm)) {
+        spmExtraParams[id] = spm
+      }
+    })
+
+    const pluginToJson = toJSON.plugins?.['@mybricks/plugins/trackPoint'] ?? {};
+
+    return {}
+
+    return MockTrackJson
+
+    return {
+      ...pluginToJson,
+      spmExtraParams
+    }
+  }, [])
+
+  const deleteTracksConfig = useCallback((toJSON) => {
+    if (toJSON?.plugins?.['@mybricks/plugins/trackPoint']) {
+      delete toJSON.plugins?.['@mybricks/plugins/trackPoint']
+    }
+  }, [])
+
+  const compile = useCallback(async () => {
+    const json = designerRef.current?.dump();
+
+    json.comlibs = ctx.comlibs;
+    json.debugQuery = ctx.debugQuery;
+    json.executeEnv = ctx.executeEnv;
+    json.debugMainProps = ctx.debugMainProps;
+    json.hasPermissionFn = ctx.hasPermissionFn;
+    json.debugHasPermissionFn = ctx.debugHasPermissionFn;
+    json.projectId = ctx.sdk.projectId;
+
+    await ctx.save(
+      { content: JSON.stringify(json), name: ctx.fileItem.name },
+      true
+    );
+
+    setBeforeunload(false);
+
+    const curToJSON = designerRef?.current?.toJSON();
+
+    // window.test = designerRef?.current?.toJSON;
+
+    const curComLibs = await genLazyloadComs(ctx.comlibs, curToJSON);
+
+    const tracksConfig = getTracksConfig(curToJSON);
+
+    deleteTracksConfig(curToJSON)
+
+    const toJSON = JSON.parse(
+      JSON.stringify({
+        ...curToJSON,
+        configuration: {
+          // scripts: encodeURIComponent(scripts),
+          comlibs: curComLibs,
+          title: ctx.fileItem.name,
+          publisherEmail: ctx.user.email,
+          publisherName: ctx.user?.name,
+          projectId: ctx.sdk.projectId,
+          executeEnv: ctx.executeEnv,
+          tracksConfig: tracksConfig,
+          envList: ctx.envList,
+          // 非模块下的页面直接发布到项目空间下
+          folderPath: "/app/th5",
+          fileName: `${ctx.fileItem.id}.html`,
+          groupName: appData?.hierarchy?.groupName || "",
+          groupId: appData?.hierarchy?.groupId || 0,
+        },
+        hasPermissionFn: ctx.hasPermissionFn,
+      })
+    );
+
+    return {
+      toJSON,
+      targetEnv: getTargetEnv(curComLibs)
+    }
+  }, [designerRef?.current, ctx]);
+
   const preview = useCallback(() => {
     if (previewingRef.current) {
       return;
@@ -346,49 +432,7 @@ export default function MyDesigner({ appData }) {
     });
 
     return (async () => {
-      /** 先保存 */
-      const json = designerRef.current?.dump();
-
-      json.comlibs = ctx.comlibs;
-      json.debugQuery = ctx.debugQuery;
-      json.executeEnv = ctx.executeEnv;
-      json.debugMainProps = ctx.debugMainProps;
-      json.hasPermissionFn = ctx.hasPermissionFn;
-      json.debugHasPermissionFn = ctx.debugHasPermissionFn;
-      json.projectId = ctx.sdk.projectId;
-
-      await ctx.save(
-        { content: JSON.stringify(json), name: ctx.fileItem.name },
-        true
-      );
-
-      setBeforeunload(false);
-
-      const curToJSON = designerRef?.current?.toJSON();
-      const curComLibs = await genLazyloadComs(ctx.comlibs, curToJSON);
-
-      const toJSON = JSON.parse(
-        JSON.stringify({
-          ...curToJSON,
-          configuration: {
-            // scripts: encodeURIComponent(scripts),
-            comlibs: curComLibs,
-            title: ctx.fileItem.name,
-            publisherEmail: ctx.user.email,
-            publisherName: ctx.user?.name,
-            projectId: ctx.sdk.projectId,
-            executeEnv: ctx.executeEnv,
-            // tracksConfig: MockTrackJson,
-            envList: ctx.envList,
-            // 非模块下的页面直接发布到项目空间下
-            folderPath: "/app/th5",
-            fileName: `${ctx.fileItem.id}.html`,
-            groupName: appData?.hierarchy?.groupName || "",
-            groupId: appData?.hierarchy?.groupId || 0,
-          },
-          hasPermissionFn: ctx.hasPermissionFn,
-        })
-      );
+      const { toJSON, targetEnv } = await compile();
 
       const res: { code: number; message: string } = await fAxios.post(
         "/api/th5/preview",
@@ -398,7 +442,7 @@ export default function MyDesigner({ appData }) {
           json: toJSON,
           envType,
           commitInfo,
-          targetEnv: getTargetEnv(curComLibs),
+          targetEnv,
         }
       );
 
@@ -435,7 +479,7 @@ export default function MyDesigner({ appData }) {
         previewingRef.current = false;
         setPreviewLoading(false);
       });
-  }, [appConfig]);
+  }, [appConfig, compile]);
 
   const publish = useCallback(
     (publishConfig) => {
@@ -453,47 +497,7 @@ export default function MyDesigner({ appData }) {
         duration: 0,
       });
       return (async () => {
-        /** 先保存 */
-        const json = designerRef.current?.dump();
-
-        json.comlibs = ctx.comlibs;
-        json.debugQuery = ctx.debugQuery;
-        json.executeEnv = ctx.executeEnv;
-        json.debugMainProps = ctx.debugMainProps;
-        json.hasPermissionFn = ctx.hasPermissionFn;
-        json.debugHasPermissionFn = ctx.debugHasPermissionFn;
-        json.projectId = ctx.sdk.projectId;
-
-        await ctx.save(
-          { content: JSON.stringify(json), name: ctx.fileItem.name },
-          true
-        );
-        setBeforeunload(false);
-
-        const curToJSON = designerRef?.current?.toJSON();
-
-        const curComLibs = await genLazyloadComs(ctx.comlibs, curToJSON);
-
-        const toJSON = JSON.parse(
-          JSON.stringify({
-            ...curToJSON,
-            configuration: {
-              // scripts: encodeURIComponent(scripts),
-              comlibs: curComLibs,
-              title: ctx.fileItem.name,
-              publisherEmail: ctx.user.email,
-              publisherName: ctx.user?.name,
-              projectId: ctx.sdk.projectId,
-              envList: ctx.envList,
-              // 非模块下的页面直接发布到项目空间下
-              folderPath: "/app/th5",
-              fileName: `${ctx.fileItem.id}.html`,
-              groupName: appData?.hierarchy?.groupName || "",
-              groupId: appData?.hierarchy?.groupId || 0,
-            },
-            hasPermissionFn: ctx.hasPermissionFn,
-          })
-        );
+        const { toJSON, targetEnv } = await compile();
 
         const res: { code: number; message: string } = await fAxios.post(
           "/api/th5/publish",
@@ -503,7 +507,7 @@ export default function MyDesigner({ appData }) {
             json: toJSON,
             envType,
             commitInfo,
-            targetEnv: getTargetEnv(curComLibs),
+            targetEnv,
           }
         );
 
@@ -543,7 +547,7 @@ export default function MyDesigner({ appData }) {
           setPublishLoading(false);
         });
     },
-    [appData]
+    [appData, compile]
   );
 
   const RenderLocker = useMemo(() => {
@@ -614,7 +618,8 @@ export default function MyDesigner({ appData }) {
               config={config(
                 Object.assign(ctx, { latestComlibs }),
                 save,
-                designerRef
+                designerRef,
+                appData
               )}
               onEdit={onEdit}
               onMessage={onMessage}
@@ -777,12 +782,12 @@ const getTargetEnv = (curComLibs) => {
 
 var MockTrackJson = {
   "pageEnv": {
-      "pageCode": ""
+      "pageCode": "我是pageCode"
   },
   "pageHooks": {
-      "initial": "<script>\n  window.aplus = {\n    record: (params) => {\n      console.warn('SDK携带的环境参数', window.mybricks_track?.pageCode);\n      console.warn('我是SDK上报的参数', params);\n    }\n  }\n</script>"
+      "initial": "<script>\n  window.aplus = {\n    record: (params) => {\n      console.warn('SDK携带的环境参数', spm_context?.pageCode);\n      console.warn('我是SDK上报的参数', params);\n    }\n  }\n</script>"
   },
-  "comTrackPoints": {
+  "spmDefinitions": {
       "mybricks.normal-vue.button": [
         {
           "id": "button",
@@ -800,7 +805,7 @@ var MockTrackJson = {
         }
       ]
   },
-  "comInstanceTrack": {
+  "spmExtraParams": {
     "u_tCK81": {
         "namespace": "mybricks.normal-vue.button",
         "spms": [
