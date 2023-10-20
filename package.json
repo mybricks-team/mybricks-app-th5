@@ -1,6 +1,6 @@
 {
   "name": "mybricks-app-th5",
-  "version": "1.0.23",
+  "version": "1.0.26",
   "description": "mybricks H5页面",
   "main": "index.js",
   "scripts": {
@@ -50,7 +50,7 @@
   "mybricks": {
     "extName": "th5-page",
     "icon": "https://ali-ec.static.yximgs.com/udata/pkg/eshop/chrome-plugin-upload/2023-09-04/1693795073550.4a653118ee30e05d.svg",
-    "title": "H5页面",
+    "title": "H5页面(vue)",
     "setting": "setting.html"
   }
 }
