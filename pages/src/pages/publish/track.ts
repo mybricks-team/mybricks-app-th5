@@ -1,11 +1,18 @@
 import 'intersection-observer'
 
+type ComNamespace = string
+type ComId = string
+type SPMId = string
+type SPMType = 'CLK' | 'EXP' | 'CUSTOM'
+
 declare global {
   interface Window {
     // mybrikcs上报能力
     // __mybricks_spms_collect__: Record<string, (...p) => void>;
-    __mybricks_collect_function_defines__: Record<string, any>;
-    __mybricks_collect_point_defines__: Record<string, any>
+    // 埋点方案定义的函数Map
+    __mybricks_collect_function_defines__: Record<ComNamespace, Record<SPMId, Record<SPMType, Record<string, any>>>>;
+    // 搭建时的额外参数Map
+    __mybricks_collect_extra_params__: Record<ComId,  Record<SPMId, Record<SPMType, Record<string, any>>>>
   }
 }
 
@@ -137,29 +144,54 @@ class MybricksLogger {
     ele['__clkBinded__'] = true
   }
   
+  cachedSpmDefinitionsMap = {}
+  /**
+   * @description 需要缓存Map，渲染同一个组件的时候不需要重新获取
+   * @param comSpmMap 
+   */
+  getSpmDefinitionsFromComSpmMap = (namespace, spmId) => {
+    const comSpmMap = window.__mybricks_collect_function_defines__?.[namespace] ?? {};
+    if (!this.cachedSpmDefinitionsMap[namespace]) {
+      this.cachedSpmDefinitionsMap[namespace] = {};
+    }
+
+    if (this.cachedSpmDefinitionsMap?.[namespace]?.[spmId]) {
+      return this.cachedSpmDefinitionsMap?.[namespace]?.[spmId]
+    }
+
+    Object.keys(comSpmMap ?? {}).forEach(_spmId => {
+      this.cachedSpmDefinitionsMap[namespace][_spmId] = Object.keys(comSpmMap[_spmId]).map(type => {
+        return {
+          spmId: _spmId,
+          type,
+        }
+      })
+    })
+
+    return this.cachedSpmDefinitionsMap?.[namespace]?.[spmId]
+  }
 
   /** 从全局获取定义好的上报函数，不管自动手动都通过这里上报 */
   collectFunctions: Record<string, (spmId, evtType, params) => any> = {}
 
+  /** 注入到renderWeb里每个组件渲染时会调用 */
   registSpm = (comId: string, { title, namespace }) => {
-    
     // 收集每个组件每个点位的上报函数
-    this.collectFunctions[comId] = (spmId, evtType = 'CUSTOM', params) => {
-      window.__mybricks_collect_function_defines__[comId]?.[spmId]?.[evtType]?.({ title }, params)
+    this.collectFunctions[comId] = (spmId, evtType = 'CUSTOM', params = {}) => {
+      const extraParams = window.__mybricks_collect_extra_params__?.[comId]?.[spmId]?.[evtType] ?? {};
+      window.__mybricks_collect_function_defines__?.[namespace]?.[spmId]?.[evtType]?.({ title }, Object.assign(params, extraParams))
     }
 
     const spmInstance = (spmId, extra) => {
       this.collectFunctions[comId](spmId, 'CUSTOM', extra)
     }
-
-    const spmDefinitions = window.__mybricks_collect_point_defines__?.[namespace];
   
     spmInstance.auto = (spmId, extra) => {
       const spmString = (params) => {
-        return JSON.stringify((spmDefinitions ?? []).filter(t => t.id === spmId).map(t => ({
+        const spmParams = this.getSpmDefinitionsFromComSpmMap(namespace, spmId);
+        return JSON.stringify((spmParams ?? []).map(p => ({
+          ...p,
           comId,
-          spmId: spmId,
-          type: t.type,
           params: params ?? {}
         })))
       }

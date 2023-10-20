@@ -8,6 +8,7 @@ import { generateComLib } from "./generateComLib";
 // import pkgJson from './../../package.json';
 import { TargetEnv } from "./types";
 import { Logger } from '@mybricks/rocker-commons'
+import { load } from 'cheerio';
 
 const pkgJson =  {
   name: 'mybricks-app-th5'
@@ -96,6 +97,32 @@ export default class PcPageService {
       deps,
       { comLibId: fileId, noThrowError, targetEnv }
     );
+  }
+
+  /**
+   * @description 读取模板文件获取需要依赖的本地文件，将本地文件上传到
+   */
+  getHtmlDepsAssets = async (templateString: string) => {
+    // TODO
+    const $ = load(templateString);
+    const resourceURLs = [...$("script").map((_, el) => $(el).attr('src'))].concat([...$("link").map((_, el) => $(el).attr('href'))]).filter(url => !!url && url.startsWith('./public'));
+
+    const fileResourceURLs = resourceURLs.map(url => {
+      return {
+        fileAbsolutePath: path.join(__dirname, './../../assets', url),
+        originRelativeUrl: url,
+      }
+    });
+
+    const existFiles = fileResourceURLs.filter(({ fileAbsolutePath }) => fs.existsSync(fileAbsolutePath)).map(({ fileAbsolutePath, originRelativeUrl }) => {
+      return {
+        content: fs.readFileSync(fileAbsolutePath, 'utf-8'),
+        path: originRelativeUrl.replace('./public', ''),
+        name: originRelativeUrl.split('/').slice(-1)[0]
+      }
+    });
+
+    return existFiles
   }
 
   async preview(
@@ -566,41 +593,49 @@ function getSpmFuncsFromConfig (spmDefinitions, spmExtraParams) {
   const spmDefinitionsWithoutFunction = {};
   Object.keys(spmDefinitions ?? {}).forEach(namespace => {
     const points = spmDefinitions[namespace];
-    spmDefinitionsWithoutFunction[namespace] = (points ?? []).map(({ _func, ...p}) => p);
+    spmDefinitionsWithoutFunction[namespace] = (points ?? []).map(({ func, ...p }) => p);
   })
 
   let scripts = `
-    window.__mybricks_collect_point_defines__ = ${JSON.stringify(spmDefinitionsWithoutFunction)};
     var t = {};
+    var p = {};
   `;
 
-  const backupFunc = `() => console.warn("没有找到当前组件的埋点定义")`
+  const backupFunc = `() => console.warn("没有找到当前组件的埋点定义");`
 
   let comItem = '';
-  Object.keys(spmExtraParams).forEach(comId => {
-    comItem+= `t["${comId}"] = {};`
-    const { namespace } = spmExtraParams[comId];
+  Object.keys(spmDefinitions ?? {}).forEach(namespace => {
+    comItem+= `t["${namespace}"] = {};`
     const spmDefinition = spmDefinitions[namespace];
-
-    if (Array.isArray(spmDefinition) && spmDefinition.length > 0) {
-      spmDefinition.forEach(spm => {
-        const spmParams = (Array.isArray(spmExtraParams[comId]?.spms) ? spmExtraParams[comId].spms : []).find(s => s.id === spm.id)?.params ?? {};
-        if (spm.id) {
-          comItem+= `if(!t["${comId}"]["${spm.id}"]) { t["${comId}"]["${spm.id}"] = {}; };`
-          comItem+= `
-t["${comId}"]["${spm.id}"]["${spm.type ?? 'CUSTOM'}"] = (common, extra) => {
-  var params = ${JSON.stringify(spmParams ?? '{}')};
+    spmDefinition.forEach(spm => {
+      if (spm.id) {
+        comItem+= `if(!t["${namespace}"]["${spm.id}"]) {t["${namespace}"]["${spm.id}"] = {};};`
+        comItem+=`
+t["${namespace}"]["${spm.id}"]["${spm.type ?? 'CUSTOM'}"] = (common, extra) => {
   var func = ${spm?.func ?? backupFunc};
-  func(common, Object.assign(extra, params));
+  func(common, extra);
 };`
-        }
-      })
-    }
+      }
+    })
+  })
+
+  Object.keys(spmExtraParams ?? {}).forEach(comId => {
+    comItem+= `p["${comId}"] = {};`
+
+    const spms = spmExtraParams[comId]?.spms ?? [];
+
+    spms.forEach(spm => {
+      if (spm.id && spm.params) {
+        comItem+= `if(!p["${comId}"]["${spm.id}"]) {p["${comId}"]["${spm.id}"] = {};};`
+        comItem+=`
+p["${comId}"]["${spm.id}"]["${spm.type ?? 'CUSTOM'}"] = ${JSON.stringify(spm.params)};`
+      }
+    })
   })
 
   scripts+=comItem
 
-  return scripts+= 'window.__mybricks_collect_function_defines__ = t;'
+  return scripts+= 'window.__mybricks_collect_function_defines__ = t;window.__mybricks_collect_extra_params__ = p;'
 }
 
 // 不传groupId表示获取的是全局配置

@@ -82,8 +82,8 @@ export default function MyDesigner({ appData }) {
     }
   }
 
-  // const designer = "https://f2.beckwai.com/kos/nlav12333/mybricks/designer-spa/1.3.24/index.min.js";
-  const designer = "./public/designer-spa/1.3.38/index.min.js";
+  // const designer = "https://f2.beckwai.com/kos/nlav12333/mybricks/designer-spa/1.3.40/index.min.js";
+  const designer = "./public/designer-spa/1.3.40/index.min.js";
 
   // const configComlibs = comlibs.map(lib => lib.editJs)
 
@@ -306,7 +306,6 @@ export default function MyDesigner({ appData }) {
     json.hasPermissionFn = ctx.hasPermissionFn;
     json.debugHasPermissionFn = ctx.debugHasPermissionFn;
     json.headTags = ctx.headTags;
-    json.spmExtraParams = trackModel.getSpmExtraParams();
 
     json.projectId = ctx.sdk.projectId;
 
@@ -334,26 +333,24 @@ export default function MyDesigner({ appData }) {
   }, []);
 
   const compile = useCallback(async () => {
-    const json = designerRef.current?.dump();
+    // const json = designerRef.current?.dump();
 
-    json.comlibs = ctx.comlibs;
-    json.debugQuery = ctx.debugQuery;
-    json.executeEnv = ctx.executeEnv;
-    json.debugMainProps = ctx.debugMainProps;
-    json.hasPermissionFn = ctx.hasPermissionFn;
-    json.debugHasPermissionFn = ctx.debugHasPermissionFn;
-    json.projectId = ctx.sdk.projectId;
+    // json.comlibs = ctx.comlibs;
+    // json.debugQuery = ctx.debugQuery;
+    // json.executeEnv = ctx.executeEnv;
+    // json.debugMainProps = ctx.debugMainProps;
+    // json.hasPermissionFn = ctx.hasPermissionFn;
+    // json.debugHasPermissionFn = ctx.debugHasPermissionFn;
+    // json.projectId = ctx.sdk.projectId;
 
-    await ctx.save(
-      { content: JSON.stringify(json), name: ctx.fileItem.name },
-      true
-    );
+    // await ctx.save(
+    //   { content: JSON.stringify(json), name: ctx.fileItem.name },
+    //   true
+    // );
 
-    setBeforeunload(false);
+    // setBeforeunload(false);
 
     const curToJSON = designerRef?.current?.toJSON();
-
-    // window.test = designerRef?.current?.toJSON;
 
     const curComLibs = await genLazyloadComs(ctx.comlibs, curToJSON);
 
@@ -431,7 +428,7 @@ export default function MyDesigner({ appData }) {
         });
 
         console.error(res);
-        window.open(res.data.url);
+        window.open(res.data.url + `?${Math.random()}`);
       } else {
         close();
         message.error({
@@ -462,17 +459,21 @@ export default function MyDesigner({ appData }) {
       if (publishingRef.current) {
         return;
       }
-      const { envType = "prod", commitInfo } = publishConfig;
-      publishingRef.current = true;
 
-      setPublishLoading(true);
-
-      const close = message.loading({
-        key: "publish",
-        content: "页面发布中",
-        duration: 0,
-      });
       return (async () => {
+        await save()
+
+        const { envType = "prod", commitInfo } = publishConfig;
+        publishingRef.current = true;
+
+        setPublishLoading(true);
+
+        const close = message.loading({
+          key: "publish",
+          content: "页面发布中",
+          duration: 0,
+        });
+
         const { toJSON, targetEnv } = await compile();
 
         const res: { code: number; message: string } = await fAxios.post(

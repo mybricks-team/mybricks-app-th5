@@ -36,6 +36,7 @@ export default function BurialPoint(props) {
       setTrackPointAry((prevState) => ({
         ...prevState,
         content: {
+          ...prevState.content,
           pageEnv: {
             ...prevState.content.pageEnv,
             [keyToUpdate]: updatedValue,

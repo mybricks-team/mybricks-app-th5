@@ -1,4 +1,4 @@
-@borderColor: rgba(221, 221, 221, 0.4);
+@borderColor: #DDD;
 
 .param {
   overflow: hidden;
@@ -29,6 +29,11 @@
       transform-origin: center;
 
       cursor: pointer;
+
+      transition: all ease 0.2s;
+      &:hover {
+        box-shadow: 0 0 5px rgba(54, 58, 80, 0.32);
+      }
     }
     
   }
@@ -109,6 +114,8 @@
     font-size: 14px;
     color: #333333;
     cursor: pointer;
+
+    transition: all ease 0.2s;
 
     &:hover {
       color: #FA6400;
