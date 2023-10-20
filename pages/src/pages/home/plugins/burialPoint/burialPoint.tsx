@@ -32,13 +32,14 @@ export default function BurialPoint(props) {
   const handleBlur = (e) => {
     const updatedValue = e.target.value;
     const keyToUpdate = e.target.dataset.title;
-
-    if (trackPointAry && trackPointAry.pageEnv) {
+    if (trackPointAry) {
       setTrackPointAry((prevState) => ({
         ...prevState,
-        pageEnv: {
-          ...prevState.pageEnv,
-          [keyToUpdate]: updatedValue,
+        content: {
+          pageEnv: {
+            ...prevState.content.pageEnv,
+            [keyToUpdate]: updatedValue,
+          },
         },
       }));
     }
@@ -85,21 +86,24 @@ export default function BurialPoint(props) {
           <div className={css.contant}>
             {trackPointAry ? (
               <>
-                <div className={css.item}>
-                  <label>更新时间</label>
-                  <div className={`${css.editor} ${css.textEdt}`}>
-                    <div>
-                      {new Date(trackPointAry.update_time).toLocaleString()}
+                <div className={css.description}>
+                  <div className={css.item}>
+                    <label>更新时间</label>
+                    <div className={`${css.editor} ${css.textEdt}`}>
+                      <div>
+                        {new Date(trackPointAry.update_time).toLocaleString()}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className={css.item}>
+                    <label>创建人</label>
+                    <div className={`${css.editor} ${css.textEdt}`}>
+                      <div>{trackPointAry.creator_name}</div>
                     </div>
                   </div>
                 </div>
-
-                <div className={css.item}>
-                  <label>创建人</label>
-                  <div className={`${css.editor} ${css.textEdt}`}>
-                    <div>{trackPointAry.creator_name}</div>
-                  </div>
-                </div>
+                <div className={css.trackPointDesc}>请在下方完善埋点信息:</div>
                 {Object.keys(trackPointAry.content.pageEnv).map(
                   (key, index) => {
                     return (
