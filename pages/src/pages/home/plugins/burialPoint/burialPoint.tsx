@@ -23,7 +23,6 @@ export default function BurialPoint(props) {
         content = decodeURIComponent(content);
         content = JSON.parse(content);
         materials[0].content = content;
-        console.log("materials", materials[0]);
         setTrackPointAry(materials[0]);
       },
     });
@@ -47,7 +46,6 @@ export default function BurialPoint(props) {
   };
 
   useEffect(() => {
-    console.log("trackPointAry", trackPointAry);
     data.trackPointAry = trackPointAry;
   }, [trackPointAry]);
 
@@ -104,7 +102,8 @@ export default function BurialPoint(props) {
                     </div>
                   </div>
                 </div>
-                <div className={css.trackPointDesc}>请在下方完善埋点信息:</div>
+                <div className={css.trackPointDesc}>当前埋点方案需填写以下信息：</div>
+                <div className={css.trackPointLink}>如有疑问，请点此查看文档</div>
                 {Object.keys(trackPointAry.content.pageEnv).map(
                   (key, index) => {
                     return (
