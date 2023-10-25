@@ -103,7 +103,9 @@ export default function BurialPoint(props) {
                   </div>
                 </div>
                 <div className={css.trackPointDesc}>当前埋点方案需填写以下信息：</div>
-                <div className={css.trackPointLink}>如有疑问，请点此查看文档</div>
+                {
+                  trackPointAry?.content?.docUrl && <div className={css.trackPointLink} onClick={() => window.open(trackPointAry?.content?.docUrl)}>如有疑问，请点此查看文档</div>
+                }
                 {Object.keys(trackPointAry.content.pageEnv).map(
                   (key, index) => {
                     return (
