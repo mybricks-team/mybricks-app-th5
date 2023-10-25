@@ -65,11 +65,11 @@ module.exports = merge(common, {
         return content
       }
     }),
-    // new HtmlWebpackPlugin({
-    //   filename: 'preview.html',
-    //   template: path.resolve(__dirname, '../templates/preview.html'),
-    //   chunks: ['preview'],
-    // }),
+    new HtmlWebpackPlugin({
+      filename: 'preview.html',
+      template: path.resolve(__dirname, '../templates/preview.ejs'),
+      chunks: ['preview'],
+    }),
     new HtmlWebpackPlugin({
       filename: 'setting.html',
       template: path.resolve(__dirname, '../templates/setting.html'),

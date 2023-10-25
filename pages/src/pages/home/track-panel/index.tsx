@@ -97,18 +97,18 @@ class TrackModel {
   panelAppender = (type, model) => {
     if (type === 'com') {
       // const namespace = model.def?.namespace;
-      // const editorsSpms = model.def?.editors?.spm ?? [];
-      const editorsSpms = [
-        {
-          id: 'button',
-          type: ['CLK', 'EXP'],
-          title: '按钮元素',
-        },
-        {
-          id: 'ccc',
-          title: '点击成功',
-        }
-      ]
+      const editorsSpms = model.def?.editors?.spm ?? [];
+      // const editorsSpms = [
+      //   {
+      //     id: 'button',
+      //     type: ['CLK', 'EXP'],
+      //     title: '按钮元素',
+      //   },
+      //   {
+      //     id: 'ccc',
+      //     title: '点击成功',
+      //   }
+      // ]
   
       // const spmExtraParams = this.getSpmExtraParams();
 

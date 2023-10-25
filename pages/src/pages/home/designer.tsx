@@ -83,7 +83,7 @@ export default function MyDesigner({ appData }) {
   }
 
   // const designer = "https://f2.beckwai.com/kos/nlav12333/mybricks/designer-spa/1.3.40/index.min.js";
-  const designer = "./public/designer-spa/1.3.40/index.min.js";
+  const designer = "./public/designer-spa/1.3.43/index.min.js";
 
   // const configComlibs = comlibs.map(lib => lib.editJs)
 
@@ -428,7 +428,8 @@ export default function MyDesigner({ appData }) {
         });
 
         console.error(res);
-        window.open(res.data.url + `?${Math.random()}`);
+        // window.open(res.data.url);
+        window.open(`/preview.html?fileId=${ctx.fileId}`)
       } else {
         close();
         message.error({

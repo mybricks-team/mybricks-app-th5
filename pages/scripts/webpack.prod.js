@@ -39,6 +39,11 @@ module.exports = merge(common, {
       chunks: ['index'],
     }),
     new HtmlWebpackPlugin({
+      filename: 'preview.html',
+      template: path.resolve(__dirname, '../templates/preview.ejs'),
+      chunks: ['preview'],
+    }),
+    new HtmlWebpackPlugin({
       filename: 'setting.html',
       template: path.resolve(__dirname, '../templates/setting.html'),
       chunks: ['setting'],
