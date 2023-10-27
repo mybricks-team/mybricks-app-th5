@@ -5,12 +5,16 @@ import mock from "./Mock/MockBurialPoint";
 import { Button, message } from "antd";
 
 export default function BurialPoint(props) {
-  const { data, designerRef, appData } = props;
+  const { data, designerRef, sdk, onIsSelect } = props;
   const [trackPointAry, setTrackPointAry] = useState(data.trackPointAry);
   let burialPointComAry = mock();
 
+  useEffect(() => {
+    onIsSelect?.({ isSelectPlan: trackPointAry?.content && trackPointAry?.id })
+  }, [trackPointAry, onIsSelect])
+
   const addClick = () => {
-    appData.openUrl({
+    sdk.openUrl({
       url: "MYBRICKS://mybricks-material/materialSelectorPage",
       params: {
         title: "选择埋点方案",

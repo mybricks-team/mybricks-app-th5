@@ -1,7 +1,6 @@
 const path = require('path')
 const { merge } = require('webpack-merge')
 const common = require('./webpack.common')
-const rootPath = path.resolve(__dirname, './../')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const WebpackBar = require('webpackbar')
 const fs = require('fs')
@@ -15,9 +14,7 @@ module.exports = merge(common, {
     alias: {},
   },
   devServer: {
-    static: {
-      directory: path.resolve(rootPath, './assets'),
-    },
+    // static: [],
     port: 9001,
     host: 'localhost',
     hot: true,

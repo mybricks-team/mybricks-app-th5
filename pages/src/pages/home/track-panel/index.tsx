@@ -14,6 +14,8 @@ interface SPMExtraParams {
 
 class TrackModel {
 
+  isSelectPlan = false
+
   /**
    * @deprecated 设计器有spm api后不再使用
    */
@@ -44,7 +46,7 @@ class TrackModel {
   }
 
 
-  getTracksConfig = (toJSON, allComsJson) => {
+  getTracksConfig = async (toJSON, allComsJson) => {
     const allComponents = traverseAllComponents(allComsJson);
     const spmExtraParams = {};
     allComponents.forEach(com => {
@@ -80,9 +82,16 @@ class TrackModel {
       } 
     })
 
-    return {
+    const config = {
       ...pluginToJson,
       spmExtraParams,
+    }
+
+    const scriptContent = await getTrackScriptContent(config)
+
+    return {
+      ...config,
+      scriptContent,
     }
   }
 
@@ -96,6 +105,10 @@ class TrackModel {
 
   panelAppender = (type, model) => {
     if (type === 'com') {
+      if (!this.isSelectPlan) {
+        return null
+      }
+
       // const namespace = model.def?.namespace;
       const editorsSpms = model.def?.editors?.spm ?? [];
       // const editorsSpms = [
@@ -176,3 +189,85 @@ export const trackModel = new TrackModel();
 //     }
 //   }
 // }
+
+
+const minimize = async (code) => {
+  const Babel = window.Babel as any;
+
+  const Terser = window.Terser as any;
+  
+  let formattedCode = code;
+  try {
+    formattedCode = Babel.transform(code, {
+      presets: ["env"], // 设置需要使用的预设（这里使用env预设）
+      // sourceType: 'script', // 这里设置sourceType的值为script，可以让Babel输出常规类型的输出文件
+      // plugins: [
+      //   Babel.availablePlugins['proposal-optional-chaining'],
+      //   Babel.availablePlugins['proposal-nullish-coalescing-operator'],
+      //   Babel.availablePlugins['proposal-object-rest-spread']
+      // ]
+    }).code;
+
+    const minifyCode = await Terser.minify(formattedCode);
+    formattedCode = minifyCode.code
+  } catch (error) {
+    console.warn('压缩埋点代码失败，将使用未压缩代码')
+    formattedCode = code
+  }
+
+  return formattedCode;
+}
+
+async function getTrackScriptContent (tracksConfig = {}) {
+  const { pageEnv, spmDefinitions, spmExtraParams } = tracksConfig as any
+
+  const spmDefinitionsWithoutFunction = {};
+  Object.keys(spmDefinitions ?? {}).forEach(namespace => {
+    const points = spmDefinitions[namespace];
+    spmDefinitionsWithoutFunction[namespace] = (points ?? []).map(({ func, ...p }) => p);
+  })
+
+  let scripts = `
+    ${ pageEnv ? `window.spm_context = ${JSON.stringify(pageEnv ?? {})}` : '' };
+    var t = {};
+    var p = {};
+  `;
+
+  const backupFunc = `() => console.warn("没有找到当前组件的埋点定义");`
+
+  let comItem = '';
+  Object.keys(spmDefinitions ?? {}).forEach(namespace => {
+    comItem+= `t["${namespace}"] = {};`
+    const spmDefinition = spmDefinitions[namespace];
+    spmDefinition.forEach(spm => {
+      if (spm.id) {
+        comItem+= `if(!t["${namespace}"]["${spm.id}"]) {t["${namespace}"]["${spm.id}"] = {};};`
+        comItem+=`
+t["${namespace}"]["${spm.id}"]["${spm.type ?? 'CUSTOM'}"] = (common, extra) => {
+  var func = ${spm?.func ?? backupFunc};
+  func(common, extra);
+};`
+      }
+    })
+  })
+
+  Object.keys(spmExtraParams ?? {}).forEach(comId => {
+    comItem+= `p["${comId}"] = {};`
+
+    const spms = spmExtraParams[comId]?.spms ?? [];
+
+    spms.forEach(spm => {
+      if (spm.id && spm.params) {
+        comItem+= `if(!p["${comId}"]["${spm.id}"]) {p["${comId}"]["${spm.id}"] = {};};`
+        comItem+=`
+p["${comId}"]["${spm.id}"]["${spm.type ?? 'CUSTOM'}"] = ${JSON.stringify(spm.params)};`
+      }
+    })
+  })
+
+  scripts+=comItem
+
+  scripts+= 'window.__mybricks_collect_function_defines__ = t;window.__mybricks_collect_extra_params__ = p;'
+  
+  return minimize(scripts);
+}

@@ -108,7 +108,7 @@ const injectUpload = (
   }
 };
 
-export default function (ctx, save, designerRef,appData) {
+export default function (ctx, save, designerRef) {
   const envList = ctx?.envList || [];
 
   // 获得环境信息映射表
@@ -123,7 +123,7 @@ export default function (ctx, save, designerRef,appData) {
     },
     plugins: [
       servicePlugin(),
-      burialPoint(designerRef, appData),
+      burialPoint({ designerRef, sdk: ctx.sdk, onIsSelect: ({ isSelectPlan }) => { trackModel.isSelectPlan = !!isSelectPlan } }),
       versionPlugin({
         user: ctx.user,
         file: ctx.fileItem,

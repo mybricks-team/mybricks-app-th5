@@ -2,7 +2,7 @@ import { Icon } from "./Icons";
 import BurialPoint from "./burialPoint";
 import data from "./data";
 
-export const burialPoint = (designerRef,appData) => {
+export const burialPoint = ({ designerRef, sdk, onIsSelect }) => {
   return {
     name: "@mybricks/plugins/trackPoint",
     title: "埋点绑定插件",
@@ -18,14 +18,16 @@ export const burialPoint = (designerRef,appData) => {
           icon: Icon,
           apiSet: [],
           render(args) {
-            const props = { ...args, designerRef, appData };
+            const props = { ...args, designerRef, sdk };
             //View渲染
-            return <BurialPoint {...props} />;
+            return <BurialPoint {...props} onIsSelect={onIsSelect} />;
           },
         },
       },
     },
-    activate(args) {},
+    activate({ data }) {
+      onIsSelect?.({ isSelectPlan: data?.trackPointAry?.content && data?.trackPointAry?.id })
+    },
     toJSON: ({ data }) => {
       return JSON.parse(JSON.stringify(data.trackPointAry));
     },
