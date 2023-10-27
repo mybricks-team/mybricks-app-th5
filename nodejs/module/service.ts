@@ -612,17 +612,23 @@ export default class PcPageService {
     let scriptsContent = `${headTags ?? ''}${lazyImage ? mutationObserver : ''}`;
 
 
-    let trackMetaScript = '<script>';
-    if (tracksConfig?.pageEnv) {
-      trackMetaScript+= `window.spm_context = ${JSON.stringify(tracksConfig?.pageEnv ?? {})};`
+    if (tracksConfig?.scriptContent) {
+      scriptsContent = `<script>${tracksConfig?.scriptContent}</script>`
     }
-    trackMetaScript+= getSpmFuncsFromConfig(tracksConfig?.spmDefinitions ?? {}, tracksConfig?.spmExtraParams ?? {});
-    trackMetaScript+= '</script>'
+
+    // return scriptsContent
+
+    // let trackMetaScript = '<script>';
+    // if (tracksConfig?.pageEnv) {
+    //   trackMetaScript+= `window.spm_context = ${JSON.stringify(tracksConfig?.pageEnv ?? {})};`
+    // }
+    // trackMetaScript+= getSpmFuncsFromConfig(tracksConfig?.spmDefinitions ?? {}, tracksConfig?.spmExtraParams ?? {});
+    // trackMetaScript+= '</script>'
     if (tracksConfig?.pageHooks?.initial) {
       scriptsContent+=tracksConfig?.pageHooks?.initial;
     }
 
-    scriptsContent+=trackMetaScript
+    // scriptsContent+=trackMetaScript
 
     return scriptsContent
   }
