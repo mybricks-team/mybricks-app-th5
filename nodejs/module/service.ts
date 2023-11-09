@@ -16,7 +16,7 @@ const pkgJson =  {
 
 @Injectable()
 export default class PcPageService {
-  async _generateComLibRT(comlibs, json, { domainName, fileId, noThrowError, targetEnv }) {
+  async _generateComLibRT(comlibs, json, { fileId, noThrowError, targetEnv }) {
     /**
      * TODO:
      * 1.目前应用里配置的edit.js 一定有 rt.js
@@ -55,10 +55,9 @@ export default class PcPageService {
         const finalComponents = await Promise.all(
           selfComponents.map((component) => {
             return new Promise((resolve, reject) => {
-              axios({
-                method: "get",
-                url: `${domainName}/api/material/namespace/content?namespace=${component.namespace}&version=${component.version}`,
-                timeout: 30 * 1000,
+              API.Material.getMaterialContent({
+                namespace: component.namespace,
+                version: component.version,
               })
                 .then(({ data }) => {
                   resolve(data.data);
@@ -159,12 +158,6 @@ export default class PcPageService {
       Reflect.deleteProperty(json, "configuration");
 
       /** 本地测试 根目录 npm run start:nodejs，调平台接口需要起平台（apaas-platform）服务 */
-      const domainName =
-        process.env.NODE_ENV === "development"
-          ? "http://localhost:9001"
-          : getRealDomain(req);
-      // const domainName = 'https://my.mybricks.world';
-      Logger.info(`[publish] domainName is: ${domainName}`);
 
       const themesStyleStr = this._genThemesStyleStr(json);
       
@@ -226,7 +219,7 @@ export default class PcPageService {
       let comboScriptText = "";
       /** 生成 combo 组件库代码 */
       if (needCombo) {
-        comboScriptText = await this._generateComLibRT(comlibs, json, {domainName, fileId, noThrowError: hasOldComLib, targetEnv });
+        comboScriptText = await this._generateComLibRT(comlibs, json, { fileId, noThrowError: hasOldComLib, targetEnv });
       }
 
       if (customPublishApi) {
@@ -243,8 +236,7 @@ export default class PcPageService {
               content,
               folderPath: `${folderPath}/${envType || 'prod'}/${path}`,
               fileName: name,
-              noHash: true,
-              domainName
+              noHash: true
             })
           }))
         } catch (error) {
@@ -295,7 +287,6 @@ export default class PcPageService {
         //     folderPath: `${folderPath}/${envType || 'prod'}/${path}`,
         //     fileName: name,
         //     noHash: true,
-        //     domainName
         //   })
         // }))
         Logger.info("[publish] 公共依赖上传成功！");
@@ -305,16 +296,14 @@ export default class PcPageService {
             content: comboScriptText,
             folderPath: `${folderPath}/${envType || "prod"}`,
             fileName: comlibRtName,
-            noHash: true,
-            domainName
+            noHash: true
           }));
 
         publishMaterialInfo = await API.Upload.staticServer({
           content: template,
           folderPath: `${folderPath}/${envType || "prod"}`,
           fileName,
-          noHash: true,
-          domainName
+          noHash: true
         });
 
         Logger.info(
@@ -383,12 +372,6 @@ export default class PcPageService {
       Reflect.deleteProperty(json, "configuration");
 
       /** 本地测试 根目录 npm run start:nodejs，调平台接口需要起平台（apaas-platform）服务 */
-      const domainName =
-        process.env.NODE_ENV === "development"
-          ? "http://localhost:9001"
-          : getRealDomain(req);
-      // const domainName = 'https://my.mybricks.world';
-      Logger.info(`[publish] domainName is: ${domainName}`);
 
       const themesStyleStr = this._genThemesStyleStr(json);
       
@@ -448,7 +431,6 @@ export default class PcPageService {
       /** 生成 combo 组件库代码 */
       if (needCombo) {
         comboScriptText = await this._generateComLibRT(comlibs, json, {
-          domainName,
           fileId,
           noThrowError: hasOldComLib,
           targetEnv,
@@ -469,8 +451,7 @@ export default class PcPageService {
               content,
               folderPath: `${folderPath}/${envType || 'prod'}/${path}`,
               fileName: name,
-              noHash: true,
-              domainName
+              noHash: true
             })
           }))
         } catch (error) {
@@ -521,7 +502,6 @@ export default class PcPageService {
         //     folderPath: `${folderPath}/${envType || 'prod'}/${path}`,
         //     fileName: name,
         //     noHash: true,
-        //     domainName
         //   })
         // }))
         Logger.info("[publish] 公共依赖上传成功！");
@@ -531,16 +511,14 @@ export default class PcPageService {
             content: comboScriptText,
             folderPath: `${folderPath}/${envType || "prod"}`,
             fileName: comlibRtName,
-            noHash: true,
-            domainName
+            noHash: true
           }));
 
         publishMaterialInfo = await API.Upload.staticServer({
           content: template,
           folderPath: `${folderPath}/${envType || "prod"}`,
           fileName,
-          noHash: true,
-          domainName
+          noHash: true
         });
 
         Logger.info(
@@ -721,22 +699,6 @@ function getRealHostName(requestHeaders) {
     hostName = requestHeaders["x-host"].replace(":443", "");
   }
   return hostName;
-}
-
-/** 有问题找zouyongsheng */
-function getRealDomain(request) {
-  let hostName = getRealHostName(request.headers);
-  const { origin } = request.headers;
-  if (origin) return origin;
-  // let protocol = request.headers['x-scheme'] ? 'https' : 'http'
-  /** TODO: 暂时写死 https */
-  // let protocol = 'https';
-  let protocol =
-    request.headers?.["connection"].toLowerCase() === "upgrade"
-      ? "https"
-      : "http";
-  let domain = `${protocol}:\/\/${hostName}`;
-  return domain;
 }
 
 function getNextVersion(version, max = 100) {
