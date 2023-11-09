@@ -428,10 +428,7 @@ export default function MyDesigner({ appData }) {
           content: "发布成功",
           duration: 2,
         });
-
-        console.error(res);
-        // window.open(res.data.url);
-        window.open(`/preview.html?fileId=${ctx.fileId}`)
+        window.open(`./preview.html?fileId=${ctx.fileId}`)
       } else {
         close();
         message.error({

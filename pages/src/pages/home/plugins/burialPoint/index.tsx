@@ -29,7 +29,7 @@ export const burialPoint = ({ designerRef, sdk, onIsSelect }) => {
       onIsSelect?.({ isSelectPlan: data?.trackPointAry?.content && data?.trackPointAry?.id })
     },
     toJSON: ({ data }) => {
-      return JSON.parse(JSON.stringify(data.trackPointAry));
+      return JSON.parse(JSON.stringify(data?.trackPointAry ?? {}));
     },
     beforeDump(args) {
       //当dump总体数据时回调（保存）
