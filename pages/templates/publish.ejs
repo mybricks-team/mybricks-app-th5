@@ -130,6 +130,7 @@
     <script src="./public/vue/2.7.14/vue.min.js"></script>
     <script>
       window.Vue ? (window.vue = window.Vue) : null;
+      window.Vue.prototype.$eventBus = new window.Vue();
     </script>
     <!-- vue2相关代码 -->
   <% } else if (htmlWebpackPlugin.options.target == 'vue3') { %>

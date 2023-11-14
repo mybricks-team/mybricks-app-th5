@@ -11,7 +11,7 @@ async function bootstrap() {
 		prefix: '/',
 	});
 
-	const whitelist = ['localhost'];
+	const whitelist = ['localhost', '127.0.0.1'];
 	app.enableCors({
 		origin: function (origin, callback) {
 			if (!origin || whitelist.find((item) => origin.indexOf(item) >= 0)) {

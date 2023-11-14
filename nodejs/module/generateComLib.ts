@@ -53,11 +53,19 @@ export const generateComLib = (allComLibs: any[], allComponents: any[], options:
 			}
 		}
 
-		script += lib.defined ? `
-			comAray.push({ namespace: '${component.namespace}', version: '${curComponent.version}', runtime: ${decodeURIComponent(componentRuntime)} });
-		` : `
+		script += lib.defined
+      ? `
+			comAray.push({ namespace: '${component.namespace}', version: '${
+          curComponent.version
+        }', runtime: ${decodeURIComponent(componentRuntime)} });
+		`
+      : `
 			eval(${JSON.stringify(decodeURIComponent(componentRuntime))});
-			comAray.push({ namespace: '${component.namespace}', version: '${curComponent.version}', runtime: window.fangzhouComDef.default });
+			comAray.push({ namespace: '${component.namespace}', version: '${
+          curComponent.version
+        }', runtime: (window.fangzhouComDef || window.MybricksComDef).default });
+			if(Reflect.has(window, 'fangzhouComDef')) Reflect.deleteProperty(window, 'fangzhouComDef');
+			if(Reflect.has(window, 'MybricksComDef')) Reflect.deleteProperty(window, 'MybricksComDef');
 		`;
 	});
 

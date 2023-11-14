@@ -82,7 +82,7 @@ export default function MyDesigner({ appData }) {
     }
   }
 
-  comlibs = LOCAL_DEFAULT_COMLIBS
+  // comlibs = LOCAL_DEFAULT_COMLIBS
 
   // const designer = "https://f2.beckwai.com/kos/nlav12333/mybricks/designer-spa/1.3.40/index.min.js";
   const designer = "./public/designer-spa/1.3.43/index.min.js";
