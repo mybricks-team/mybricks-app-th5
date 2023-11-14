@@ -190,19 +190,15 @@ export default function MyDesigner({ appData }) {
   const [isDebugMode, setIsDebugMode] = useState(false);
 
   useEffect(() => {
-    API.Material.getLatestComponentLibrarys(
-      comlibs.filter((lib) => lib.id !== "_myself_").map((lib) => lib.namespace)
-    )
-      .then((res: any) => {
-        const latestComlibs = (res || []).map((lib) => ({
-          ...lib,
-          ...JSON.parse(lib.content),
-        }));
-        setLatestComlibs(latestComlibs ?? []);
+    const needSearchComlibs = comlibs.filter(lib => lib.id !== "_myself_");
+    if (!!needSearchComlibs?.length) {
+      API.Material.getLatestComponentLibrarys(needSearchComlibs.map(lib => lib.namespace)).then((res: any) => {
+        const latestComlibs = (res || []).map(lib => ({ ...lib, ...JSON.parse(lib.content) }))
+        setLatestComlibs(latestComlibs)
       })
-      .catch((e) => {
-        console.error(e);
-      });
+    } else {
+      setLatestComlibs([]);
+    }
   }, [JSON.stringify(comlibs.map((lib) => lib.namespace))]);
 
   useEffect(() => {
@@ -588,12 +584,12 @@ export default function MyDesigner({ appData }) {
         </Toolbar.Button>
       </Toolbar>
       <div className={css.designer}>
-        {SPADesigner && (
+        {SPADesigner && latestComlibs && window?.mybricks?.createObservable &&  (
           <>
             <SPADesigner
               ref={designerRef}
               config={config(
-                Object.assign(ctx, { latestComlibs }),
+                window?.mybricks?.createObservable(Object.assign(ctx, { latestComlibs })),
                 save,
                 designerRef,
                 appData

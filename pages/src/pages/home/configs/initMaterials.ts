@@ -12,22 +12,10 @@ export const initMaterials = async (ctx: Record<string, any>) => {
     if(myselfLib && hasMaterialApp) {
         await getComlibsByNamespaceAndVersion(myselfLib?.comAray)
     }
+    if(!libs.length) return [];
     const { styles } =  await myRequire(libs.map(lib => lib?.editJs??lib), (error) => {
         Promise.reject(error)
     })
-    // await Promise.all(
-    //     libs.map(lib => requireScript(lib?.editJs??lib))
-    // ).then((res) => {
-    //     //insert namespace, replace id
-    //     res.forEach(({styles}, index) => {
-    //         window[ComLib_Edit][index+1] = {
-    //             ...window[ComLib_Edit][index+1],
-    //             id: libs[index].id,
-    //             namespace: libs[index].namespace,
-    //             _styleAry: styles
-    //         }
-    //     })
-    // })
 
     /**
      * insert styles
@@ -72,7 +60,7 @@ export const initMaterials = async (ctx: Record<string, any>) => {
     /**
      * insert latestComlib for upgrade
      */
-    (latestComlibs ?? []).forEach(latestLib => {
+    latestComlibs.forEach(latestLib => {
         const shouldUpdateLib = window[ComLib_Edit].find(lib => (lib.namespace===latestLib.namespace || lib.id===latestLib.id) && compareVersions(latestLib.version, lib.version)>0);
         if(shouldUpdateLib){
             shouldUpdateLib.latestComlib = latestLib;
