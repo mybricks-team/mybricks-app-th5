@@ -16,7 +16,17 @@ const HTML_CODE = `<!-- 请输入Html代码，使用非常耗时的代码可能�
 
 export default (props) => {
   const { options = {} } = props
-  const configContext = useConfig(_NAMESPACE_, {}, options)
+  const configContext = useConfig(_NAMESPACE_, {}, options);
+
+  const [state, setState] = useState({
+    headTags: '',
+  })
+
+  useEffect(() => {
+    if (configContext.loading === false) {
+      setState(c => ({ ...c, headTags: configContext.config?.headTags ?? '' }))
+    }
+  }, [configContext.loading])
 
   const isInGroup = options?.type === 'group'
   return (
@@ -75,9 +85,12 @@ export default (props) => {
             <Input.TextArea
               rows={3}
               placeholder={HTML_CODE}
-              value={configContext.config?.headTags}
+              value={state.headTags}
+              onChange={e => {
+                setState(c => ({ ...c, headTags: e.target.value }))
+              }}
               onBlur={(e) => {
-                configContext.mergeUpdateConfig({ headTags: e.target.value })
+                configContext.mergeUpdateConfig({ headTags: state.headTags })
               }}
             />
             {/* <ManacoEditor defaultValue={HTML_CODE}  onChange={val => configContext.mergeUpdateConfig({ headTags: val })} /> */}
