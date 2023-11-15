@@ -14,6 +14,14 @@ const pkgJson =  {
   name: 'mybricks-app-th5'
 }
 
+interface Hooks {
+  metaAppend: string,
+  assetsPrepend: string,
+  assetsAppend: string,
+  bodyPrepend: string,
+  bodyAppend: string
+}
+
 @Injectable()
 export default class PcPageService {
   async _generateComLibRT(comlibs, json, { fileId, noThrowError, targetEnv }) {
@@ -162,7 +170,7 @@ export default class PcPageService {
       const themesStyleStr = this._genThemesStyleStr(json);
       
       const appConfig = await getAppConfig();
-      const headTags = await this.getHeadTagFromConfig(appConfig, tracksConfig);
+      const htmlInjects = await this.getHtmlInjectsFromConfig(appConfig, tracksConfig);
 
       // Logger.info('插入代码', headTags)
       // Logger.info('插入代码', appConfig)
@@ -203,10 +211,14 @@ export default class PcPageService {
 
       template = template
         .replace(`--title--`, title)
-        .replace(`-- themes-style --`, themesStyleStr)
+        .replace(`-- themes-style --`, themesStyleStr || '')
         .replace(`-- comlib-rt --`, comLibRtScript)
         .replace(`"--projectJson--"`, JSON.stringify(json))
-        .replace(`-- head-tags --`, decodeURIComponent(headTags || ""))
+        .replace(`-- metaAppend --`, decodeURIComponent(htmlInjects?.metaAppend || ""))
+        .replace(`-- assetsPrepend --`, decodeURIComponent(htmlInjects?.assetsPrepend || ""))
+        .replace(`-- assetsAppend --`, decodeURIComponent(htmlInjects?.assetsAppend || ""))
+        .replace(`-- bodyPrepend --`, decodeURIComponent(htmlInjects?.bodyPrepend || ""))
+        .replace(`-- bodyAppend --`, decodeURIComponent(htmlInjects?.bodyAppend || ""))
         .replace(`"--executeEnv--"`, JSON.stringify(executeEnv))
         .replace(`"--envList--"`, JSON.stringify(envList))
         .replace(
@@ -376,7 +388,7 @@ export default class PcPageService {
       const themesStyleStr = this._genThemesStyleStr(json);
       
       const appConfig = await getAppConfig();
-      const headTags = await this.getHeadTagFromConfig(appConfig, tracksConfig);
+      const htmlInjects = await this.getHtmlInjectsFromConfig(appConfig, tracksConfig);
 
       Logger.info("[publish] getLatestPub begin");
       const latestPub = (
@@ -414,10 +426,14 @@ export default class PcPageService {
 
       template = template
         .replace(`--title--`, title)
-        .replace(`-- themes-style --`, themesStyleStr)
+        .replace(`-- themes-style --`, themesStyleStr || '')
         .replace(`-- comlib-rt --`, comLibRtScript)
         .replace(`"--projectJson--"`, JSON.stringify(json))
-        .replace(`-- head-tags --`, decodeURIComponent(headTags || ""))
+        .replace(`-- metaAppend --`, decodeURIComponent(htmlInjects?.metaAppend || ""))
+        .replace(`-- assetsPrepend --`, decodeURIComponent(htmlInjects?.assetsPrepend || ""))
+        .replace(`-- assetsAppend --`, decodeURIComponent(htmlInjects?.assetsAppend || ""))
+        .replace(`-- bodyPrepend --`, decodeURIComponent(htmlInjects?.bodyPrepend || ""))
+        .replace(`-- bodyAppend --`, decodeURIComponent(htmlInjects?.bodyAppend || ""))
         .replace(`"--executeEnv--"`, JSON.stringify(envType))
         .replace(`"--envList--"`, JSON.stringify(envList))
         .replace(
@@ -582,34 +598,48 @@ export default class PcPageService {
     return themesStyleStr;
   }
 
-  private getHeadTagFromConfig(appConfig, tracksConfig) {
-    const { headTags, lazyImage } = appConfig ?? {};
+  private getHtmlInjectsFromConfig(appConfig: any, tracksConfig): Hooks {
+    const htmlInjects: Hooks = appConfig?.htmlInjects ?? {}
 
-    const mutationObserver = '<script data-must="1" crossorigin="anonymous" src="//f2.eckwai.com/udata/pkg/eshop/fangzhou/res/mutationobserver.min.js"></script>'
+    console.log('appConfig', appConfig)
 
-    let scriptsContent = `${headTags ?? ''}${lazyImage ? mutationObserver : ''}`;
+    htmlInjects.assetsAppend = htmlInjects.assetsAppend || '';
 
+    // 懒加载相关
+    const { lazyImage } = appConfig ?? {};
+    const mutationObserver = '';
+    htmlInjects.assetsAppend += `${lazyImage ? mutationObserver : ''}`;
 
+    //埋点相关
     if (tracksConfig?.scriptContent) {
-      scriptsContent += `<script>${tracksConfig?.scriptContent}</script>`
+      htmlInjects.assetsAppend += `<script>${tracksConfig?.scriptContent}</script>`
     }
-
-    // return scriptsContent
-
-    // let trackMetaScript = '<script>';
-    // if (tracksConfig?.pageEnv) {
-    //   trackMetaScript+= `window.spm_context = ${JSON.stringify(tracksConfig?.pageEnv ?? {})};`
-    // }
-    // trackMetaScript+= getSpmFuncsFromConfig(tracksConfig?.spmDefinitions ?? {}, tracksConfig?.spmExtraParams ?? {});
-    // trackMetaScript+= '</script>'
     if (tracksConfig?.pageHooks?.initial) {
-      scriptsContent+=tracksConfig?.pageHooks?.initial;
+      htmlInjects.assetsAppend += (tracksConfig?.pageHooks?.initial || '');
     }
 
-    // scriptsContent+=trackMetaScript
-
-    return scriptsContent
+    return htmlInjects
   }
+
+
+  // private getHeadTagFromConfig(appConfig, tracksConfig) {
+  //   const { headTags, lazyImage } = appConfig ?? {};
+
+  //   const mutationObserver = '<script data-must="1" crossorigin="anonymous" src="//f2.eckwai.com/udata/pkg/eshop/fangzhou/res/mutationobserver.min.js"></script>'
+
+  //   let scriptsContent = `${headTags ?? ''}${lazyImage ? mutationObserver : ''}`;
+
+
+  //   if (tracksConfig?.scriptContent) {
+  //     scriptsContent += `<script>${tracksConfig?.scriptContent}</script>`
+  //   }
+
+  //   if (tracksConfig?.pageHooks?.initial) {
+  //     scriptsContent+=tracksConfig?.pageHooks?.initial;
+  //   }
+
+  //   return scriptsContent
+  // }
 }
 
 function getSpmFuncsFromConfig (spmDefinitions, spmExtraParams) {

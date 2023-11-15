@@ -1,50 +1,42 @@
 import React, { useEffect, useState } from 'react'
 import API from '@mybricks/sdk-for-app/api'
+import { Collapse, Spin, Card, Form, Switch, Input } from 'antd'
+
+import HtmlCode from './components/html-code'
 
 import ConfigServer from './ConfigServer'
 import ConfigEnv from './ConfigEnv'
 import useConfig from './useConfig'
 import ConfigPlugin from './ConfigPlugin'
 export const _NAMESPACE_ = APP_NAME
-import style from './app.less'
-import { Collapse, Spin, Card, Form, Switch, Input } from 'antd'
-// import ManacoEditor from './../components/manaco';
 
-const HTML_CODE = `<!-- 请输入Html代码，使用非常耗时的代码可能会影响页面渲染速度 -->
-<!-- <script src="链接"></script> -->
-`
+
+import style from './app.less'
+
+const BlockItem = ({ title, children }) => {
+  return (
+    <div className={style.block}>
+      <div className={style.title}>
+        {title}
+      </div>
+      <div>
+        {children}
+      </div>
+    </div>
+  )
+}
 
 export default (props) => {
   const { options = {} } = props
   const configContext = useConfig(_NAMESPACE_, {}, options);
-
-  const [state, setState] = useState({
-    headTags: '',
-  })
-
-  useEffect(() => {
-    if (configContext.loading === false) {
-      setState(c => ({ ...c, headTags: configContext.config?.headTags ?? '' }))
-    }
-  }, [configContext.loading])
 
   const isInGroup = options?.type === 'group'
   return (
     <div style={{ paddingBottom: 30 }}>
       <Spin spinning={configContext.loading}>
         <Card type="inner" title="页面渲染" style={{ marginTop: 0 }}>
-          {/* <Form> */}
-          <Form.Item
-            label="智能分包【即将上线】"
-            // name="splitChunk"
-            extra={
-              <p style={{ fontSize: 13 }}>
-                开启后将会自动对超过文件大小阈值的bundle进行拆包
-              </p>
-            }
-            // rules={[
-            //   { required: true, message: 'Please input your username!' },
-            // ]}
+          <BlockItem
+            title="智能分包【即将上线】"
           >
             <Switch
               disabled
@@ -53,18 +45,12 @@ export default (props) => {
                 configContext.mergeUpdateConfig({ splitChunk: val })
               }
             />
-          </Form.Item>
-          <Form.Item
-            label="图片懒加载【即将上线】"
-            // name="lazyImage"
-            extra={
-              <p style={{ fontSize: 13 }}>
-                开启后，使用了data-src的img标签图片将会等到出现在视口区域再加载
-              </p>
-            }
-            // rules={[
-            //   { required: true, message: 'Please input your username!' },
-            // ]}
+            <span className={style.extra} style={{ fontSize: 13 }}>
+              开启后将会自动对超过文件大小阈值的bundle进行拆包
+            </span>
+          </BlockItem>
+          <BlockItem
+            title="图片懒加载【即将上线】"
           >
             <Switch
               disabled
@@ -73,30 +59,17 @@ export default (props) => {
                 configContext.mergeUpdateConfig({ lazyImage: val })
               }
             />
-          </Form.Item>
-          <Form.Item
-            label="头部标签"
-            // name="headTags"
-            // extra={<p style={{ fontSize: 13 }}>开启后，使用了data-src的img标签图片将会等到出现在视口区域再加载</p>}
-            // rules={[
-            //   { required: true, message: 'Please input your username!' },
-            // ]}
+            <span className={style.extra} style={{ fontSize: 13 }}>
+              开启后，使用了data-src的img标签图片将会等到出现在视口区域再加载
+            </span>
+          </BlockItem>
+          <BlockItem
+            title="Html模板"
           >
-            <Input.TextArea
-              rows={3}
-              placeholder={HTML_CODE}
-              value={state.headTags}
-              onChange={e => {
-                setState(c => ({ ...c, headTags: e.target.value }))
-              }}
-              onBlur={(e) => {
-                configContext.mergeUpdateConfig({ headTags: state.headTags })
-              }}
-            />
-            {/* <ManacoEditor defaultValue={HTML_CODE}  onChange={val => configContext.mergeUpdateConfig({ headTags: val })} /> */}
-          </Form.Item>
-
-          {/* </Form> */}
+            {
+              configContext.ready && <HtmlCode defaultValue={configContext.config?.htmlInjects} onChange={v => configContext.mergeUpdateConfig({ htmlInjects: v })} />
+            }
+          </BlockItem>
         </Card>
         <Card type="inner" title="发布环境" style={{ marginTop: 30 }}>
           <ConfigEnv {...configContext} />

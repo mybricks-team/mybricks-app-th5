@@ -5,6 +5,7 @@
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width,user-scalable=no,viewport-fit=cover" />
+  -- metaAppend --
 
   <title>--title--</title>
 
@@ -120,6 +121,8 @@
     }
   </style>
 
+  -- assetsPrepend --
+
   <% if (htmlWebpackPlugin.options.target == 'react') { %>
     <!-- react -->
     <script src="./public/react-18.0.0/react.production.min.js"></script>
@@ -155,11 +158,16 @@
 
   -- themes-style --
 
-  -- head-tags --
+  -- assetsAppend --
 </head>
 
 <body>
+  -- bodyPrepend --
+
   <div id="root"></div>
+
   -- comlib-rt --
+
+  -- bodyAppend --
 </body>
 </html>

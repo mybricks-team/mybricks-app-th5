@@ -128,7 +128,6 @@ export default function MyDesigner({ appData }) {
     debugMainProps: appData.fileContent?.content?.debugMainProps,
     hasPermissionFn: appData.fileContent?.content?.hasPermissionFn,
     debugHasPermissionFn: appData.fileContent?.content?.debugHasPermissionFn,
-    headTags: appData.fileContent?.content?.headTags,
     versionApi: null,
     appConfig,
     uploadService,
@@ -303,7 +302,6 @@ export default function MyDesigner({ appData }) {
     json.debugMainProps = ctx.debugMainProps;
     json.hasPermissionFn = ctx.hasPermissionFn;
     json.debugHasPermissionFn = ctx.debugHasPermissionFn;
-    json.headTags = ctx.headTags;
 
     json.projectId = ctx.sdk.projectId;
 

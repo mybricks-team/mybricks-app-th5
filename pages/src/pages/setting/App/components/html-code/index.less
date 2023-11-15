@@ -1,0 +1,35 @@
+.code {
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid rgba(221, 221, 221, 1);
+
+  .title {
+    height: 26px;
+    border-bottom: 1px solid rgba(221, 221, 221, 1);
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    padding: 0px 10px;
+
+    background-color: #fafafa;
+
+    .desc {
+      // display: flex;
+      // align-items: center;
+      // justify-content: center;
+      padding-top: 2px;
+      font-size: 12px;
+      font-weight: 400;
+      margin-left: 4px;
+      opacity: 0.7;
+    }
+  }
+  .body {
+    height: 50px;
+  }
+
+  &:not(:last-child) {
+    border-bottom: 0px;
+  }
+}
