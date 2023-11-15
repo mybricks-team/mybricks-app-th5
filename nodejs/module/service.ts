@@ -591,7 +591,7 @@ export default class PcPageService {
 
 
     if (tracksConfig?.scriptContent) {
-      scriptsContent = `<script>${tracksConfig?.scriptContent}</script>`
+      scriptsContent += `<script>${tracksConfig?.scriptContent}</script>`
     }
 
     // return scriptsContent
