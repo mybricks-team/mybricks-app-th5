@@ -1,0 +1,52 @@
+.download {
+  display: flex;
+  align-items: center;
+
+  .btn {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+
+    span {
+      font-size: 12px;
+      font-weight: 400;
+      margin-left: 3px;
+    }
+
+    cursor: pointer;
+
+    &:hover {
+      color: #FA6400;
+    }
+  }
+}
+
+.content {
+  .item {
+    display: flex;
+    align-items: center;
+
+    border-bottom: 1px transparent solid;
+
+    &:hover {
+      border-bottom: 1px #bebebe solid;
+      cursor: pointer;
+    }
+
+
+    .version {
+      font-weight: 500;
+    }
+    .type {
+      margin-left: 5px;
+      opacity: 0.6;
+    }
+
+    .download {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+  }
+}

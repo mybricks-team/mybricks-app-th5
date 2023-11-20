@@ -19,6 +19,7 @@ import { getRtComlibsFromConfigEdit } from "./../../utils/comlib";
 import { PreviewStorage } from "./../../utils/previewStorage";
 import { MySelf_COM_LIB, H5_BASIC_COM_LIB } from "../../constants";
 import PublishModal from "./components/PublishModal";
+import ToolbarDownload from "./components/toolbar-download";
 import { TargetEnv } from "./../../types";
 import { trackModel } from './track-panel'
 
@@ -580,6 +581,7 @@ export default function MyDesigner({ appData }) {
         >
           发布
         </Toolbar.Button>
+        <ToolbarDownload fileId={ctx.fileId} />
       </Toolbar>
       <div className={css.designer}>
         {SPADesigner && latestComlibs && window?.mybricks?.createObservable &&  (

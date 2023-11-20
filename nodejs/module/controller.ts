@@ -1,13 +1,19 @@
 import {
   Req,
   Post,
+  Get,
+  Res,
   Body,
   Inject,
   Controller,
   UploadedFile,
-  UseInterceptors
+  UseInterceptors,
+  Query
 } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
+import { Response } from 'express'
+
+import * as nodeJsurl from 'url';
 
 import Service from './service'
 import { TargetEnv } from './types';
@@ -75,6 +81,29 @@ export default class Th5Controller {
         message: error.message || '发布失败'
       }
     }
+  }
+
+  @Get('download')
+  async download(
+    @Query('url') url: string,
+    @Res() response: Response
+  ) {
+
+    if (!url) {
+      response.send({ code: 0, message: '参数 url 不能为空' })
+      return
+    }
+    try {
+      const zipFilePath = await this.service.downloadAssetesFromUrl(url);
+      response.sendFile(zipFilePath)
+    } catch (error) {
+      response.send({
+        code: -1,
+        message: error.message || '下载失败'
+      })
+    }
+
+    return
   }
 
   // @Post('/upload')

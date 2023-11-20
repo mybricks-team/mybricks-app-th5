@@ -1,6 +1,8 @@
 import { Injectable } from "@nestjs/common";
 
 import * as fs from "fs";
+import * as fse from 'fs-extra';
+import * as nodeJsUrl from "url"
 import axios from "axios";
 import * as path from "path";
 import API from "@mybricks/sdk-for-app/api";
@@ -9,6 +11,7 @@ import { generateComLib } from "./generateComLib";
 import { TargetEnv } from "./types";
 import { Logger } from '@mybricks/rocker-commons'
 import { load } from 'cheerio';
+import JSZip from 'jszip';
 
 const pkgJson =  {
   name: 'mybricks-app-th5'
@@ -134,6 +137,70 @@ export default class PcPageService {
     });
 
     return existFiles
+  }
+
+  private loadAssetFromUrl = async (url: string) => {
+    const result = await axios.get(url);
+    return result.data
+  }
+
+  private DOWNLOAD_TEMP_FOLDER = path.resolve(__dirname, './.download-assets');
+
+  downloadAssetesFromUrl = async (url: string) => {
+    const urlObject = new nodeJsUrl.URL(url);
+    const assetsPrefixPath = urlObject.pathname.split('/').slice(0, -1).join('/')
+    const assetsFolderName = urlObject.pathname.replace('/', '').replace('.html', '').replace(/\//g, '-');
+
+    // 如果压缩包在就不用生成了
+    if (fse.existsSync(path.resolve(this.DOWNLOAD_TEMP_FOLDER, `./${assetsFolderName}.zip`))) {
+      Logger.info("[download] 已存在" + assetsFolderName + ' 直接返回');
+      return path.resolve(this.DOWNLOAD_TEMP_FOLDER, `./${assetsFolderName}.zip`)
+    }
+
+    Logger.info(`[download] 获取Html内容 ${url}`);
+    const htmlString = await this.loadAssetFromUrl(url);
+    
+    
+    Logger.info(`[download] 获取依赖资源 ${url}`);
+    
+    const $ = load(htmlString);
+    // 获取相对路径的url
+    const relativeResourcePaths = [...$("script").map((_, el) => $(el).attr('src'))].concat([...$("link").map((_, el) => $(el).attr('href'))]).filter(url => !!url && url.startsWith('./'))
+
+    // 获取资源内容
+    const relativeResources = await Promise.all(relativeResourcePaths.map(async (relativePath) => {
+      const urlWithDomain = relativePath.replace('./', `${urlObject.origin}${assetsPrefixPath}/`);
+      const content = await this.loadAssetFromUrl(urlWithDomain);
+      return {
+        content,
+        relativePath: relativePath.replace('./', ''),
+      }
+    }))
+
+    Logger.info(`[download] 获取依赖资源成功 ${url}`);
+
+    const zip = new JSZip();
+    
+    Logger.info("[download] 写入依赖文件");
+    // 写入依赖文件
+    for (let index = 0; index < relativeResources.length; index++) {
+      const resource = relativeResources[index];
+      zip.file(resource.relativePath, resource.content)
+    }
+
+    Logger.info("[download] 写入主文件");
+    // 写入主文件
+    zip.file('index.html', htmlString)
+  
+
+    Logger.info("[download] 压缩" + assetsFolderName);
+     // 压缩
+    const zipResult = await zip.generateAsync({ type: 'nodebuffer' });
+    fse.ensureDirSync(this.DOWNLOAD_TEMP_FOLDER)
+    fs.writeFileSync(path.resolve(this.DOWNLOAD_TEMP_FOLDER, `./${assetsFolderName}.zip`), zipResult);
+
+    Logger.info("[download] 压缩成功" + assetsFolderName);
+    return path.resolve(this.DOWNLOAD_TEMP_FOLDER, `./${assetsFolderName}.zip`)
   }
 
   async preview(
@@ -600,8 +667,6 @@ export default class PcPageService {
 
   private getHtmlInjectsFromConfig(appConfig: any, tracksConfig): Hooks {
     const htmlInjects: Hooks = appConfig?.htmlInjects ?? {}
-
-    console.log('appConfig', appConfig)
 
     htmlInjects.assetsAppend = htmlInjects.assetsAppend || '';
 
