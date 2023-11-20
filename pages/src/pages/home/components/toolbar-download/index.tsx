@@ -66,9 +66,7 @@ export default ({ fileId }) => {
         urlHasDomain = new URL(urlHasDomain, window.location.origin).href;
       }
 
-      // const result = await fetch(`/api/th5/download?url=${urlHasDomain}`);
-
-      const result = await fetch(`/api/th5/download?url`)
+      const result = await fetch(`/api/th5/download?url=${urlHasDomain}`);
       if (result.headers.get('content-type') === 'application/zip') {
         downloadFromUrl(`${pubCont.id}_${pubCont.type}_${pubCont.version}.zip`, `/api/th5/download?url=${urlHasDomain}`)
         return
