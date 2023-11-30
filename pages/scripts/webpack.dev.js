@@ -72,6 +72,11 @@ module.exports = merge(common, {
       template: path.resolve(__dirname, '../templates/setting.html'),
       chunks: ['setting'],
     }),
+    new HtmlWebpackPlugin({
+      filename: 'groupSetting.html',
+      template: path.resolve(__dirname, '../templates/groupSetting.html'),
+      chunks: ['groupSetting'],
+    }),
     new CopyWebpackPlugin({
       patterns: [
         { from: path.resolve(__dirname, '../templates/public'), to: "public" },

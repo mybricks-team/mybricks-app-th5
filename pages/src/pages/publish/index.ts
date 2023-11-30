@@ -2,6 +2,7 @@ import { shapeUrlByEnv } from "./../../utils/shapeUrlByEnv";
 import { getRenderEnv } from "./../../utils/getRenderEnv";
 import { renderReact, isReactEnv } from "./render-react";
 import { renderVue2, isVue2Env } from "./render-vue2";
+import { USE_CUSTOM_HOST } from './../../constants'
 
 import { tracker } from './track';
 
@@ -41,10 +42,61 @@ cssVariable(projectJson);
 const env = {
   ...getRenderEnv(),
   projectId,
+  // callConnector(connector, params) {
+  //   const plugin =
+  //     window[connector.connectorName] || window["@mybricks/plugins/service"];
+
+  //   if (plugin) {
+  //     /** 兼容云组件，云组件会自带 script */
+  //     const curConnector = connector.script
+  //       ? connector
+  //       : (projectJson.plugins[connector.connectorName] || []).find(
+  //           (con) => con.id === connector.id
+  //         );
+
+  //     return curConnector
+  //       ? plugin.call({ ...connector, ...curConnector, executeEnv }, params, {
+  //           // 只在官方插件上做环境域名处理
+  //           before:
+  //             connector.connectorName === "@mybricks/plugins/service"
+  //               ? (options) => {
+  //                   return {
+  //                     ...options,
+  //                     url: shapeUrlByEnv(envList, executeEnv, options.url),
+  //                   };
+  //                 }
+  //               : undefined,
+  //         })
+  //       : Promise.reject("找不到对应连接器 Script 执行脚本.");
+  //   } else {
+  //     return Promise.reject("错误的连接器类型.");
+  //   }
+  // },
   callConnector(connector, params) {
     const plugin =
-      window[connector.connectorName] || window["@mybricks/plugins/service"];
-
+      window[connector.connectorName] ||
+      window["@mybricks/plugins/service"];
+    //@ts-ignore
+    const MYBRICKS_HOST = window?.MYBRICKS_HOST;
+    //@ts-ignore
+    if (executeEnv === USE_CUSTOM_HOST) {
+      if (typeof MYBRICKS_HOST === "undefined") {
+        console.error(`没有设置window.MYBRICKS_HOST变量`);
+        return;
+      } else if (!MYBRICKS_HOST.default) {
+        console.error(`没有设置window.MYBRICKS_HOST.default`);
+        return;
+      }
+    }
+    let newParams = params;
+    //@ts-ignore
+    if (executeEnv === USE_CUSTOM_HOST) {
+      if (params instanceof FormData) {
+        newParams.append("MYBRICKS_HOST", JSON.stringify(MYBRICKS_HOST));
+      } else {
+        newParams = { ...params, MYBRICKS_HOST: { ...MYBRICKS_HOST } };
+      }
+    }
     if (plugin) {
       /** 兼容云组件，云组件会自带 script */
       const curConnector = connector.script
@@ -54,17 +106,18 @@ const env = {
           );
 
       return curConnector
-        ? plugin.call({ ...connector, ...curConnector, executeEnv }, params, {
-            // 只在官方插件上做环境域名处理
-            before:
-              connector.connectorName === "@mybricks/plugins/service"
-                ? (options) => {
-                    return {
-                      ...options,
-                      url: shapeUrlByEnv(envList, executeEnv, options.url),
-                    };
-                  }
-                : undefined,
+        ? plugin.call({ ...connector, ...curConnector }, newParams, {
+            before: (options) => {
+              return {
+                ...options,
+                url: shapeUrlByEnv(
+                  envList,
+                  executeEnv,
+                  options.url,
+                  MYBRICKS_HOST
+                ),
+              };
+            },
           })
         : Promise.reject("找不到对应连接器 Script 执行脚本.");
     } else {

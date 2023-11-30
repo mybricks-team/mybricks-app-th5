@@ -55,6 +55,11 @@ module.exports = merge(common, {
       chunks: ['setting'],
     }),
     new HtmlWebpackPlugin({
+      filename: 'groupSetting.html',
+      template: path.resolve(__dirname, '../templates/groupSetting.html'),
+      chunks: ['groupSetting'],
+    }),
+    new HtmlWebpackPlugin({
       filename: 'publish.vue2.html',
       template: path.resolve(__dirname, '../templates/publish.ejs'),
       inlineSource: '.(js)$',

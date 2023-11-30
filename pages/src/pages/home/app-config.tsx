@@ -622,7 +622,7 @@ export default function (ctx, save, designerRef) {
             type: "popup",
             title: "弹出层",
             template: {
-              namespace: "mybricks.normal-vue.popup",
+              namespace: "mybricks.normal-h5-vue.popup",
               deletable: false,
               asRoot: true,
             },

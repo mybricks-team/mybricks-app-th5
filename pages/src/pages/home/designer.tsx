@@ -86,7 +86,7 @@ export default function MyDesigner({ appData }) {
   // comlibs = LOCAL_DEFAULT_COMLIBS
 
   // const designer = "https://f2.beckwai.com/kos/nlav12333/mybricks/designer-spa/1.3.40/index.min.js";
-  const designer = "./public/designer-spa/1.3.43/index.min.js";
+  const designer = "./public/designer-spa/1.3.65/index.min.js";
 
   // const configComlibs = comlibs.map(lib => lib.editJs)
 
@@ -316,13 +316,17 @@ export default function MyDesigner({ appData }) {
       // name: `${ctx.fileItem.name}.png`
     })
       .then((res) => {
-        const url = new URL(res);
+        try {
+          const url = new URL(res);
 
-        if (url.protocol === "https:") {
-          url.protocol = "http:";
+          if (url.protocol === "https:") {
+            url.protocol = "http:";
+          }
+
+          ctx.save({ icon: url.href }, true);
+        } catch (error) {
+          
         }
-
-        ctx.save({ icon: url.href }, true);
       })
       .catch((err) => {
         console.error(err);
@@ -367,6 +371,7 @@ export default function MyDesigner({ appData }) {
           projectId: ctx.sdk.projectId,
           executeEnv: ctx.executeEnv,
           tracksConfig: tracksConfig,
+          htmlInjects: ctx.appConfig?.htmlInjects,
           envList: ctx.envList,
           // 非模块下的页面直接发布到项目空间下
           folderPath: "/app/th5",

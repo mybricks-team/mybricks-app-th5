@@ -11,9 +11,9 @@ import { generateComLib } from "./generateComLib";
 import { TargetEnv } from "./types";
 import { Logger } from '@mybricks/rocker-commons'
 import { load } from 'cheerio';
-import JSZip from 'jszip';
+const JSZip = require('jszip');
 
-const pkgJson =  {
+const pkgJson = {
   name: 'mybricks-app-th5'
 }
 
@@ -228,6 +228,7 @@ export default class PcPageService {
         executeEnv,
         envList = [],
         tracksConfig = {},
+        htmlInjects = {},
       } = json.configuration;
 
       Reflect.deleteProperty(json, "configuration");
@@ -237,7 +238,11 @@ export default class PcPageService {
       const themesStyleStr = this._genThemesStyleStr(json);
       
       const appConfig = await getAppConfig();
-      const htmlInjects = await this.getHtmlInjectsFromConfig(appConfig, tracksConfig);
+      const htmlHooks = await this.genHtmlInjects({
+        tracksConfig,
+        lazyImage: appConfig?.lazyImage,
+        htmlInjects,
+      });
 
       // Logger.info('插入代码', headTags)
       // Logger.info('插入代码', appConfig)
@@ -281,11 +286,11 @@ export default class PcPageService {
         .replace(`-- themes-style --`, themesStyleStr || '')
         .replace(`-- comlib-rt --`, comLibRtScript)
         .replace(`"--projectJson--"`, JSON.stringify(json))
-        .replace(`-- metaAppend --`, decodeURIComponent(htmlInjects?.metaAppend || ""))
-        .replace(`-- assetsPrepend --`, decodeURIComponent(htmlInjects?.assetsPrepend || ""))
-        .replace(`-- assetsAppend --`, decodeURIComponent(htmlInjects?.assetsAppend || ""))
-        .replace(`-- bodyPrepend --`, decodeURIComponent(htmlInjects?.bodyPrepend || ""))
-        .replace(`-- bodyAppend --`, decodeURIComponent(htmlInjects?.bodyAppend || ""))
+        .replace(`-- metaAppend --`, decodeURIComponent(htmlHooks?.metaAppend || ""))
+        .replace(`-- assetsPrepend --`, decodeURIComponent(htmlHooks?.assetsPrepend || ""))
+        .replace(`-- assetsAppend --`, decodeURIComponent(htmlHooks?.assetsAppend || ""))
+        .replace(`-- bodyPrepend --`, decodeURIComponent(htmlHooks?.bodyPrepend || ""))
+        .replace(`-- bodyAppend --`, decodeURIComponent(htmlHooks?.bodyAppend || ""))
         .replace(`"--executeEnv--"`, JSON.stringify(executeEnv))
         .replace(`"--envList--"`, JSON.stringify(envList))
         .replace(
@@ -446,6 +451,7 @@ export default class PcPageService {
         groupName,
         envList = [],
         tracksConfig = {},
+        htmlInjects = {},
       } = json.configuration;
 
       Reflect.deleteProperty(json, "configuration");
@@ -455,7 +461,11 @@ export default class PcPageService {
       const themesStyleStr = this._genThemesStyleStr(json);
       
       const appConfig = await getAppConfig();
-      const htmlInjects = await this.getHtmlInjectsFromConfig(appConfig, tracksConfig);
+      const htmlHooks = await this.genHtmlInjects({
+        tracksConfig,
+        lazyImage: appConfig?.lazyImage,
+        htmlInjects,
+      });
 
       Logger.info("[publish] getLatestPub begin");
       const latestPub = (
@@ -496,11 +506,11 @@ export default class PcPageService {
         .replace(`-- themes-style --`, themesStyleStr || '')
         .replace(`-- comlib-rt --`, comLibRtScript)
         .replace(`"--projectJson--"`, JSON.stringify(json))
-        .replace(`-- metaAppend --`, decodeURIComponent(htmlInjects?.metaAppend || ""))
-        .replace(`-- assetsPrepend --`, decodeURIComponent(htmlInjects?.assetsPrepend || ""))
-        .replace(`-- assetsAppend --`, decodeURIComponent(htmlInjects?.assetsAppend || ""))
-        .replace(`-- bodyPrepend --`, decodeURIComponent(htmlInjects?.bodyPrepend || ""))
-        .replace(`-- bodyAppend --`, decodeURIComponent(htmlInjects?.bodyAppend || ""))
+        .replace(`-- metaAppend --`, decodeURIComponent(htmlHooks?.metaAppend || ""))
+        .replace(`-- assetsPrepend --`, decodeURIComponent(htmlHooks?.assetsPrepend || ""))
+        .replace(`-- assetsAppend --`, decodeURIComponent(htmlHooks?.assetsAppend || ""))
+        .replace(`-- bodyPrepend --`, decodeURIComponent(htmlHooks?.bodyPrepend || ""))
+        .replace(`-- bodyAppend --`, decodeURIComponent(htmlHooks?.bodyAppend || ""))
         .replace(`"--executeEnv--"`, JSON.stringify(envType))
         .replace(`"--envList--"`, JSON.stringify(envList))
         .replace(
@@ -665,25 +675,32 @@ export default class PcPageService {
     return themesStyleStr;
   }
 
-  private getHtmlInjectsFromConfig(appConfig: any, tracksConfig): Hooks {
-    const htmlInjects: Hooks = appConfig?.htmlInjects ?? {}
+  private genHtmlInjects({
+    tracksConfig,
+    htmlInjects,
+    lazyImage = false,
+  }: {
+    tracksConfig?: any,
+    htmlInjects: Hooks,
+    lazyImage?: boolean
+  }) {
+    const hooks = htmlInjects ?? {} as Hooks
 
-    htmlInjects.assetsAppend = htmlInjects.assetsAppend || '';
+    hooks.assetsAppend = hooks.assetsAppend || '';
 
     // 懒加载相关
-    const { lazyImage } = appConfig ?? {};
     const mutationObserver = '';
-    htmlInjects.assetsAppend += `${lazyImage ? mutationObserver : ''}`;
+    hooks.assetsAppend += `${lazyImage ? mutationObserver : ''}`;
 
     //埋点相关
     if (tracksConfig?.scriptContent) {
-      htmlInjects.assetsAppend += `<script>${tracksConfig?.scriptContent}</script>`
+      hooks.assetsAppend += `<script>${tracksConfig?.scriptContent}</script>`
     }
     if (tracksConfig?.pageHooks?.initial) {
-      htmlInjects.assetsAppend += (tracksConfig?.pageHooks?.initial || '');
+      hooks.assetsAppend += (tracksConfig?.pageHooks?.initial || '');
     }
 
-    return htmlInjects
+    return hooks
   }
 
 
@@ -773,6 +790,8 @@ const getAppConfig = async ({ groupId } = {} as any) => {
   } catch (e) {
     Logger.info("getAppConfig error", e);
   }
+
+  console.log('options', options, config)
   return config;
 };
 

@@ -6,6 +6,7 @@ module.exports = {
     ['index']: path.resolve(__dirname, '../src/pages/home/index.tsx'),
     ['preview']: path.resolve(__dirname, '../src/pages/preview/index.tsx'),
     ['setting']: path.resolve(__dirname, '../src/pages/setting/globalSettingIndex.tsx'),
+    ['groupSetting']: path.resolve(__dirname, '../src/pages/setting/groupSettingIndex.tsx'),
     ['publish']: path.resolve(__dirname, '../src/pages/publish/index.ts'),
   },
   output: {

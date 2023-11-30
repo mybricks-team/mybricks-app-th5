@@ -18,12 +18,12 @@ export const LOCAL_COM_LIB_ID = '';
 export const H5_BASIC_COM_LIB = {
   id: LOCAL_COM_LIB_ID,
   namespace: "mybricks.normal-h5-comlib.vue",
-  editJs: './public/comlibs/0.0.12/edit.js',
+  editJs: './public/comlibs/0.0.14/edit.js',
   // editJs: 'https://tx-ec.static.yximgs.com/kos/nlav11092/comlibs/mybricks.normal-h5/202309211729/edit.js',
-  rtJs: './public/comlibs/0.0.12/rt.js',
+  rtJs: './public/comlibs/0.0.14/rt.js',
   // rtJs: 'https://tx-ec.static.yximgs.com/kos/nlav11092/comlibs/mybricks.normal-h5/202309211729/rt.js',
-  coms: './public/comlibs/0.0.12/rtCom.js',
-  version: '0.0.12'
+  coms: './public/comlibs/0.0.14/rtCom.js',
+  version: '0.0.14'
 }
 
 export const LOCAL_EDITOR_ASSETS = {
@@ -108,3 +108,6 @@ export const LOCAL_EDITOR_ASSETS = {
     }
   }
 }
+
+
+export const USE_CUSTOM_HOST = '__USE_CUSTOM_HOST__'

@@ -10,65 +10,64 @@ import useConfig from './useConfig'
 import ConfigPlugin from './ConfigPlugin'
 export const _NAMESPACE_ = APP_NAME
 
-
 import style from './app.less'
 
 const BlockItem = ({ title, children }) => {
   return (
     <div className={style.block}>
-      <div className={style.title}>
-        {title}
-      </div>
-      <div>
-        {children}
-      </div>
+      <div className={style.title}>{title}</div>
+      <div>{children}</div>
     </div>
   )
 }
 
 export default (props) => {
   const { options = {} } = props
-  const configContext = useConfig(_NAMESPACE_, {}, options);
+  const configContext = useConfig(_NAMESPACE_, {}, options)
 
   const isInGroup = options?.type === 'group'
+
   return (
     <div style={{ paddingBottom: 30 }}>
       <Spin spinning={configContext.loading}>
         <Card type="inner" title="页面渲染" style={{ marginTop: 0 }}>
-          <BlockItem
-            title="智能分包【即将上线】"
-          >
-            <Switch
-              disabled
-              checked={configContext.config?.splitChunk}
-              onChange={(val) =>
-                configContext.mergeUpdateConfig({ splitChunk: val })
-              }
-            />
-            <span className={style.extra} style={{ fontSize: 13 }}>
-              开启后将会自动对超过文件大小阈值的bundle进行拆包
-            </span>
-          </BlockItem>
-          <BlockItem
-            title="图片懒加载【即将上线】"
-          >
-            <Switch
-              disabled
-              checked={configContext.config?.lazyImage}
-              onChange={(val) =>
-                configContext.mergeUpdateConfig({ lazyImage: val })
-              }
-            />
-            <span className={style.extra} style={{ fontSize: 13 }}>
-              开启后，使用了data-src的img标签图片将会等到出现在视口区域再加载
-            </span>
-          </BlockItem>
-          <BlockItem
-            title="Html模板"
-          >
-            {
-              configContext.ready && <HtmlCode defaultValue={configContext.config?.htmlInjects} onChange={v => configContext.mergeUpdateConfig({ htmlInjects: v })} />
-            }
+          {!isInGroup && (
+            <>
+              <BlockItem title="智能分包【即将上线】">
+                <Switch
+                  disabled
+                  checked={configContext.config?.splitChunk}
+                  onChange={(val) =>
+                    configContext.mergeUpdateConfig({ splitChunk: val })
+                  }
+                />
+                <span className={style.extra} style={{ fontSize: 13 }}>
+                  开启后将会自动对超过文件大小阈值的bundle进行拆包
+                </span>
+              </BlockItem>
+              <BlockItem title="图片懒加载【即将上线】">
+                <Switch
+                  disabled
+                  checked={configContext.config?.lazyImage}
+                  onChange={(val) =>
+                    configContext.mergeUpdateConfig({ lazyImage: val })
+                  }
+                />
+                <span className={style.extra} style={{ fontSize: 13 }}>
+                  开启后，使用了data-src的img标签图片将会等到出现在视口区域再加载
+                </span>
+              </BlockItem>
+            </>
+          )}
+          <BlockItem title="Html模板">
+            {configContext.ready && (
+              <HtmlCode
+                defaultValue={configContext.config?.htmlInjects}
+                onChange={(v) =>
+                  configContext.mergeUpdateConfig({ htmlInjects: v })
+                }
+              />
+            )}
           </BlockItem>
         </Card>
         <Card type="inner" title="发布环境" style={{ marginTop: 30 }}>
