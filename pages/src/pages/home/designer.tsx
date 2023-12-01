@@ -283,7 +283,7 @@ export default function MyDesigner({ appData }) {
     }, 0);
   }, []);
 
-  const save = useCallback(async () => {
+  const save = useCallback(async (opt, skipMessage = false) => {
     if (!ctx.operable) {
       message.warn("请先点击右上角个人头像上锁获取页面编辑权限");
       return;
@@ -306,7 +306,7 @@ export default function MyDesigner({ appData }) {
 
     json.projectId = ctx.sdk.projectId;
 
-    ctx.save({ name: ctx.fileItem.name, content: JSON.stringify(json) });
+    await ctx.save({ name: ctx.fileItem.name, content: JSON.stringify(json) }, skipMessage);
 
     setBeforeunload(false);
 
@@ -460,19 +460,19 @@ export default function MyDesigner({ appData }) {
         return;
       }
 
+      const msgClose = message.loading({
+        key: "publish",
+        content: "页面发布中",
+        duration: 0,
+      });
+
       return (async () => {
-        await save()
+        await save({}, true)
 
         const { envType = "prod", commitInfo } = publishConfig;
         publishingRef.current = true;
 
         setPublishLoading(true);
-
-        const msgClose = message.loading({
-          key: "publish",
-          content: "页面发布中",
-          duration: 0,
-        });
 
         const { toJSON, targetEnv } = await compile();
 
