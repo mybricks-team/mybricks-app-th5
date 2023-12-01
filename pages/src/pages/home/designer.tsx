@@ -400,7 +400,7 @@ export default function MyDesigner({ appData }) {
 
     setPreviewLoading(true);
 
-    const close = message.loading({
+    const msgClose = message.loading({
       key: "preview",
       content: "预览页发布中",
       duration: 0,
@@ -422,7 +422,7 @@ export default function MyDesigner({ appData }) {
       );
 
       if (res.code === 1) {
-        close();
+        msgClose();
         message.success({
           key: "publish",
           content: "发布成功",
@@ -430,7 +430,7 @@ export default function MyDesigner({ appData }) {
         });
         window.open(`./preview.html?fileId=${ctx.fileId}`)
       } else {
-        close();
+        msgClose();
         message.error({
           content: res.message || "预览失败",
           duration: 2,
@@ -441,7 +441,7 @@ export default function MyDesigner({ appData }) {
     })()
       .catch((e) => {
         console.error(e);
-        close();
+        msgClose();
         message.error({
           key: "publish",
           content: "网络错误，请稍后再试",
@@ -468,7 +468,7 @@ export default function MyDesigner({ appData }) {
 
         setPublishLoading(true);
 
-        const close = message.loading({
+        const msgClose = message.loading({
           key: "publish",
           content: "页面发布中",
           duration: 0,
@@ -489,7 +489,7 @@ export default function MyDesigner({ appData }) {
         );
 
         if (res.code === 1) {
-          close();
+          msgClose();
           message.success({
             key: "publish",
             content: "发布成功",
@@ -501,8 +501,9 @@ export default function MyDesigner({ appData }) {
             ctx?.versionApi?.switchAciveTab?.("publish", void 0);
           }, 0);
         } else {
-          close();
+          msgClose();
           message.error({
+            key: "publish",
             content: res.message || "发布失败",
             duration: 2,
           });
@@ -512,9 +513,7 @@ export default function MyDesigner({ appData }) {
       })()
         .catch((e) => {
           console.error(e);
-          close();
           message.error({
-            key: "publish",
             content: "网络错误，请稍后再试",
             duration: 2,
           });
@@ -644,12 +643,15 @@ const genLazyloadComs = async (comlibs, toJSON) => {
    * 过滤掉 render-web 内置的组件
    */
   const ignoreNamespaces = [
-    "mybricks.core-comlib.fn",
-    "mybricks.core-comlib.var",
-    "mybricks.core-comlib.type-change",
-    "mybricks.core-comlib.connector",
-    "mybricks.core-comlib.frame-input",
-    "mybricks.core-comlib.scenes",
+    'mybricks.core-comlib.fn',
+    'mybricks.core-comlib.var',
+    'mybricks.core-comlib.type-change',
+    'mybricks.core-comlib.connector',
+    'mybricks.core-comlib.frame-input',
+    'mybricks.core-comlib.frame-output',
+    'mybricks.core-comlib.scenes',
+    'mybricks.core-comlib.defined-com',
+    'mybricks.core-comlib.module',
   ];
   const deps = toJSON.scenes
     .reduce((pre, scene) => [...pre, ...scene.deps], [])
