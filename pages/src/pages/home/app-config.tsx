@@ -580,43 +580,10 @@ export default function (ctx, save, designerRef) {
           "./public/editor.css",
         ],
       },
+      module: {
+        width: 375
+      },
       scenes: {
-        // presets: [
-        //   // {
-        //   //   id: "tabbar",
-        //   //   title: "底部导航栏",
-        //   //   template: {
-        //   //     namespace: "mybricks.taro.systemTabbar",
-        //   //     deletable: false,
-        //   //     asRoot: true,
-        //   //   },
-        //   // },
-        //   // {
-        //   //   id: "main",
-        //   //   title: "首页",
-        //   //   template: {
-        //   //     namespace: "mybricks.taro.systemPage",
-        //   //     deletable: false,
-        //   //     asRoot: true,
-        //   //   },
-        //   //   // events: [
-        //   //   //   {
-        //   //   //     id: "onShow",
-        //   //   //     title: "页面显示",
-        //   //   //     schema: {
-        //   //   //       type: "any",
-        //   //   //     },
-        //   //   //   },
-        //   //   //   {
-        //   //   //     id: "onHide",
-        //   //   //     title: "页面隐藏",
-        //   //   //     schema: {
-        //   //   //       type: "any",
-        //   //   //     },
-        //   //   //   },
-        //   //   // ],
-        //   // }
-        // ],
         adder: [
           {
             type: "popup",
