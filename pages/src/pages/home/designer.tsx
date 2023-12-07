@@ -202,7 +202,7 @@ export default function MyDesigner({ appData }) {
   }, [JSON.stringify(comlibs.map((lib) => lib.namespace))]);
 
   useEffect(() => {
-    console.log("应用数据:", appData);
+    // console.log("应用数据:", appData);
   }, []);
 
   useEffect(() => {
@@ -653,10 +653,46 @@ const genLazyloadComs = async (comlibs, toJSON) => {
     'mybricks.core-comlib.defined-com',
     'mybricks.core-comlib.module',
   ];
-  const deps = toJSON.scenes
-    .reduce((pre, scene) => [...pre, ...scene.deps], [])
-    .filter((item) => !mySelfComMap[`${item.namespace}@${item.version}`])
-    .filter((item) => !ignoreNamespaces.includes(item.namespace));
+
+  let definedComsDeps = []
+  let modulesDeps = []
+
+  if (toJSON.definedComs) {
+    Object.keys(toJSON.definedComs).forEach(key => {
+      definedComsDeps = [...definedComsDeps, ...toJSON.definedComs[key].json.deps]
+    })
+  }
+
+  if (toJSON.modules) {
+    Object.keys(toJSON.modules).forEach(key => {
+      modulesDeps = [...modulesDeps, ...toJSON.modules[key].json.deps]
+    })
+  }
+
+  let deps = [
+    ...(toJSON.scenes || [])
+      .reduce((pre, scene) => [...pre, ...scene.deps], [])
+      .filter((item) => !mySelfComMap[`${item.namespace}@${item.version}`])
+      .filter((item) => !ignoreNamespaces.includes(item.namespace)),
+    ...(toJSON.global?.fxFrames || [])
+      .reduce((pre, fx) => [...pre, ...fx.deps], [])
+      .filter((item) => !mySelfComMap[`${item.namespace}@${item.version}`])
+      .filter((item) => !ignoreNamespaces.includes(item.namespace)),
+    ...definedComsDeps
+      .filter((item) => !mySelfComMap[`${item.namespace}@${item.version}`])
+      .filter((item) => !ignoreNamespaces.includes(item.namespace)),
+    ...modulesDeps
+      .filter((item) => !mySelfComMap[`${item.namespace}@${item.version}`])
+      .filter((item) => !ignoreNamespaces.includes(item.namespace)),
+  ];
+
+  deps = deps.reduce((accumulator, current) => {
+    const existingObject = accumulator.find(obj => obj.namespace === current.namespace);
+    if (!existingObject) {
+      accumulator.push(current);
+    }
+    return accumulator;
+  }, []);
 
   if (deps.length) {
     const willFetchComLibs = curComLibs.filter(
