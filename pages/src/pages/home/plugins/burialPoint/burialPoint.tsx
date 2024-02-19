@@ -106,33 +106,39 @@ export default function BurialPoint(props) {
                     </div>
                   </div>
                 </div>
-                <div className={css.trackPointDesc}>当前埋点方案需填写以下信息：</div>
                 {
                   trackPointAry?.content?.docUrl && <div className={css.trackPointLink} onClick={() => window.open(trackPointAry?.content?.docUrl)}>如有疑问，请点此查看文档</div>
                 }
-                {Object.keys(trackPointAry.content.pageEnv).map(
-                  (key, index) => {
-                    return (
-                      <div className={css.item}>
-                        <label>{key}</label>
-                        <div className={`${css.editor} ${css.textEdt}`}>
-                          <input
-                            type={"text"}
-                            placeholder={""}
-                            defaultValue={
-                              trackPointAry
-                                ? trackPointAry.content.pageEnv[key]
-                                : ""
-                            }
-                            key={index}
-                            data-title={key}
-                            onBlur={handleBlur}
-                          />
-                        </div>
-                      </div>
-                    );
-                  }
-                )}
+                {
+                  !!Object.keys(trackPointAry.content.pageEnv).length && (
+                    <>
+                    <div className={css.trackPointDesc}>当前埋点方案需填写以下信息：</div>
+                    {Object.keys(trackPointAry.content.pageEnv).map(
+                      (key, index) => {
+                        return (
+                          <div className={css.item}>
+                            <label>{key}</label>
+                            <div className={`${css.editor} ${css.textEdt}`}>
+                              <input
+                                type={"text"}
+                                placeholder={""}
+                                defaultValue={
+                                  trackPointAry
+                                    ? trackPointAry.content.pageEnv[key]
+                                    : ""
+                                }
+                                key={index}
+                                data-title={key}
+                                onBlur={handleBlur}
+                              />
+                            </div>
+                          </div>
+                        );
+                      }
+                    )}
+                    </>
+                  )
+                }
               </>
             ) : (
               <>

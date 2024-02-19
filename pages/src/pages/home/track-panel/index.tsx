@@ -110,7 +110,7 @@ class TrackModel {
       }
 
       // const namespace = model.def?.namespace;
-      const editorsSpms = model.def?.editors?.spm ?? [];
+      const editorsSpms = model.def?.editors?.[':root']?.spm ?? [];
       // const editorsSpms = [
       //   {
       //     id: 'button',
@@ -211,7 +211,8 @@ const minimize = async (code) => {
     const minifyCode = await Terser.minify(formattedCode);
     formattedCode = minifyCode.code
   } catch (error) {
-    console.warn('压缩埋点代码失败，将使用未压缩代码')
+    console.warn('压缩/编译埋点代码失败，将使用原始代码')
+    console.error(error)
     formattedCode = code
   }
 

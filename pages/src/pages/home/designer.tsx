@@ -86,7 +86,7 @@ export default function MyDesigner({ appData }) {
   // comlibs = LOCAL_DEFAULT_COMLIBS
 
   // const designer = "https://f2.beckwai.com/kos/nlav12333/mybricks/designer-spa/1.3.68/index.min.js";
-  const designer = "./public/designer-spa/1.3.68-1/index.min.js";
+  const designer = "./public/designer-spa/1.3.96.2/index.min.js";
 
   // const configComlibs = comlibs.map(lib => lib.editJs)
 
